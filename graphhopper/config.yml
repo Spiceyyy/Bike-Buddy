@@ -1,0 +1,39 @@
+# GraphHopper configuration. The extract path and graph location are passed
+# as -Ddw.* properties by entrypoint.sh, because they depend on OSM_EXTRACT_URL.
+graphhopper:
+  # Everything the built-in bike.json custom model refers to.
+  # road_environment is for no_ferry.json: a route must be rideable end to end.
+  graph.encoded_values: bike_priority, bike_access, roundabout, bike_average_speed, bike_road_access, mtb_rating, hike_rating, country, road_class, road_environment
+  custom_models.directory: /opt/graphhopper/custom_models
+
+  # Required by GraphHopper. Trunk roads stay in: many are legal to ride and
+  # some are the only link between areas. The bike model already avoids them.
+  import.osm.ignored_highways: motorway
+
+  profiles:
+    - name: bike
+      custom_model_files: [bike.json, no_ferry.json]
+
+  # Landmarks speed up routing and, unlike contraction hierarchies, still allow
+  # per-request custom models, which the scenic profile will need later.
+  profiles_lm:
+    - profile: bike
+
+  graph.dataaccess.default_type: RAM_STORE
+
+server:
+  application_connectors:
+    - type: http
+      port: 8989
+      bind_host: 0.0.0.0
+  admin_connectors:
+    - type: http
+      port: 8990
+      bind_host: localhost
+  request_log:
+    appenders: []
+
+logging:
+  appenders:
+    - type: console
+      threshold: INFO

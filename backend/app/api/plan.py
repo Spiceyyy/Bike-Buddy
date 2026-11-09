@@ -1,0 +1,69 @@
+import math
+from typing import Annotated
+
+from fastapi import APIRouter, Depends, HTTPException, Request, status
+
+from app.agent.llm import LLMClient, LLMError, LLMRateLimitError
+from app.agent.orchestrator import run_agent
+from app.agent.prompts import load_prompt
+from app.api.routes import RoutingClient
+from app.models.plan import PlanRequest, PlanResponse
+from app.routing.geocoder import NominatimGeocoder
+from app.tools.plan_route import PlanRouteTool
+
+router = APIRouter()
+
+LONG_WAIT_SECONDS = 120
+
+
+def get_llm_client(request: Request) -> LLMClient:
+    client = request.app.state.llm_client
+    if client is None:
+        raise HTTPException(
+            status.HTTP_503_SERVICE_UNAVAILABLE,
+            "The AI planner is not configured. Set GEMINI_API_KEY.",
+        )
+    return client
+
+
+def get_geocoder(request: Request) -> NominatimGeocoder:
+    return request.app.state.geocoder
+
+
+def _rate_limit_message(retry_after_seconds: float | None) -> str:
+    if retry_after_seconds is not None and retry_after_seconds > LONG_WAIT_SECONDS:
+        hours = math.ceil(retry_after_seconds / 3600)
+        return f"The AI planner has used up its daily quota. Try again in about {hours} h."
+    return "The AI planner is busy. Please try again in a minute."
+
+
+@router.post("/api/plan", response_model=PlanResponse)
+async def create_plan(
+    body: PlanRequest,
+    routing: RoutingClient,
+    llm: Annotated[LLMClient, Depends(get_llm_client)],
+    geocoder: Annotated[NominatimGeocoder, Depends(get_geocoder)],
+) -> PlanResponse:
+    """Plan a ride from a plain-language request."""
+    tool = PlanRouteTool(routing, geocoder, map_start=body.map_start)
+    try:
+        run = await run_agent(llm, load_prompt("planner"), body.message, [tool])
+    except LLMRateLimitError as exc:
+        raise HTTPException(
+            status.HTTP_429_TOO_MANY_REQUESTS, _rate_limit_message(exc.retry_after_seconds)
+        ) from exc
+    except LLMError as exc:
+        raise HTTPException(
+            status.HTTP_502_BAD_GATEWAY,
+            "The AI planner is unavailable right now.",
+        ) from exc
+
+    return PlanResponse(
+        reply=run.reply,
+        route=tool.route,
+        spec=tool.spec,
+        start_name=tool.start_name,
+        end_name=tool.end_name,
+        not_applied=tool.not_applied,
+        usage=run.usage,
+    )

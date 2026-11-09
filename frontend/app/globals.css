@@ -1,0 +1,161 @@
+:root {
+  --surface: #fbfaf6;
+  --ink: #1f2a26;
+  --ink-muted: #5c6a64;
+  --line: #dfe3da;
+  --accent: #1f6f54;
+  --danger: #a93226;
+  --route: #e4572e;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--surface);
+  color: var(--ink);
+  font-family: ui-sans-serif, system-ui, "Segoe UI", Roboto, sans-serif;
+}
+
+.map-page {
+  position: relative;
+  height: 100dvh;
+}
+
+.map {
+  position: absolute;
+  inset: 0;
+}
+
+.panel {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  /* The 76px leaves room for the map's zoom controls on narrow screens. */
+  width: min(340px, calc(100vw - 76px));
+  padding: 16px 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 6px 20px rgb(31 42 38 / 18%);
+}
+
+.panel h1 {
+  margin: 0;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+
+.plan-form {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.plan-form input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.92rem;
+}
+
+.plan-form input:focus-visible,
+.plan-form button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.plan-form button {
+  padding: 8px 14px;
+  background: var(--accent);
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--surface);
+  font: inherit;
+  font-size: 0.92rem;
+  cursor: pointer;
+}
+
+.plan-form button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.panel-reply {
+  margin: 10px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.panel-note {
+  margin: 10px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.panel-hint {
+  margin: 8px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.panel-error {
+  margin: 8px 0 0;
+  color: var(--danger);
+  font-size: 0.92rem;
+  line-height: 1.4;
+}
+
+.route-stats {
+  display: flex;
+  gap: 28px;
+  margin: 12px 0 0;
+}
+
+.route-stats dt {
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+
+.route-stats dd {
+  margin: 2px 0 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-clear {
+  margin-top: 12px;
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: var(--accent);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.panel-clear:hover {
+  background: var(--accent);
+  color: var(--surface);
+}
+
+.panel-clear:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}

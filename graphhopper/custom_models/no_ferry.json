@@ -1,0 +1,5 @@
+{
+  "priority": [
+    { "if": "road_environment == FERRY", "multiply_by": "0" }
+  ]
+}
