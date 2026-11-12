@@ -3,8 +3,19 @@
 graphhopper:
   # Everything the built-in bike.json custom model refers to.
   # road_environment is for no_ferry.json: a route must be rideable end to end.
-  graph.encoded_values: bike_priority, bike_access, roundabout, bike_average_speed, bike_road_access, mtb_rating, hike_rating, country, road_class, road_environment
+  # average_slope lets a request lean toward or away from climbs (see the
+  # backend's climbing models).
+  graph.encoded_values: bike_priority, bike_access, roundabout, bike_average_speed, bike_road_access, mtb_rating, hike_rating, country, road_class, road_environment, average_slope
   custom_models.directory: /opt/graphhopper/custom_models
+
+  # Elevation from SRTM (about 90 m resolution), downloaded once into the data
+  # volume. Routes then report their climbing. Bridges and tunnels are
+  # interpolated, since SRTM measures the river or hill they cross.
+  graph.elevation.provider: srtm
+  graph.elevation.cache_dir: /data/elevation
+  graph.elevation.interpolate: bridges_and_tunnels
+  graph.elevation.edge_smoothing: ramer
+  graph.elevation.long_edge_sampling_distance: 60
 
   # Required by GraphHopper. Trunk roads stay in: many are legal to ride and
   # some are the only link between areas. The bike model already avoids them.
@@ -13,11 +24,16 @@ graphhopper:
   profiles:
     - name: bike
       custom_model_files: [bike.json, no_ferry.json]
+    # bike plus scenic zones from the scoring pipeline. entrypoint.sh installs
+    # scenic.json, or an empty model if the pipeline has not run yet.
+    - name: scenic
+      custom_model_files: [bike.json, no_ferry.json, scenic.json]
 
   # Landmarks speed up routing and, unlike contraction hierarchies, still allow
-  # per-request custom models, which the scenic profile will need later.
+  # per-request custom models.
   profiles_lm:
     - profile: bike
+    - profile: scenic
 
   graph.dataaccess.default_type: RAM_STORE
 

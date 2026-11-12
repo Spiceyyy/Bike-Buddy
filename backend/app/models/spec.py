@@ -1,8 +1,18 @@
 """RouteSpec: the structured form of a ride request, produced by the LLM."""
 
+import re
 from enum import StrEnum
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+# "a cafe" or "un café" describes a kind of place, not a place the geocoder can find.
+# Small models sometimes put these in end_place; rejecting them sends the LLM a
+# correction through the orchestrator's invalid_arguments path.
+GENERIC_PLACE = re.compile(
+    r"(a|an|any|some|the nearest|un|une|le|la|des)\s+"
+    r"(cafe|café|coffee|coffee shop|bakery|boulangerie|park|parc)s?",
+    re.IGNORECASE,
+)
 
 
 class RouteType(StrEnum):
@@ -21,9 +31,20 @@ class Vibe(StrEnum):
     FOREST = "forest"
     PARK = "park"
     QUIET = "quiet"
-    CAFE = "cafe"
     VIEWPOINT = "viewpoint"
     HISTORIC = "historic"
+
+
+class Stop(StrEnum):
+    """A kind of place the route should pass, found by the tool, not named by the rider."""
+
+    CAFE = "cafe"
+
+
+class Climbing(StrEnum):
+    ANY = "any"
+    AVOID = "avoid"
+    SEEK = "seek"
 
 
 class RouteSpec(BaseModel):
@@ -55,7 +76,25 @@ class RouteSpec(BaseModel):
         gt=0,
         description="Maximum climbing in metres. Only if the rider gives a number.",
     )
+    climbing: Climbing = Field(
+        default=Climbing.ANY,
+        description="seek for hills or climbing training, avoid for flat rides, otherwise any.",
+    )
+    stop: Stop | None = Field(
+        default=None,
+        description="A kind of place to stop at along the way, e.g. cafe. Null if none.",
+    )
     vibes: list[Vibe] = Field(
         default_factory=list,
         description="Qualities the rider explicitly asks for. Empty if none.",
     )
+
+    @field_validator("start_place", "end_place")
+    @classmethod
+    def must_be_a_named_place(cls, value: str | None) -> str | None:
+        if value is not None and GENERIC_PLACE.fullmatch(value.strip()):
+            raise ValueError(
+                f"'{value}' is not a named place. For an unnamed cafe, set stop to cafe "
+                "and leave the place null; with no other destination the ride is a loop."
+            )
+        return value

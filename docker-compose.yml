@@ -41,6 +41,9 @@ services:
       GRAPHHOPPER_URL: http://graphhopper:8989
       GEMINI_API_KEY: ${GEMINI_API_KEY:-}
       GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      # The scoring pipeline reads the extract GraphHopper downloaded, and
+      # writes scenic zones back to the same volume for GraphHopper to load.
+      OSM_EXTRACT_URL: ${OSM_EXTRACT_URL}
       # Lets evals/run_evals.py import the backend's code.
       PYTHONPATH: /app
       # Windows bind mounts do not deliver file-change events to containers.
@@ -50,6 +53,7 @@ services:
     volumes:
       - ./backend:/app
       - ./evals:/evals
+      - graphhopper-data:/osm
     depends_on:
       postgres:
         condition: service_healthy

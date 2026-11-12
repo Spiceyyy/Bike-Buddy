@@ -2,6 +2,7 @@ import logging
 from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
+import asyncpg
 import httpx
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -10,8 +11,10 @@ from app.agent.gemini import GEMINI_BASE_URL, GeminiClient
 from app.api.plan import router as plan_router
 from app.api.routes import router as routes_router
 from app.config import Settings
+from app.db.places import PostgisPlaceFinder
 from app.routing.geocoder import NominatimGeocoder
 from app.routing.graphhopper import GraphHopperClient
+from app.scoring.route_scenic import PostgisScenicDescriber
 
 GEOCODER_USER_AGENT = "scenic-route-finder/0.1"
 
@@ -34,7 +37,11 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 timeout=resolved.geocoder_timeout_seconds,
                 headers={"User-Agent": GEOCODER_USER_AGENT},
             ) as geocoder_http,
+            # min_size=0 connects lazily, so the API still starts if Postgres is down.
+            asyncpg.create_pool(resolved.database_url, min_size=0, max_size=5) as db_pool,
         ):
+            app.state.scenic_describer = PostgisScenicDescriber(db_pool)
+            app.state.place_finder = PostgisPlaceFinder(db_pool)
             app.state.routing_client = GraphHopperClient(
                 routing_http, profile=resolved.graphhopper_profile
             )

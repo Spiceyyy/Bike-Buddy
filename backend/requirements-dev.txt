@@ -1,3 +1,4 @@
 -r requirements.txt
+-r requirements-pipeline.txt
 pytest==8.3.4
 pytest-asyncio==0.25.0

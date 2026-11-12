@@ -1,13 +1,13 @@
-{"id": "loop-01", "message": "A quiet 50 km loop along the water with a café halfway", "expected": {"route_type": "loop", "target_distance_km": 50, "vibes": ["quiet", "water", "cafe"]}}
+{"id": "loop-01", "message": "A quiet 50 km loop along the water with a café halfway", "expected": {"route_type": "loop", "target_distance_km": 50, "vibes": ["quiet", "water"], "stop": "cafe"}}
 {"id": "loop-02", "message": "40 km loop from the Old Port", "expected": {"route_type": "loop", "start_place": "Old Port", "target_distance_km": 40}}
 {"id": "loop-03", "message": "I want to ride about 30 miles from Verdun and come back the same way", "expected": {"route_type": "loop", "start_place": "Verdun", "target_distance_km": 48.3}}
 {"id": "loop-04", "message": "Gravel ride, 60k, starting in Laval", "expected": {"route_type": "loop", "start_place": "Laval", "target_distance_km": 60, "surface": "unpaved"}}
-{"id": "loop-05", "message": "A 20 km loop through the forest from Cap-Saint-Jacques with no more than 200 m of climbing", "expected": {"route_type": "loop", "start_place": "Cap-Saint-Jacques", "target_distance_km": 20, "max_climb_m": 200, "vibes": ["forest"]}}
+{"id": "loop-05", "message": "A 20 km loop through the forest from Cap-Saint-Jacques with no more than 200 m of climbing", "expected": {"route_type": "loop", "start_place": "Cap-Saint-Jacques", "target_distance_km": 20, "max_climb_m": 200, "vibes": ["forest"], "climbing": "avoid"}}
 {"id": "loop-06", "message": "35km, paved only, low traffic, start at Parc La Fontaine", "expected": {"route_type": "loop", "start_place": "Parc La Fontaine", "target_distance_km": 35, "surface": "paved", "vibes": ["quiet"]}}
 {"id": "loop-07", "message": "Quick 10 km spin around Nuns' Island", "expected": {"route_type": "loop", "start_place": "Nuns' Island", "target_distance_km": 10}}
-{"id": "loop-08", "message": "Long ride: 100 km loop from Longueuil, stay under 500 meters elevation gain, coffee stop please", "expected": {"route_type": "loop", "start_place": "Longueuil", "target_distance_km": 100, "max_climb_m": 500, "vibes": ["cafe"]}}
+{"id": "loop-08", "message": "Long ride: 100 km loop from Longueuil, stay under 500 meters elevation gain, coffee stop please", "expected": {"route_type": "loop", "start_place": "Longueuil", "target_distance_km": 100, "max_climb_m": 500, "stop": "cafe", "climbing": "avoid"}}
 {"id": "loop-09", "message": "Loop from Sainte-Anne-de-Bellevue along the lake, 45 kilometres", "expected": {"route_type": "loop", "start_place": "Sainte-Anne-de-Bellevue", "target_distance_km": 45, "vibes": ["water"]}}
-{"id": "loop-10", "message": "12 mile loop from Westmount with a bakery stop", "expected": {"route_type": "loop", "start_place": "Westmount", "target_distance_km": 19.3, "vibes": ["cafe"]}}
+{"id": "loop-10", "message": "12 mile loop from Westmount with a bakery stop", "expected": {"route_type": "loop", "start_place": "Westmount", "target_distance_km": 19.3, "stop": "cafe"}}
 {"id": "loop-11", "message": "Quiet gravel 15 km by the river from Boucherville", "expected": {"route_type": "loop", "start_place": "Boucherville", "target_distance_km": 15, "surface": "unpaved", "vibes": ["quiet", "water"]}}
 {"id": "loop-12", "message": "Historic streets and good views, 18 km loop from Old Montreal", "expected": {"route_type": "loop", "start_place": "Old Montreal", "target_distance_km": 18, "vibes": ["historic", "viewpoint"]}}
 {"id": "fr-01", "message": "Une boucle tranquille de 25 km au départ de Verdun", "expected": {"route_type": "loop", "start_place": "Verdun", "target_distance_km": 25, "vibes": ["quiet"]}}
@@ -19,7 +19,7 @@
 {"id": "p2p-03", "message": "Ride to Mount Royal from McGill, I want nice views", "expected": {"route_type": "point_to_point", "start_place": "McGill", "end_place": "Mount Royal", "vibes": ["viewpoint"]}}
 {"id": "p2p-04", "message": "Scenic historic ride from the Old Port to Lachine along the canal", "expected": {"route_type": "point_to_point", "start_place": "Old Port", "end_place": "Lachine", "vibes": ["historic", "water"]}}
 {"id": "p2p-05", "message": "I'd like a park-heavy ride from Outremont to Verdun", "expected": {"route_type": "point_to_point", "start_place": "Outremont", "end_place": "Verdun", "vibes": ["park"]}}
-{"id": "p2p-06", "message": "From the Olympic Stadium to the Old Port, flat as possible, under 50 m of climbing", "expected": {"route_type": "point_to_point", "start_place": "Olympic Stadium", "end_place": "Old Port", "max_climb_m": 50}}
+{"id": "p2p-06", "message": "From the Olympic Stadium to the Old Port, flat as possible, under 50 m of climbing", "expected": {"route_type": "point_to_point", "start_place": "Olympic Stadium", "end_place": "Old Port", "max_climb_m": 50, "climbing": "avoid"}}
 {"id": "missing-01", "message": "Plan me a ride", "expected": {"route_type": "loop"}}
 {"id": "missing-02", "message": "I want to cycle to Parc Jean-Drapeau", "expected": {"route_type": "point_to_point", "end_place": "Parc Jean-Drapeau"}}
 {"id": "missing-03", "message": "A loop from Saint-Lambert", "expected": {"route_type": "loop", "start_place": "Saint-Lambert"}}
@@ -28,3 +28,9 @@
 {"id": "none-03", "message": "What's the weather tomorrow?", "expected": null}
 {"id": "none-04", "message": "Recommend a good restaurant in Mile End", "expected": null}
 {"id": "none-05", "message": "Is the Lachine Canal path open in winter?", "expected": null}
+{"id": "stop-01", "message": "I want to go to a cafe and have a good elevation training, 40 km from Outremont", "expected": {"route_type": "loop", "start_place": "Outremont", "target_distance_km": 40, "climbing": "seek", "stop": "cafe"}}
+{"id": "climb-01", "message": "Hilly 25 km loop from Parc La Fontaine, I want to work on my climbing", "expected": {"route_type": "loop", "start_place": "Parc La Fontaine", "target_distance_km": 25, "climbing": "seek"}}
+{"id": "climb-02", "message": "Une boucle de 30 km avec beaucoup de côtes depuis Côte-des-Neiges", "expected": {"route_type": "loop", "start_place": "Côte-des-Neiges", "target_distance_km": 30, "climbing": "seek"}}
+{"id": "climb-03", "message": "Easy flat ride from Verdun to Lachine, my knees hate hills", "expected": {"route_type": "point_to_point", "start_place": "Verdun", "end_place": "Lachine", "climbing": "avoid"}}
+{"id": "stop-02", "message": "Ride from McGill to Parc Jarry with a coffee break on the way", "expected": {"route_type": "point_to_point", "start_place": "McGill", "end_place": "Parc Jarry", "stop": "cafe"}}
+{"id": "stop-03", "message": "15 km loop from the Old Port, stop for coffee halfway, along the water", "expected": {"route_type": "loop", "start_place": "Old Port", "target_distance_km": 15, "stop": "cafe", "vibes": ["water"]}}

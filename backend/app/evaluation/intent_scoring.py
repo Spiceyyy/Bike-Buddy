@@ -15,6 +15,8 @@ FIELD_NAMES = (
     "target_distance_km",
     "surface",
     "max_climb_m",
+    "climbing",
+    "stop",
     "vibes",
 )
 
@@ -73,6 +75,8 @@ def score_case(case_id: str, expected: RouteSpec | None, predicted: RouteSpec | 
         ),
         "surface": expected.surface == predicted.surface,
         "max_climb_m": expected.max_climb_m == predicted.max_climb_m,
+        "climbing": expected.climbing == predicted.climbing,
+        "stop": expected.stop == predicted.stop,
         "vibes": set(expected.vibes) == set(predicted.vibes),
     }
     return CaseScore(id=case_id, decision_correct=True, fields=fields, exact=all(fields.values()))

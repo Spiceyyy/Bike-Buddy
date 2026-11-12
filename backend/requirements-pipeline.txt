@@ -1,0 +1,4 @@
+# Offline scenic-scoring pipeline only. The API server does not import these.
+numpy==2.1.3
+osmium==4.0.2
+shapely==2.0.6

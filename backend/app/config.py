@@ -7,7 +7,8 @@ class Settings(BaseSettings):
 
     database_url: str
     graphhopper_url: str = "http://localhost:8989"
-    graphhopper_profile: str = "bike"
+    # "scenic" routes like "bike" until the scoring pipeline has written zones.
+    graphhopper_profile: str = "scenic"
     graphhopper_timeout_seconds: float = 30.0
     cors_origins: list[str] = ["http://localhost:3000"]
 

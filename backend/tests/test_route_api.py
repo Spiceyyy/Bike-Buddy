@@ -9,10 +9,12 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api import routes
-from app.api.routes import get_routing_client
+from app.api.routes import get_routing_client, get_scenic_describer
 from app.config import Settings
 from app.main import create_app
+from app.models.scenic import RouteScenic
 from app.routing.graphhopper import GraphHopperClient
+from tests.fakes import FakeScenery
 
 ROUTE_BODY = {
     "start": {"lat": 41.82, "lon": -71.41},
@@ -63,8 +65,29 @@ def test_returns_route_as_geojson_feature() -> None:
             "type": "LineString",
             "coordinates": [[-71.41, 41.82], [-71.31, 41.49]],
         },
-        "properties": {"distance_m": 1234.5, "duration_s": 300.0, "profile": "bike"},
+        "properties": {
+            "distance_m": 1234.5,
+            "duration_s": 300.0,
+            "profile": "bike",
+            "ascend_m": None,
+            "descend_m": None,
+            # No scenery without a database.
+            "scenic": None,
+        },
     }
+
+
+def test_route_carries_scenery_when_available() -> None:
+    client = make_client(lambda request: httpx.Response(200, json=GRAPHHOPPER_SUCCESS))
+    scenery = FakeScenery(
+        RouteScenic(score=0.7, matched_share=1.0, band_shares={}, stretches=[])
+    )
+    client.app.dependency_overrides[get_scenic_describer] = lambda: scenery
+
+    response = client.post("/api/route", json=ROUTE_BODY)
+
+    assert response.json()["properties"]["scenic"]["score"] == 0.7
+    assert len(scenery.described) == 1
 
 
 @pytest.mark.parametrize(

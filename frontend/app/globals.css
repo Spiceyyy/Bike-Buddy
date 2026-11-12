@@ -45,6 +45,8 @@ body {
   border: 1px solid var(--line);
   border-radius: 10px;
   box-shadow: 0 6px 20px rgb(31 42 38 / 18%);
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
 }
 
 .panel h1 {
@@ -122,7 +124,7 @@ body {
 
 .route-stats {
   display: flex;
-  gap: 28px;
+  gap: 22px;
   margin: 12px 0 0;
 }
 
@@ -158,4 +160,103 @@ body {
 .panel-clear:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
+}
+
+.scenery {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+
+.scenery h2 {
+  margin: 0 0 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.scenery-bar {
+  display: flex;
+  gap: 2px;
+  height: 8px;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.scenery-bar span {
+  min-width: 3px;
+}
+
+.swatch {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
+.scenery-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--ink-muted);
+  font-size: 0.78rem;
+}
+
+.scenery-legend li {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.scenery-stretches {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scenery-stretches button {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  width: 100%;
+  padding: 5px 6px;
+  background: transparent;
+  border: 0;
+  border-radius: 5px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.82rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.scenery-stretches button:hover,
+.scenery-stretches button[aria-pressed="true"] {
+  background: rgb(31 111 84 / 9%);
+}
+
+.scenery-stretches button:focus-visible {
+  outline: 2px solid var(--accent);
+}
+
+.stretch-km {
+  flex: none;
+  width: 82px;
+  color: var(--ink-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.stretch-reason {
+  color: var(--ink-muted);
+}
+
+.panel-stop {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 10px 0 0;
+  font-size: 0.85rem;
 }

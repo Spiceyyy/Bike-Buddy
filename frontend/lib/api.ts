@@ -4,10 +4,43 @@ import { API_URL } from "./config";
 
 export type LonLat = [number, number];
 
+export type ScenicBand = "scenic" | "pleasant" | "plain" | "unknown";
+
+export type ScenicStretch = {
+  start_m: number;
+  end_m: number;
+  band: ScenicBand;
+  score: number | null;
+  reason: string | null;
+  name: string | null;
+  coordinates: LonLat[];
+};
+
+export type RouteScenic = {
+  score: number;
+  matched_share: number;
+  band_shares: Record<ScenicBand, number>;
+  stretches: ScenicStretch[];
+};
+
 export type RouteFeature = Feature<
   LineString,
-  { distance_m: number; duration_s: number; profile: string }
+  {
+    distance_m: number;
+    duration_s: number;
+    profile: string;
+    ascend_m: number | null;
+    descend_m: number | null;
+    scenic: RouteScenic | null;
+  }
 >;
+
+export type RouteStop = {
+  category: string;
+  name: string;
+  coordinate: { lat: number; lon: number };
+  distance_along_m: number;
+};
 
 export type PlanResponse = {
   reply: string;
@@ -15,6 +48,7 @@ export type PlanResponse = {
   spec: { route_type: "loop" | "point_to_point" } | null;
   start_name: string | null;
   end_name: string | null;
+  stop: RouteStop | null;
   not_applied: string[];
 };
 

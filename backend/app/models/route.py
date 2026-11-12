@@ -2,6 +2,8 @@ from typing import Literal, Self
 
 from pydantic import BaseModel, Field, model_validator
 
+from app.models.scenic import RouteScenic
+
 
 class Coordinate(BaseModel):
     lat: float = Field(ge=-90, le=90)
@@ -42,6 +44,12 @@ class RouteProperties(BaseModel):
     distance_m: float
     duration_s: float
     profile: str
+    # Metres climbed and descended, from SRTM elevation. Null if the graph has no
+    # elevation. SRTM partly measures buildings and trees, so city figures run high.
+    ascend_m: float | None = None
+    descend_m: float | None = None
+    # Added after routing, from the scored segments. Null if unavailable.
+    scenic: RouteScenic | None = None
 
 
 class RouteFeature(BaseModel):
@@ -50,3 +58,13 @@ class RouteFeature(BaseModel):
     type: Literal["Feature"] = "Feature"
     geometry: LineString
     properties: RouteProperties
+
+
+class RouteStop(BaseModel):
+    """A place the route was sent through, found by the tool (e.g. a cafe)."""
+
+    category: str
+    name: str
+    coordinate: Coordinate
+    distance_along_m: float
+    """How far into the ride the stop comes."""

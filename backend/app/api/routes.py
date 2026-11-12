@@ -12,6 +12,7 @@ from app.routing.graphhopper import (
     PointNotRoutableError,
     RoutingEngineError,
 )
+from app.scoring.route_scenic import ScenicDescriber
 
 router = APIRouter()
 
@@ -24,8 +25,13 @@ def get_settings(request: Request) -> Settings:
     return request.app.state.settings
 
 
+def get_scenic_describer(request: Request) -> ScenicDescriber | None:
+    return getattr(request.app.state, "scenic_describer", None)
+
+
 RoutingClient = Annotated[GraphHopperClient, Depends(get_routing_client)]
 AppSettings = Annotated[Settings, Depends(get_settings)]
+Scenery = Annotated[ScenicDescriber | None, Depends(get_scenic_describer)]
 
 
 class HealthResponse(BaseModel):
@@ -34,10 +40,12 @@ class HealthResponse(BaseModel):
 
 
 @router.post("/api/route", response_model=RouteFeature)
-async def create_route(body: RouteRequest, routing: RoutingClient) -> RouteFeature:
+async def create_route(
+    body: RouteRequest, routing: RoutingClient, scenery: Scenery
+) -> RouteFeature:
     """Return a cycling route between two points as a GeoJSON Feature."""
     try:
-        return await routing.route(body.start, body.end)
+        route = await routing.route(body.start, body.end)
     except PointNotRoutableError as exc:
         label = "start" if exc.point_index == 0 else "end"
         raise HTTPException(
@@ -54,6 +62,9 @@ async def create_route(body: RouteRequest, routing: RoutingClient) -> RouteFeatu
             status.HTTP_502_BAD_GATEWAY,
             "The routing engine is unavailable.",
         ) from exc
+    if scenery is not None:
+        route.properties.scenic = await scenery.describe(route)
+    return route
 
 
 @router.get("/health", response_model=HealthResponse)

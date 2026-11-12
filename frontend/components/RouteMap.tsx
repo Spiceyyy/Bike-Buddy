@@ -5,6 +5,7 @@ import {
   Map as MapLibreMap,
   Marker,
   NavigationControl,
+  Popup,
   setWorkerUrl,
   type GeoJSONSource,
 } from "maplibre-gl";
@@ -18,13 +19,22 @@ import {
   type RouteFeature,
 } from "@/lib/api";
 import { MAP_CENTER, MAP_STYLE_URL } from "@/lib/config";
+import { BAND_COLOR_EXPRESSION, stretchFeatures } from "@/lib/scenery";
+import ScenerySummary from "./ScenerySummary";
 
 const ROUTE_SOURCE = "route";
+const STRETCH_SOURCE = "scenic-stretches";
+const NO_SELECTION = -1;
 const EMPTY_ROUTE: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 const MARKER_COLORS = ["#1f6f54", "#a93226"];
+const STOP_COLOR = "#7a4b2a";
 
 function formatDistance(metres: number): string {
   return `${(metres / 1000).toFixed(1)} km`;
+}
+
+function formatKm(metres: number): string {
+  return (metres / 1000).toFixed(1);
 }
 
 function formatDuration(seconds: number): string {
@@ -32,6 +42,12 @@ function formatDuration(seconds: number): string {
   const hours = Math.floor(totalMinutes / 60);
   const minutes = totalMinutes % 60;
   return hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`;
+}
+
+/** Keeps fitted routes clear of the side panel on wide screens. */
+function fitPadding(base: number) {
+  const panelWidth = window.innerWidth >= 720 ? 372 : 0;
+  return { top: base, bottom: base, right: base, left: base + panelWidth };
 }
 
 function errorMessage(reason: unknown, fallback: string): string {
@@ -63,7 +79,10 @@ export default function RouteMap() {
   const [isPlanning, setIsPlanning] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
 
+  const [selectedStretch, setSelectedStretch] = useState<number | null>(null);
+
   const route = plan?.route ?? clickedRoute;
+  const scenic = route?.properties.scenic ?? null;
   const error = planError ?? routeError;
 
   // Create the map once. Clicks are enabled only after the route layer exists.
@@ -91,6 +110,30 @@ export default function RouteMap() {
         source: ROUTE_SOURCE,
         layout: { "line-cap": "round", "line-join": "round" },
         paint: { "line-color": "#e4572e", "line-width": 5 },
+      });
+      // Scenic stretches cover the plain route line when scores are available.
+      map.addSource(STRETCH_SOURCE, { type: "geojson", data: EMPTY_ROUTE });
+      map.addLayer({
+        id: "scenic-casing",
+        type: "line",
+        source: STRETCH_SOURCE,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": "#ffffff", "line-width": 8 },
+      });
+      map.addLayer({
+        id: "scenic-line",
+        type: "line",
+        source: STRETCH_SOURCE,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": BAND_COLOR_EXPRESSION, "line-width": 5 },
+      });
+      map.addLayer({
+        id: "scenic-selected",
+        type: "line",
+        source: STRETCH_SOURCE,
+        filter: ["==", ["get", "index"], NO_SELECTION],
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": BAND_COLOR_EXPRESSION, "line-width": 10 },
       });
       map.on("click", (event) => {
         const clicked: LonLat = [event.lngLat.lng, event.lngLat.lat];
@@ -124,6 +167,15 @@ export default function RouteMap() {
     markersRef.current = positions.map((position, index) =>
       new Marker({ color: MARKER_COLORS[index] }).setLngLat(position).addTo(map),
     );
+    const stop = plan?.route ? plan.stop : null;
+    if (stop) {
+      markersRef.current.push(
+        new Marker({ color: STOP_COLOR, scale: 0.85 })
+          .setLngLat([stop.coordinate.lon, stop.coordinate.lat])
+          .setPopup(new Popup({ offset: 24, closeButton: false }).setText(stop.name))
+          .addTo(map),
+      );
+    }
   }, [points, plan]);
 
   // Request a direct route whenever two points are clicked.
@@ -158,12 +210,28 @@ export default function RouteMap() {
     if (!map || !source) return;
 
     source.setData(route ?? EMPTY_ROUTE);
+    map.getSource<GeoJSONSource>(STRETCH_SOURCE)?.setData(stretchFeatures(scenic));
+    setSelectedStretch(null);
     if (route) {
       const bounds = new LngLatBounds();
       route.geometry.coordinates.forEach(([lon, lat]) => bounds.extend([lon, lat]));
-      map.fitBounds(bounds, { padding: 80, maxZoom: 15 });
+      map.fitBounds(bounds, { padding: fitPadding(60), maxZoom: 15 });
     }
-  }, [route]);
+  }, [route, scenic]);
+
+  // Highlight the stretch picked in the panel and bring it into view.
+  function handleSelectStretch(index: number | null) {
+    setSelectedStretch(index);
+    const map = mapRef.current;
+    if (!map) return;
+    map.setFilter("scenic-selected", ["==", ["get", "index"], index ?? NO_SELECTION]);
+    const stretch = index === null ? null : scenic?.stretches[index];
+    if (stretch) {
+      const bounds = new LngLatBounds();
+      stretch.coordinates.forEach(([lon, lat]) => bounds.extend([lon, lat]));
+      map.fitBounds(bounds, { padding: fitPadding(80), maxZoom: 16 });
+    }
+  }
 
   async function handleSubmit(event: FormEvent) {
     event.preventDefault();
@@ -236,6 +304,12 @@ export default function RouteMap() {
               : `${plan.start_name} → ${plan.end_name}`}
           </p>
         )}
+        {plan?.route && plan.stop && (
+          <p className="panel-stop">
+            <span className="swatch" style={{ background: STOP_COLOR }} />
+            Café stop: {plan.stop.name}, at km {formatKm(plan.stop.distance_along_m)}
+          </p>
+        )}
         {error && (
           <p className="panel-error" role="alert">
             {error}
@@ -251,7 +325,22 @@ export default function RouteMap() {
               <dt>Riding time</dt>
               <dd>{formatDuration(route.properties.duration_s)}</dd>
             </div>
+            {route.properties.ascend_m != null && (
+              <div>
+                <dt>Climbing</dt>
+                <dd title="Approximate: the elevation data partly measures buildings and trees">
+                  ~{Math.round(route.properties.ascend_m)} m
+                </dd>
+              </div>
+            )}
           </dl>
+        )}
+        {scenic && (
+          <ScenerySummary
+            scenic={scenic}
+            selected={selectedStretch}
+            onSelect={handleSelectStretch}
+          />
         )}
         {plan && plan.not_applied.length > 0 && (
           <p className="panel-note">Not supported yet: {plan.not_applied.join(", ")}.</p>

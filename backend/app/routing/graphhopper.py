@@ -19,6 +19,9 @@ from app.models.route import (
 
 logger = logging.getLogger(__name__)
 
+# A GraphHopper custom model, as JSON. See app/routing/climbing.py.
+CustomModel = dict[str, Any]
+
 
 class RoutingError(Exception):
     """Base class for failures while requesting a route."""
@@ -46,15 +49,28 @@ class GraphHopperClient:
         self._profile = profile
         self._bounds: BoundingBox | None = None
 
-    async def route(self, start: Coordinate, end: Coordinate) -> RouteFeature:
-        return await self._request(points=[start, end])
+    async def route(
+        self, start: Coordinate, end: Coordinate, custom_model: CustomModel | None = None
+    ) -> RouteFeature:
+        return await self.route_through([start, end], custom_model)
+
+    async def route_through(
+        self, points: list[Coordinate], custom_model: CustomModel | None = None
+    ) -> RouteFeature:
+        """A route visiting every point in order, e.g. start, a cafe, then the end."""
+        return await self._request(points=points, custom_model=custom_model)
 
     async def round_trip(
-        self, start: Coordinate, distance_m: float, seed: int = 0
+        self,
+        start: Coordinate,
+        distance_m: float,
+        seed: int = 0,
+        custom_model: CustomModel | None = None,
     ) -> RouteFeature:
         """Return a loop from `start`. GraphHopper treats the distance as approximate."""
         return await self._request(
             points=[start],
+            custom_model=custom_model,
             algorithm="round_trip",
             **{"round_trip.distance": round(distance_m), "round_trip.seed": seed},
         )
@@ -79,15 +95,22 @@ class GraphHopperClient:
             return False
         return response.status_code == httpx.codes.OK
 
-    async def _request(self, points: list[Coordinate], **options: Any) -> RouteFeature:
+    async def _request(
+        self, points: list[Coordinate], custom_model: CustomModel | None = None, **options: Any
+    ) -> RouteFeature:
         payload = {
             "profile": self._profile,
             # GraphHopper's JSON body takes [lon, lat], the same order as GeoJSON.
             "points": [[point.lon, point.lat] for point in points],
             "points_encoded": False,
             "instructions": False,
+            # Needed for ascend/descend. Heights are dropped from the geometry below.
+            "elevation": True,
             **options,
         }
+        if custom_model is not None:
+            # Merged with the profile's own model; it can only lower priorities.
+            payload["custom_model"] = custom_model
 
         started = time.perf_counter()
         try:
@@ -112,11 +135,15 @@ class GraphHopperClient:
         try:
             path = response.json()["paths"][0]
             return RouteFeature(
-                geometry=LineString(coordinates=path["points"]["coordinates"]),
+                geometry=LineString(
+                    coordinates=[(c[0], c[1]) for c in path["points"]["coordinates"]]
+                ),
                 properties=RouteProperties(
                     distance_m=path["distance"],
                     duration_s=path["time"] / 1000,
                     profile=self._profile,
+                    ascend_m=path.get("ascend"),
+                    descend_m=path.get("descend"),
                 ),
             )
         except (KeyError, IndexError, TypeError, ValueError) as exc:

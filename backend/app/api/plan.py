@@ -6,10 +6,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from app.agent.llm import LLMClient, LLMError, LLMRateLimitError
 from app.agent.orchestrator import run_agent
 from app.agent.prompts import load_prompt
-from app.api.routes import RoutingClient
+from app.api.routes import RoutingClient, Scenery
 from app.models.plan import PlanRequest, PlanResponse
 from app.routing.geocoder import NominatimGeocoder
-from app.tools.plan_route import PlanRouteTool
+from app.tools.plan_route import PlaceFinder, PlanRouteTool
 
 router = APIRouter()
 
@@ -30,6 +30,10 @@ def get_geocoder(request: Request) -> NominatimGeocoder:
     return request.app.state.geocoder
 
 
+def get_place_finder(request: Request) -> PlaceFinder | None:
+    return getattr(request.app.state, "place_finder", None)
+
+
 def _rate_limit_message(retry_after_seconds: float | None) -> str:
     if retry_after_seconds is not None and retry_after_seconds > LONG_WAIT_SECONDS:
         hours = math.ceil(retry_after_seconds / 3600)
@@ -43,9 +47,13 @@ async def create_plan(
     routing: RoutingClient,
     llm: Annotated[LLMClient, Depends(get_llm_client)],
     geocoder: Annotated[NominatimGeocoder, Depends(get_geocoder)],
+    scenery: Scenery,
+    places: Annotated[PlaceFinder | None, Depends(get_place_finder)],
 ) -> PlanResponse:
     """Plan a ride from a plain-language request."""
-    tool = PlanRouteTool(routing, geocoder, map_start=body.map_start)
+    tool = PlanRouteTool(
+        routing, geocoder, map_start=body.map_start, scenery=scenery, places=places
+    )
     try:
         run = await run_agent(llm, load_prompt("planner"), body.message, [tool])
     except LLMRateLimitError as exc:
@@ -64,6 +72,7 @@ async def create_plan(
         spec=tool.spec,
         start_name=tool.start_name,
         end_name=tool.end_name,
+        stop=tool.stop,
         not_applied=tool.not_applied,
         usage=run.usage,
     )

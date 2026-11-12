@@ -1,7 +1,11 @@
 FROM python:3.12-slim
 
 WORKDIR /app
-COPY requirements.txt requirements-dev.txt ./
+# libexpat is needed by osmium, which the scoring pipeline uses to read OSM files.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libexpat1 \
+    && rm -rf /var/lib/apt/lists/*
+COPY requirements.txt requirements-dev.txt requirements-pipeline.txt ./
 RUN pip install --no-cache-dir -r requirements-dev.txt
 COPY . .
 

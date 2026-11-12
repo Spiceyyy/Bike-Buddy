@@ -22,10 +22,16 @@ from app.routing.graphhopper import RoutingEngineError
 BOUNDS = BoundingBox(min_lon=-74.0, min_lat=45.3, max_lon=-73.3, max_lat=45.7)
 
 
-def make_feature(distance_m: float = 10_000) -> RouteFeature:
+def make_feature(
+    distance_m: float = 10_000,
+    ascend_m: float | None = None,
+    coordinates: list[tuple[float, float]] | None = None,
+) -> RouteFeature:
     return RouteFeature(
-        geometry=LineString(coordinates=[(-73.55, 45.50), (-73.60, 45.45)]),
-        properties=RouteProperties(distance_m=distance_m, duration_s=1800, profile="bike"),
+        geometry=LineString(coordinates=coordinates or [(-73.55, 45.50), (-73.60, 45.45)]),
+        properties=RouteProperties(
+            distance_m=distance_m, duration_s=1800, profile="bike", ascend_m=ascend_m
+        ),
     )
 
 
@@ -67,35 +73,88 @@ class FakeGeocoder:
 
 
 class FakeRouting:
-    """Returns loops whose distance depends on the seed, repeating the scripted list."""
+    """Returns loops whose distance (and climb) depends on the seed, repeating the scripted lists."""
 
     def __init__(
         self,
         loop_distances_m: Sequence[float] = (),
         error: Exception | None = None,
         failing_seeds: Sequence[int] = (),
+        loop_climbs_m: Sequence[float] = (),
+        through_distances_m: Sequence[float] = (13_000,),
     ):
+        self._through_distances = list(through_distances_m)
         self._loop_distances = list(loop_distances_m)
+        self._loop_climbs = list(loop_climbs_m)
         self._error = error
         self._failing_seeds = set(failing_seeds)
         self.round_trip_requests: list[tuple[float, int]] = []
         self.route_requests: list[tuple[Coordinate, Coordinate]] = []
+        self.through_requests: list[list[Coordinate]] = []
+        self.custom_models: list[dict | None] = []
 
-    async def route(self, start: Coordinate, end: Coordinate) -> RouteFeature:
+    async def route(
+        self, start: Coordinate, end: Coordinate, custom_model: dict | None = None
+    ) -> RouteFeature:
         if self._error:
             raise self._error
         self.route_requests.append((start, end))
+        self.custom_models.append(custom_model)
         return make_feature(12_000)
 
+    async def route_through(
+        self, points: list[Coordinate], custom_model: dict | None = None
+    ) -> RouteFeature:
+        if self._error:
+            raise self._error
+        distance = self._through_distances[len(self.through_requests) % len(self._through_distances)]
+        self.through_requests.append(points)
+        self.custom_models.append(custom_model)
+        return make_feature(distance, coordinates=[(p.lon, p.lat) for p in points])
+
     async def round_trip(
-        self, start: Coordinate, distance_m: float, seed: int = 0
+        self,
+        start: Coordinate,
+        distance_m: float,
+        seed: int = 0,
+        custom_model: dict | None = None,
     ) -> RouteFeature:
         if self._error:
             raise self._error
         if seed in self._failing_seeds:
             raise RoutingEngineError("seed failed")
         self.round_trip_requests.append((distance_m, seed))
-        return make_feature(self._loop_distances[seed % len(self._loop_distances)])
+        self.custom_models.append(custom_model)
+        climb = self._loop_climbs[seed % len(self._loop_climbs)] if self._loop_climbs else None
+        return make_feature(
+            self._loop_distances[seed % len(self._loop_distances)], ascend_m=climb
+        )
 
     async def bounds(self) -> BoundingBox:
         return BOUNDS
+
+
+class FakePlaces:
+    """Finds the given place near any route, recording the search windows."""
+
+    def __init__(self, place: GeocodedPlace | None = None) -> None:
+        self.place = place
+        self.searches: list[tuple[str, float, float]] = []
+
+    async def near_route(
+        self, category: str, route: RouteFeature, from_fraction: float, to_fraction: float
+    ) -> GeocodedPlace | None:
+        self.searches.append((category, from_fraction, to_fraction))
+        return self.place
+
+
+class FakeScenery:
+    """Describes every route with the given scenery, recording what it was asked about."""
+
+    def __init__(self, scenic=None) -> None:
+        self.scenic = scenic
+        self.described: list[RouteFeature] = []
+
+    async def describe(self, route: RouteFeature):
+        self.described.append(route)
+        return self.scenic

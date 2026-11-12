@@ -1,0 +1,352 @@
+{
+  "version": "v1",
+  "created_at": "2026-11-11T03:53:17+00:00",
+  "baseline": "bike",
+  "candidate": "scenic",
+  "summary": {
+    "point_to_point": {
+      "trips": 10,
+      "median_score_bike": 0.4,
+      "median_score_scenic": 0.404,
+      "median_score_gain": 0.0,
+      "trips_more_scenic": 3,
+      "trips_less_scenic": 0,
+      "median_extra_distance_pct": 0.0,
+      "max_extra_distance_pct": 3.8,
+      "median_matched_share": 0.996
+    },
+    "loop": {
+      "trips": 10,
+      "median_score_bike": 0.476,
+      "median_score_scenic": 0.492,
+      "median_score_gain": 0.027,
+      "trips_more_scenic": 9,
+      "trips_less_scenic": 0,
+      "median_extra_distance_pct": 0.8,
+      "max_extra_distance_pct": 3.9,
+      "median_matched_share": 0.999
+    }
+  },
+  "cases": [
+    {
+      "name": "Old Port to Lachine",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 14.09,
+        "duration_min": 48.6,
+        "scenic_score": 0.763,
+        "matched_share": 0.996
+      },
+      "scenic": {
+        "distance_km": 14.63,
+        "duration_min": 50.6,
+        "scenic_score": 0.851,
+        "matched_share": 0.997
+      }
+    },
+    {
+      "name": "McGill to Parc Jean-Drapeau",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 6.83,
+        "duration_min": 24.8,
+        "scenic_score": 0.387,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 6.83,
+        "duration_min": 24.8,
+        "scenic_score": 0.387,
+        "matched_share": 1.0
+      }
+    },
+    {
+      "name": "Parc La Fontaine to Parc Jarry",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 6.22,
+        "duration_min": 22.7,
+        "scenic_score": 0.393,
+        "matched_share": 0.996
+      },
+      "scenic": {
+        "distance_km": 6.27,
+        "duration_min": 23.0,
+        "scenic_score": 0.399,
+        "matched_share": 0.992
+      }
+    },
+    {
+      "name": "Verdun to Old Port",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 6.66,
+        "duration_min": 25.4,
+        "scenic_score": 0.632,
+        "matched_share": 0.989
+      },
+      "scenic": {
+        "distance_km": 6.66,
+        "duration_min": 25.4,
+        "scenic_score": 0.632,
+        "matched_share": 0.989
+      }
+    },
+    {
+      "name": "Beaver Lake to Outremont",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 4.78,
+        "duration_min": 18.4,
+        "scenic_score": 0.483,
+        "matched_share": 0.99
+      },
+      "scenic": {
+        "distance_km": 4.78,
+        "duration_min": 18.4,
+        "scenic_score": 0.483,
+        "matched_share": 0.99
+      }
+    },
+    {
+      "name": "Rosemont to Olympic Stadium",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 3.28,
+        "duration_min": 13.2,
+        "scenic_score": 0.408,
+        "matched_share": 0.962
+      },
+      "scenic": {
+        "distance_km": 3.22,
+        "duration_min": 13.5,
+        "scenic_score": 0.409,
+        "matched_share": 0.953
+      }
+    },
+    {
+      "name": "NDG to downtown",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 5.64,
+        "duration_min": 20.6,
+        "scenic_score": 0.335,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 5.64,
+        "duration_min": 20.6,
+        "scenic_score": 0.335,
+        "matched_share": 1.0
+      }
+    },
+    {
+      "name": "Villeray to Ile-de-la-Visitation",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 4.67,
+        "duration_min": 16.6,
+        "scenic_score": 0.367,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 4.67,
+        "duration_min": 16.6,
+        "scenic_score": 0.367,
+        "matched_share": 1.0
+      }
+    },
+    {
+      "name": "Cote-des-Neiges to Saint-Laurent",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 6.28,
+        "duration_min": 22.6,
+        "scenic_score": 0.337,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 6.24,
+        "duration_min": 22.4,
+        "scenic_score": 0.346,
+        "matched_share": 1.0
+      }
+    },
+    {
+      "name": "Longueuil to Old Port",
+      "kind": "point_to_point",
+      "bike": {
+        "distance_km": 8.36,
+        "duration_min": 30.2,
+        "scenic_score": 0.418,
+        "matched_share": 0.994
+      },
+      "scenic": {
+        "distance_km": 8.36,
+        "duration_min": 30.2,
+        "scenic_score": 0.418,
+        "matched_share": 0.994
+      }
+    },
+    {
+      "name": "Old Port 20 km loop (seed 0)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 16.8,
+        "duration_min": 59.7,
+        "scenic_score": 0.402,
+        "matched_share": 0.991
+      },
+      "scenic": {
+        "distance_km": 16.73,
+        "duration_min": 59.4,
+        "scenic_score": 0.421,
+        "matched_share": 0.991
+      }
+    },
+    {
+      "name": "Old Port 20 km loop (seed 1)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 25.07,
+        "duration_min": 88.9,
+        "scenic_score": 0.45,
+        "matched_share": 0.992
+      },
+      "scenic": {
+        "distance_km": 25.1,
+        "duration_min": 89.1,
+        "scenic_score": 0.449,
+        "matched_share": 0.992
+      }
+    },
+    {
+      "name": "Parc La Fontaine 15 km loop (seed 0)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 11.26,
+        "duration_min": 39.4,
+        "scenic_score": 0.364,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 11.58,
+        "duration_min": 40.3,
+        "scenic_score": 0.384,
+        "matched_share": 0.998
+      }
+    },
+    {
+      "name": "Parc La Fontaine 15 km loop (seed 1)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 20.95,
+        "duration_min": 72.8,
+        "scenic_score": 0.505,
+        "matched_share": 0.999
+      },
+      "scenic": {
+        "distance_km": 21.16,
+        "duration_min": 74.0,
+        "scenic_score": 0.532,
+        "matched_share": 0.999
+      }
+    },
+    {
+      "name": "Lachine 25 km loop (seed 0)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 117.14,
+        "duration_min": 454.7,
+        "scenic_score": 0.551,
+        "matched_share": 0.965
+      },
+      "scenic": {
+        "distance_km": 121.15,
+        "duration_min": 468.9,
+        "scenic_score": 0.579,
+        "matched_share": 0.966
+      }
+    },
+    {
+      "name": "Lachine 25 km loop (seed 1)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 65.94,
+        "duration_min": 233.9,
+        "scenic_score": 0.607,
+        "matched_share": 0.998
+      },
+      "scenic": {
+        "distance_km": 66.35,
+        "duration_min": 234.7,
+        "scenic_score": 0.71,
+        "matched_share": 0.999
+      }
+    },
+    {
+      "name": "Verdun 20 km loop (seed 0)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 16.81,
+        "duration_min": 61.1,
+        "scenic_score": 0.573,
+        "matched_share": 0.999
+      },
+      "scenic": {
+        "distance_km": 16.7,
+        "duration_min": 60.7,
+        "scenic_score": 0.615,
+        "matched_share": 0.999
+      }
+    },
+    {
+      "name": "Verdun 20 km loop (seed 1)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 31.12,
+        "duration_min": 107.2,
+        "scenic_score": 0.501,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 30.88,
+        "duration_min": 106.3,
+        "scenic_score": 0.525,
+        "matched_share": 1.0
+      }
+    },
+    {
+      "name": "Ahuntsic 30 km loop (seed 0)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 22.24,
+        "duration_min": 77.6,
+        "scenic_score": 0.409,
+        "matched_share": 1.0
+      },
+      "scenic": {
+        "distance_km": 23.01,
+        "duration_min": 80.2,
+        "scenic_score": 0.459,
+        "matched_share": 1.0
+      }
+    },
+    {
+      "name": "Ahuntsic 30 km loop (seed 1)",
+      "kind": "loop",
+      "bike": {
+        "distance_km": 34.36,
+        "duration_min": 131.4,
+        "scenic_score": 0.404,
+        "matched_share": 0.998
+      },
+      "scenic": {
+        "distance_km": 35.71,
+        "duration_min": 134.4,
+        "scenic_score": 0.442,
+        "matched_share": 0.999
+      }
+    }
+  ]
+}
