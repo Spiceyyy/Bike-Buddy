@@ -1,6 +1,6 @@
 import pytest
 
-from app.models.route import Coordinate, GeocodedPlace
+from app.models.route import Coordinate, NearbyPlace
 from app.models.scenic import RouteScenic, ScenicBand, ScenicReason, ScenicStretch
 from app.models.spec import Climbing, RouteSpec, RouteType, Stop, Surface, Vibe
 from app.routing.geocoder import GeocodingError
@@ -10,8 +10,8 @@ from app.routing.graphhopper import (
     RoutingEngineError,
 )
 from app.routing.climbing import AVOID_CLIMBS, SEEK_CLIMBS
-from app.tools.plan_route import MAP_POINT_NAME, PlanRouteTool
-from tests.fakes import FakeGeocoder, FakePlaces, FakeRouting, FakeScenery
+from app.tools.plan_route import MAP_POINT_NAME, PlanRouteTool, stop_points
+from tests.fakes import FakeGeocoder, FakePlaces, FakeRouting, FakeScenery, make_feature
 
 MAP_PIN = Coordinate(lat=45.6, lon=-73.6)
 
@@ -194,7 +194,9 @@ async def test_missing_scenery_leaves_it_out_of_the_result() -> None:
     assert "scenery" not in result
 
 
-CAFE = GeocodedPlace(name="Café Olimpico", coordinate=Coordinate(lat=45.52, lon=-73.60))
+CAFE = NearbyPlace(
+    name="Café Olimpico", coordinate=Coordinate(lat=45.52, lon=-73.60), off_route_m=20
+)
 
 
 async def test_seeking_climbs_picks_the_hilliest_loop_near_the_distance() -> None:
@@ -216,6 +218,15 @@ async def test_avoiding_climbs_picks_the_flattest_loop() -> None:
 
     assert result["climb_m"] == 80
     assert routing.custom_models[0] == AVOID_CLIMBS
+
+
+async def test_climbing_limit_also_tries_loops_without_the_avoid_model() -> None:
+    routing = FakeRouting([50_000])
+
+    await PlanRouteTool(routing, FakeGeocoder()).run(loop_spec(max_climb_m=200))
+
+    assert routing.custom_models.count(AVOID_CLIMBS) == 8
+    assert routing.custom_models.count(None) == 8
 
 
 async def test_climbing_limit_prefers_loops_under_it() -> None:
@@ -244,9 +255,11 @@ async def test_loop_with_cafe_is_routed_through_it_keeping_the_loop_shape() -> N
 
     start = Coordinate(lat=45.50, lon=-73.55)
     points = routing.through_requests[0]
-    assert (points[0], points[2], points[4]) == (start, CAFE.coordinate, start)
-    assert len(points) == 5
-    assert places.searches[0] == ("cafe", 0.3, 0.7)
+    # Start, six shape anchors with the cafe slotted in, back to the start.
+    assert (points[0], points[-1]) == (start, start)
+    assert len(points) == 9
+    assert CAFE.coordinate in points
+    assert places.searches[0] == ("cafe", 0.3, 0.7, 1)
     assert result["stop"]["name"] == "Café Olimpico"
     assert tool.stop.name == "Café Olimpico"
     assert tool.stop.distance_along_m > 0
@@ -262,13 +275,13 @@ async def test_point_to_point_with_cafe_stops_on_the_way() -> None:
 
     result = await tool.run(spec)
 
-    assert routing.through_requests[0][1] == CAFE.coordinate
+    assert CAFE.coordinate in routing.through_requests[0]
     assert result["stop"]["name"] == "Café Olimpico"
 
 
 async def test_missing_cafe_is_reported_and_the_plain_route_kept() -> None:
     routing = FakeRouting([50_000])
-    places = FakePlaces(None)
+    places = FakePlaces()
     tool = PlanRouteTool(routing, FakeGeocoder(), places=places)
 
     result = await tool.run(loop_spec(stop=Stop.CAFE))
@@ -277,7 +290,8 @@ async def test_missing_cafe_is_reported_and_the_plain_route_kept() -> None:
     assert result["stop_found"] is False
     assert routing.through_requests == []
     assert tool.stop is None
-    assert len(places.searches) == 4  # the four best loops were tried
+    # The six best loops were tried, then each option looked for cafe choices.
+    assert [limit for *_, limit in places.searches].count(1) == 6
 
 
 async def test_cafe_stop_is_not_applied_without_a_place_finder() -> None:
@@ -309,6 +323,69 @@ async def test_rerouted_loop_closest_to_the_distance_wins() -> None:
 
     result = await tool.run(loop_spec(stop=Stop.CAFE))
 
-    assert len(routing.through_requests) == 4
+    assert len(routing.through_requests) == 6
     assert result["distance_km"] == 49.5
     assert result["distance_on_target"] is True
+
+
+async def test_loop_returns_distinct_options_each_with_cafe_choices() -> None:
+    routing = FakeRouting([50_000, 51_000, 49_000], loop_climbs_m=[100, 400, 20])
+    other = NearbyPlace(name="Dreamy", coordinate=Coordinate(lat=45.47, lon=-73.58), off_route_m=90)
+    places = FakePlaces(CAFE, other)
+    tool = PlanRouteTool(routing, FakeGeocoder(), places=places)
+
+    result = await tool.run(loop_spec())
+
+    # The fake's loops all share one geometry, so they count as the same route.
+    assert [option.label for option in tool.options] == ["Best match"]
+    assert [c.name for c in tool.options[0].stop_choices] == ["Café Olimpico", "Dreamy"]
+    assert tool.options[0].stop is None  # no stop asked for, but cafes are offered
+    assert len(tool.options[0].anchors) == 6
+    assert result["other_options"] == []
+
+
+async def test_point_to_point_offers_graphhopper_alternatives() -> None:
+    def line(lat: float, distance: float):
+        feature = make_feature(distance, coordinates=[(-73.60, lat), (-73.5746, lat)])
+        return feature
+
+    routing = FakeRouting(alternatives=[line(45.50, 7_000), line(45.52, 7_400)])
+    spec = RouteSpec(route_type=RouteType.POINT_TO_POINT, start_place="Old Port", end_place="Lachine")
+    tool = PlanRouteTool(routing, FakeGeocoder())
+
+    result = await tool.run(spec)
+
+    assert [o.label for o in tool.options] == ["Best match", "Alternative"]
+    assert result["other_options"] == [{"label": "Alternative", "distance_km": 7.4}]
+    assert tool.end == Coordinate(lat=45.43, lon=-73.68)
+
+
+def test_stop_goes_where_it_adds_the_least_detour() -> None:
+    start = Coordinate(lat=45.50, lon=-73.60)
+    north = Coordinate(lat=45.53, lon=-73.60)
+    east = Coordinate(lat=45.53, lon=-73.55)
+    south = Coordinate(lat=45.50, lon=-73.55)
+    cafe = Coordinate(lat=45.531, lon=-73.575)  # between the north and east anchors
+
+    points = stop_points(start, None, [north, east, south], cafe)
+
+    assert points == [start, north, cafe, east, south, start]
+
+
+def test_point_to_point_stop_keeps_the_route_s_anchors() -> None:
+    start, end = Coordinate(lat=45.50, lon=-73.60), Coordinate(lat=45.50, lon=-73.50)
+    middle = Coordinate(lat=45.52, lon=-73.55)
+    cafe = Coordinate(lat=45.51, lon=-73.58)
+
+    assert stop_points(start, end, [middle], cafe) == [start, cafe, middle, end]
+
+
+def test_ride_back_to_the_start_becomes_a_loop() -> None:
+    spec = RouteSpec(
+        route_type=RouteType.POINT_TO_POINT,
+        start_place="Outremont",
+        end_place="outremont ",
+        target_distance_km=40,
+    )
+
+    assert (spec.route_type, spec.end_place) == (RouteType.LOOP, None)

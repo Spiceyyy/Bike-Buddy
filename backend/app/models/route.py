@@ -3,6 +3,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, Field, model_validator
 
 from app.models.scenic import RouteScenic
+from app.models.spec import Climbing
 
 
 class Coordinate(BaseModel):
@@ -20,6 +21,12 @@ class BoundingBox(BaseModel):
 class GeocodedPlace(BaseModel):
     name: str
     coordinate: Coordinate
+
+
+class NearbyPlace(GeocodedPlace):
+    """A place found near a route, e.g. a cafe."""
+
+    off_route_m: float
 
 
 class RouteRequest(BaseModel):
@@ -68,3 +75,34 @@ class RouteStop(BaseModel):
     coordinate: Coordinate
     distance_along_m: float
     """How far into the ride the stop comes."""
+    off_route_m: float | None = None
+    """How far the place is from the route it was found near."""
+
+
+class RouteOption(BaseModel):
+    """One route the rider can choose, labelled by what it is best at."""
+
+    label: str
+    route: RouteFeature
+    stop: RouteStop | None = None
+    # Cafes near the middle of the route the rider can choose to stop at instead.
+    stop_choices: list[RouteStop] = []
+    # Points that keep the route's shape when it is re-routed through a chosen stop.
+    anchors: list[Coordinate] = []
+
+
+class ViaRequest(BaseModel):
+    """Re-route a planned option through a stop the rider picked. No LLM is involved."""
+
+    start: Coordinate
+    end: Coordinate | None = None
+    """Null for a loop, which returns to the start."""
+    anchors: list[Coordinate] = Field(default_factory=list, max_length=8)
+    stop: GeocodedPlace
+    category: str = "cafe"
+    climbing: Climbing = Climbing.ANY
+
+
+class ViaResponse(BaseModel):
+    route: RouteFeature
+    stop: RouteStop

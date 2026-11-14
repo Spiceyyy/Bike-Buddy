@@ -1,0 +1,665 @@
+{
+  "version": "v1",
+  "created_at": "2026-11-14T18:01:48.966331+00:00",
+  "graphhopper_profile": "scenic",
+  "summary": {
+    "distance_ok": {
+      "cases": 30,
+      "met": 1.0
+    },
+    "climb_limit_ok": {
+      "cases": 4,
+      "met": 0.75
+    },
+    "climbing_goal_ok": {
+      "cases": 6,
+      "met": 1.0
+    },
+    "stop_ok": {
+      "cases": 7,
+      "met": 1.0
+    },
+    "via_ok": {
+      "cases": 5,
+      "met": 0.8
+    },
+    "all": {
+      "cases": 34,
+      "met": 0.941
+    }
+  },
+  "latency_ms": {
+    "median": 2970,
+    "max": 7109
+  },
+  "cases": [
+    {
+      "id": "distance-Old-Port-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 15
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 14.87,
+      "climb_m": 218,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2445
+    },
+    {
+      "id": "distance-Old-Port-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 30
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 29.67,
+      "climb_m": 283,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 4996
+    },
+    {
+      "id": "distance-Parc-La-Fontaine-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 15
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 14.99,
+      "climb_m": 106,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 1402
+    },
+    {
+      "id": "distance-Parc-La-Fontaine-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 30
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 29.64,
+      "climb_m": 314,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3658
+    },
+    {
+      "id": "distance-Verdun-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 15
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 15.15,
+      "climb_m": 199,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 1736
+    },
+    {
+      "id": "distance-Verdun-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 30
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 29.07,
+      "climb_m": 359,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 5454
+    },
+    {
+      "id": "distance-Lachine-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "target_distance_km": 15
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 14.13,
+      "climb_m": 118,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 1526
+    },
+    {
+      "id": "distance-Lachine-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "target_distance_km": 30
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 32.66,
+      "climb_m": 346,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 4328
+    },
+    {
+      "id": "distance-Ahuntsic-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Ahuntsic",
+        "target_distance_km": 15
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 14.8,
+      "climb_m": 120,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 1514
+    },
+    {
+      "id": "distance-Ahuntsic-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Ahuntsic",
+        "target_distance_km": 30
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 30.15,
+      "climb_m": 212,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 6730
+    },
+    {
+      "id": "distance-Rosemont-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Rosemont",
+        "target_distance_km": 15
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 15.13,
+      "climb_m": 102,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2000
+    },
+    {
+      "id": "distance-Rosemont-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Rosemont",
+        "target_distance_km": 30
+      },
+      "checks": {
+        "distance_ok": true
+      },
+      "distance_km": 30.99,
+      "climb_m": 312,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 7109
+    },
+    {
+      "id": "climb-limit-Old-Port-250",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 20,
+        "max_climb_m": 250
+      },
+      "checks": {
+        "distance_ok": true,
+        "climb_limit_ok": true
+      },
+      "distance_km": 20.05,
+      "climb_m": 213,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2643
+    },
+    {
+      "id": "climb-limit-Côte-des-Neiges-300",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Côte-des-Neiges",
+        "target_distance_km": 20,
+        "max_climb_m": 300
+      },
+      "checks": {
+        "distance_ok": true,
+        "climb_limit_ok": true
+      },
+      "distance_km": 20.73,
+      "climb_m": 232,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2977
+    },
+    {
+      "id": "climb-limit-Verdun-150",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 25,
+        "max_climb_m": 150
+      },
+      "checks": {
+        "distance_ok": true,
+        "climb_limit_ok": false
+      },
+      "distance_km": 24.57,
+      "climb_m": 205,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2963
+    },
+    {
+      "id": "climb-limit-Ahuntsic-150",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Ahuntsic",
+        "target_distance_km": 20,
+        "max_climb_m": 150
+      },
+      "checks": {
+        "distance_ok": true,
+        "climb_limit_ok": true
+      },
+      "distance_km": 18.86,
+      "climb_m": 150,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3035
+    },
+    {
+      "id": "climbing-seek-Outremont",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Outremont",
+        "target_distance_km": 25,
+        "climbing": "seek"
+      },
+      "checks": {
+        "distance_ok": true,
+        "climbing_goal_ok": true
+      },
+      "distance_km": 24.1,
+      "climb_m": 317,
+      "baseline_climb_m": 265,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3850
+    },
+    {
+      "id": "climbing-seek-Côte-des-Neiges",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Côte-des-Neiges",
+        "target_distance_km": 20,
+        "climbing": "seek"
+      },
+      "checks": {
+        "distance_ok": true,
+        "climbing_goal_ok": true
+      },
+      "distance_km": 19.05,
+      "climb_m": 471,
+      "baseline_climb_m": 353,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2754
+    },
+    {
+      "id": "climbing-seek-Parc-La-Fontaine",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 30,
+        "climbing": "seek"
+      },
+      "checks": {
+        "distance_ok": true,
+        "climbing_goal_ok": true
+      },
+      "distance_km": 30.32,
+      "climb_m": 369,
+      "baseline_climb_m": 314,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3776
+    },
+    {
+      "id": "climbing-avoid-Outremont",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Outremont",
+        "target_distance_km": 25,
+        "climbing": "avoid"
+      },
+      "checks": {
+        "distance_ok": true,
+        "climbing_goal_ok": true
+      },
+      "distance_km": 23.56,
+      "climb_m": 215,
+      "baseline_climb_m": 265,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3732
+    },
+    {
+      "id": "climbing-avoid-Côte-des-Neiges",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Côte-des-Neiges",
+        "target_distance_km": 20,
+        "climbing": "avoid"
+      },
+      "checks": {
+        "distance_ok": true,
+        "climbing_goal_ok": true
+      },
+      "distance_km": 18.92,
+      "climb_m": 175,
+      "baseline_climb_m": 353,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 2010
+    },
+    {
+      "id": "climbing-avoid-Parc-La-Fontaine",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 30,
+        "climbing": "avoid"
+      },
+      "checks": {
+        "distance_ok": true,
+        "climbing_goal_ok": true
+      },
+      "distance_km": 32.06,
+      "climb_m": 231,
+      "baseline_climb_m": 314,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3042
+    },
+    {
+      "id": "cafe-loop-Old-Port",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 20,
+        "stop": "cafe"
+      },
+      "checks": {
+        "distance_ok": true,
+        "stop_ok": true
+      },
+      "distance_km": 19.51,
+      "climb_m": 202,
+      "baseline_climb_m": null,
+      "stop": "Yaya Café",
+      "options": 3,
+      "latency_ms": 3149
+    },
+    {
+      "id": "cafe-loop-Rosemont",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Rosemont",
+        "target_distance_km": 15,
+        "stop": "cafe"
+      },
+      "checks": {
+        "distance_ok": true,
+        "stop_ok": true
+      },
+      "distance_km": 14.55,
+      "climb_m": 306,
+      "baseline_climb_m": null,
+      "stop": "Café des Amis Lac aux castors",
+      "options": 3,
+      "latency_ms": 2223
+    },
+    {
+      "id": "cafe-loop-Verdun",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 25,
+        "stop": "cafe"
+      },
+      "checks": {
+        "distance_ok": true,
+        "stop_ok": true
+      },
+      "distance_km": 26.94,
+      "climb_m": 421,
+      "baseline_climb_m": null,
+      "stop": "Café Vienne",
+      "options": 3,
+      "latency_ms": 3207
+    },
+    {
+      "id": "cafe-loop-Lachine",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "target_distance_km": 30,
+        "stop": "cafe"
+      },
+      "checks": {
+        "distance_ok": true,
+        "stop_ok": true
+      },
+      "distance_km": 31.31,
+      "climb_m": 326,
+      "baseline_climb_m": null,
+      "stop": "Maison Bagel",
+      "options": 2,
+      "latency_ms": 4461
+    },
+    {
+      "id": "cafe-ride-McGill",
+      "spec": {
+        "route_type": "point_to_point",
+        "start_place": "McGill",
+        "end_place": "Parc Jarry",
+        "stop": "cafe"
+      },
+      "checks": {
+        "stop_ok": true
+      },
+      "distance_km": 7.12,
+      "climb_m": 67,
+      "baseline_climb_m": null,
+      "stop": "Cardinal Tearoom",
+      "options": 3,
+      "latency_ms": 849
+    },
+    {
+      "id": "cafe-ride-Verdun",
+      "spec": {
+        "route_type": "point_to_point",
+        "start_place": "Verdun",
+        "end_place": "Old Port",
+        "stop": "cafe"
+      },
+      "checks": {
+        "stop_ok": true
+      },
+      "distance_km": 7.4,
+      "climb_m": 74,
+      "baseline_climb_m": null,
+      "stop": "Café Redwood",
+      "options": 1,
+      "latency_ms": 497
+    },
+    {
+      "id": "cafe-ride-Olympic-Stadium",
+      "spec": {
+        "route_type": "point_to_point",
+        "start_place": "Olympic Stadium",
+        "end_place": "Parc La Fontaine",
+        "stop": "cafe"
+      },
+      "checks": {
+        "stop_ok": true
+      },
+      "distance_km": 5.19,
+      "climb_m": 60,
+      "baseline_climb_m": null,
+      "stop": "Starbucks",
+      "options": 1,
+      "latency_ms": 493
+    },
+    {
+      "id": "via-loop-Old-Port-30",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 30,
+        "via_places": [
+          "Pont Jacques-Cartier"
+        ]
+      },
+      "checks": {
+        "distance_ok": true,
+        "via_ok": true
+      },
+      "distance_km": 30.23,
+      "climb_m": 261,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 4938
+    },
+    {
+      "id": "via-loop-Parc-La-Fontaine-20",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 20,
+        "via_places": [
+          "Belvédère Kondiaronk"
+        ]
+      },
+      "checks": {
+        "distance_ok": true,
+        "via_ok": true
+      },
+      "distance_km": 20.6,
+      "climb_m": 498,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 2,
+      "latency_ms": 1457
+    },
+    {
+      "id": "via-loop-Rosemont-15",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Rosemont",
+        "target_distance_km": 15,
+        "via_places": [
+          "Jardin botanique de Montréal"
+        ]
+      },
+      "checks": {
+        "distance_ok": true,
+        "via_ok": false
+      },
+      "distance_km": 14.87,
+      "climb_m": 130,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 2,
+      "latency_ms": 2209
+    },
+    {
+      "id": "via-loop-Old-Port-25",
+      "spec": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 25,
+        "via_places": [
+          "Parc Jean-Drapeau"
+        ]
+      },
+      "checks": {
+        "distance_ok": true,
+        "via_ok": true
+      },
+      "distance_km": 24.65,
+      "climb_m": 272,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 3,
+      "latency_ms": 3564
+    },
+    {
+      "id": "via-ride-Verdun",
+      "spec": {
+        "route_type": "point_to_point",
+        "start_place": "Verdun",
+        "end_place": "Olympic Stadium",
+        "via_places": [
+          "Belvédère Kondiaronk"
+        ]
+      },
+      "checks": {
+        "via_ok": true
+      },
+      "distance_km": 19.12,
+      "climb_m": 472,
+      "baseline_climb_m": null,
+      "stop": null,
+      "options": 1,
+      "latency_ms": 562
+    }
+  ]
+}

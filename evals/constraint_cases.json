@@ -1,0 +1,372 @@
+{
+ "places": {
+  "Old Port": {
+   "lat": 45.504,
+   "lon": -73.553
+  },
+  "Parc La Fontaine": {
+   "lat": 45.5263,
+   "lon": -73.569
+  },
+  "Verdun": {
+   "lat": 45.459,
+   "lon": -73.57
+  },
+  "Lachine": {
+   "lat": 45.435,
+   "lon": -73.675
+  },
+  "Ahuntsic": {
+   "lat": 45.555,
+   "lon": -73.66
+  },
+  "Outremont": {
+   "lat": 45.515,
+   "lon": -73.605
+  },
+  "Rosemont": {
+   "lat": 45.544,
+   "lon": -73.577
+  },
+  "Côte-des-Neiges": {
+   "lat": 45.495,
+   "lon": -73.623
+  },
+  "McGill": {
+   "lat": 45.5048,
+   "lon": -73.5772
+  },
+  "Parc Jarry": {
+   "lat": 45.5356,
+   "lon": -73.6279
+  },
+  "Olympic Stadium": {
+   "lat": 45.5578,
+   "lon": -73.5516
+  },
+  "Pont Jacques-Cartier": {
+   "lat": 45.5214,
+   "lon": -73.5406
+  },
+  "Belvédère Kondiaronk": {
+   "lat": 45.5035,
+   "lon": -73.587
+  },
+  "Jardin botanique de Montréal": {
+   "lat": 45.5595,
+   "lon": -73.5612,
+   "radius_m": 501
+  },
+  "Parc Jean-Drapeau": {
+   "lat": 45.5139,
+   "lon": -73.5343,
+   "radius_m": 802
+  }
+ },
+ "cases": [
+  {
+   "id": "distance-Old-Port-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Old Port",
+    "target_distance_km": 15
+   }
+  },
+  {
+   "id": "distance-Old-Port-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Old Port",
+    "target_distance_km": 30
+   }
+  },
+  {
+   "id": "distance-Parc-La-Fontaine-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Parc La Fontaine",
+    "target_distance_km": 15
+   }
+  },
+  {
+   "id": "distance-Parc-La-Fontaine-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Parc La Fontaine",
+    "target_distance_km": 30
+   }
+  },
+  {
+   "id": "distance-Verdun-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Verdun",
+    "target_distance_km": 15
+   }
+  },
+  {
+   "id": "distance-Verdun-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Verdun",
+    "target_distance_km": 30
+   }
+  },
+  {
+   "id": "distance-Lachine-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Lachine",
+    "target_distance_km": 15
+   }
+  },
+  {
+   "id": "distance-Lachine-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Lachine",
+    "target_distance_km": 30
+   }
+  },
+  {
+   "id": "distance-Ahuntsic-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Ahuntsic",
+    "target_distance_km": 15
+   }
+  },
+  {
+   "id": "distance-Ahuntsic-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Ahuntsic",
+    "target_distance_km": 30
+   }
+  },
+  {
+   "id": "distance-Rosemont-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Rosemont",
+    "target_distance_km": 15
+   }
+  },
+  {
+   "id": "distance-Rosemont-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Rosemont",
+    "target_distance_km": 30
+   }
+  },
+  {
+   "id": "climb-limit-Old-Port-250",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Old Port",
+    "target_distance_km": 20,
+    "max_climb_m": 250
+   }
+  },
+  {
+   "id": "climb-limit-Côte-des-Neiges-300",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Côte-des-Neiges",
+    "target_distance_km": 20,
+    "max_climb_m": 300
+   }
+  },
+  {
+   "id": "climb-limit-Verdun-150",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Verdun",
+    "target_distance_km": 25,
+    "max_climb_m": 150
+   }
+  },
+  {
+   "id": "climb-limit-Ahuntsic-150",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Ahuntsic",
+    "target_distance_km": 20,
+    "max_climb_m": 150
+   }
+  },
+  {
+   "id": "climbing-seek-Outremont",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Outremont",
+    "target_distance_km": 25,
+    "climbing": "seek"
+   }
+  },
+  {
+   "id": "climbing-seek-Côte-des-Neiges",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Côte-des-Neiges",
+    "target_distance_km": 20,
+    "climbing": "seek"
+   }
+  },
+  {
+   "id": "climbing-seek-Parc-La-Fontaine",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Parc La Fontaine",
+    "target_distance_km": 30,
+    "climbing": "seek"
+   }
+  },
+  {
+   "id": "climbing-avoid-Outremont",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Outremont",
+    "target_distance_km": 25,
+    "climbing": "avoid"
+   }
+  },
+  {
+   "id": "climbing-avoid-Côte-des-Neiges",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Côte-des-Neiges",
+    "target_distance_km": 20,
+    "climbing": "avoid"
+   }
+  },
+  {
+   "id": "climbing-avoid-Parc-La-Fontaine",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Parc La Fontaine",
+    "target_distance_km": 30,
+    "climbing": "avoid"
+   }
+  },
+  {
+   "id": "cafe-loop-Old-Port",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Old Port",
+    "target_distance_km": 20,
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "cafe-loop-Rosemont",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Rosemont",
+    "target_distance_km": 15,
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "cafe-loop-Verdun",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Verdun",
+    "target_distance_km": 25,
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "cafe-loop-Lachine",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Lachine",
+    "target_distance_km": 30,
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "cafe-ride-McGill",
+   "spec": {
+    "route_type": "point_to_point",
+    "start_place": "McGill",
+    "end_place": "Parc Jarry",
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "cafe-ride-Verdun",
+   "spec": {
+    "route_type": "point_to_point",
+    "start_place": "Verdun",
+    "end_place": "Old Port",
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "cafe-ride-Olympic-Stadium",
+   "spec": {
+    "route_type": "point_to_point",
+    "start_place": "Olympic Stadium",
+    "end_place": "Parc La Fontaine",
+    "stop": "cafe"
+   }
+  },
+  {
+   "id": "via-loop-Old-Port-30",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Old Port",
+    "target_distance_km": 30,
+    "via_places": [
+     "Pont Jacques-Cartier"
+    ]
+   }
+  },
+  {
+   "id": "via-loop-Parc-La-Fontaine-20",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Parc La Fontaine",
+    "target_distance_km": 20,
+    "via_places": [
+     "Belvédère Kondiaronk"
+    ]
+   }
+  },
+  {
+   "id": "via-loop-Rosemont-15",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Rosemont",
+    "target_distance_km": 15,
+    "via_places": [
+     "Jardin botanique de Montréal"
+    ]
+   }
+  },
+  {
+   "id": "via-loop-Old-Port-25",
+   "spec": {
+    "route_type": "loop",
+    "start_place": "Old Port",
+    "target_distance_km": 25,
+    "via_places": [
+     "Parc Jean-Drapeau"
+    ]
+   }
+  },
+  {
+   "id": "via-ride-Verdun",
+   "spec": {
+    "route_type": "point_to_point",
+    "start_place": "Verdun",
+    "end_place": "Olympic Stadium",
+    "via_places": [
+     "Belvédère Kondiaronk"
+    ]
+   }
+  }
+ ]
+}

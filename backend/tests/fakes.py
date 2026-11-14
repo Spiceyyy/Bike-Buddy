@@ -14,6 +14,7 @@ from app.models.route import (
     Coordinate,
     GeocodedPlace,
     LineString,
+    NearbyPlace,
     RouteFeature,
     RouteProperties,
 )
@@ -82,8 +83,10 @@ class FakeRouting:
         failing_seeds: Sequence[int] = (),
         loop_climbs_m: Sequence[float] = (),
         through_distances_m: Sequence[float] = (13_000,),
+        alternatives: Sequence[RouteFeature] | None = None,
     ):
         self._through_distances = list(through_distances_m)
+        self._alternatives = alternatives
         self._loop_distances = list(loop_distances_m)
         self._loop_climbs = list(loop_climbs_m)
         self._error = error
@@ -101,6 +104,15 @@ class FakeRouting:
         self.route_requests.append((start, end))
         self.custom_models.append(custom_model)
         return make_feature(12_000)
+
+    async def alternatives(
+        self, start: Coordinate, end: Coordinate, custom_model: dict | None = None
+    ) -> list[RouteFeature]:
+        if self._error:
+            raise self._error
+        self.route_requests.append((start, end))
+        self.custom_models.append(custom_model)
+        return list(self._alternatives) if self._alternatives else [make_feature(12_000)]
 
     async def route_through(
         self, points: list[Coordinate], custom_model: dict | None = None
@@ -135,17 +147,22 @@ class FakeRouting:
 
 
 class FakePlaces:
-    """Finds the given place near any route, recording the search windows."""
+    """Finds the given places near any route, recording the search windows."""
 
-    def __init__(self, place: GeocodedPlace | None = None) -> None:
-        self.place = place
-        self.searches: list[tuple[str, float, float]] = []
+    def __init__(self, *places: NearbyPlace) -> None:
+        self.places = list(places)
+        self.searches: list[tuple[str, float, float, int]] = []
 
     async def near_route(
-        self, category: str, route: RouteFeature, from_fraction: float, to_fraction: float
-    ) -> GeocodedPlace | None:
-        self.searches.append((category, from_fraction, to_fraction))
-        return self.place
+        self,
+        category: str,
+        route: RouteFeature,
+        from_fraction: float,
+        to_fraction: float,
+        limit: int = 1,
+    ) -> list[NearbyPlace]:
+        self.searches.append((category, from_fraction, to_fraction, limit))
+        return self.places[:limit]
 
 
 class FakeScenery:

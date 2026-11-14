@@ -12,6 +12,9 @@ from app.api.plan import router as plan_router
 from app.api.routes import router as routes_router
 from app.config import Settings
 from app.db.places import PostgisPlaceFinder
+from app.retrieval.embedding_cache import CachingEmbedder
+from app.retrieval.embeddings import GeminiEmbedder
+from app.retrieval.place_search import PostgisPlaceSearch
 from app.routing.geocoder import NominatimGeocoder
 from app.routing.graphhopper import GraphHopperClient
 from app.scoring.route_scenic import PostgisScenicDescriber
@@ -42,11 +45,16 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ):
             app.state.scenic_describer = PostgisScenicDescriber(db_pool)
             app.state.place_finder = PostgisPlaceFinder(db_pool)
+            api_key = resolved.gemini_api_key.get_secret_value()
+            embedder = (
+                CachingEmbedder(GeminiEmbedder(llm_http, api_key), db_pool) if api_key else None
+            )
+            # Without an API key, search falls back to matching place names.
+            app.state.place_search = PostgisPlaceSearch(db_pool, embedder)
             app.state.routing_client = GraphHopperClient(
                 routing_http, profile=resolved.graphhopper_profile
             )
             app.state.geocoder = NominatimGeocoder(geocoder_http)
-            api_key = resolved.gemini_api_key.get_secret_value()
             app.state.llm_client = (
                 GeminiClient(llm_http, api_key=api_key, model=resolved.gemini_model)
                 if api_key

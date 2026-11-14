@@ -1,0 +1,23 @@
+{"id": "lookout-city", "query": "lookout with a view of the city", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 6, "relevant": ["Belvédère Kondiaronk", "Belvédère Camillien-Houde", "Belvédère Outremont", "Belvédère de Westmount"]}
+{"id": "lookout-mountain", "query": "lookout on Mount Royal", "near": {"lat": 45.527, "lon": -73.569}, "within_km": 6, "relevant": ["Belvédère Kondiaronk", "Belvédère Camillien-Houde", "Belvédère Outremont"]}
+{"id": "belvedere-fr", "query": "belvédère sur le mont Royal", "near": {"lat": 45.527, "lon": -73.569}, "within_km": 6, "relevant": ["Belvédère Kondiaronk", "Belvédère Camillien-Houde", "Belvédère Outremont"]}
+{"id": "pond-mountain", "query": "pond on the mountain", "near": {"lat": 45.527, "lon": -73.569}, "within_km": 6, "relevant": ["Lac aux Castors"]}
+{"id": "big-park-pond", "query": "big park with a pond", "near": {"lat": 45.527, "lon": -73.569}, "within_km": 4, "relevant": ["Parc La Fontaine"]}
+{"id": "botanical", "query": "botanical garden", "near": {"lat": 45.544, "lon": -73.577}, "within_km": 5, "relevant": ["Jardin botanique de Montréal"]}
+{"id": "beach-city", "query": "a beach to cool off in the city", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 6, "relevant": ["Plage Jean-Doré", "Plage de l'Horloge", "Plage urbaine de Verdun"]}
+{"id": "plage-verdun", "query": "plage", "near": {"lat": 45.459, "lon": -73.57}, "within_km": 3, "relevant": ["Plage urbaine de Verdun"]}
+{"id": "canal-ride", "query": "ride along a canal", "near": {"lat": 45.459, "lon": -73.57}, "within_km": 5, "relevant": ["Canal de Lachine", "Canal-de-Lachine", "Canal Lachine", "Canal de l'Aqueduc"]}
+{"id": "lachine-named", "query": "Lachine Canal", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 8, "relevant": ["Canal de Lachine", "Canal-de-Lachine", "Canal Lachine", "Vieux canal de Lachine"]}
+{"id": "biosphere", "query": "the Biosphere museum", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 5, "relevant": ["Biosphère"]}
+{"id": "island-park", "query": "island park in the river", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 5, "relevant": ["Parc Jean-Drapeau"]}
+{"id": "fine-arts", "query": "fine arts museum", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 5, "relevant": ["Musée des Beaux-Arts de Montréal"]}
+{"id": "old-fort", "query": "old fort", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 5, "relevant": ["Fort de l'île Sainte-Hélène", "Fort La Montagne"]}
+{"id": "lighthouse", "query": "lighthouse", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 6, "relevant": ["Phare du Parc Jean-Drapeau", "Phare de l'Île Notre-Dame"]}
+{"id": "rapids", "query": "rapids on the river", "near": {"lat": 45.435, "lon": -73.675}, "within_km": 8, "relevant": ["Parc des Rapides", "Pointe est du parc-des-Rapides", "Pointe ouest du parc-des-Rapides"]}
+{"id": "olympic", "query": "Olympic Stadium", "near": {"lat": 45.544, "lon": -73.577}, "within_km": 5, "relevant": ["Stade olympique"]}
+{"id": "tower-view", "query": "tower with an observation deck", "near": {"lat": 45.544, "lon": -73.577}, "within_km": 5, "relevant": ["Observatoire de la Tour de Montréal"]}
+{"id": "woods-river", "query": "nature park with woods by the river", "near": {"lat": 45.555, "lon": -73.66}, "within_km": 6, "relevant": ["Parc-nature de l'Île-de-la-Visitation"]}
+{"id": "parc-lac-fr", "query": "parc avec un lac", "near": {"lat": 45.459, "lon": -73.57}, "within_km": 6, "relevant": ["Parc Angrignon", "Lac Angrignon", "Lac Lacoursière", "Parc Lacoursière"]}
+{"id": "old-market", "query": "historic market hall in the old town", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 3, "relevant": ["Marché Bonsecours"]}
+{"id": "history-museum", "query": "archaeology and history museum", "near": {"lat": 45.504, "lon": -73.553}, "within_km": 3, "relevant": ["Pointe-à-Callière", "Pointe-à-Callière: Pavillon de l'Ancienne-Douane"]}
+{"id": "former-quarry", "query": "park on a former quarry", "near": {"lat": 45.544, "lon": -73.577}, "within_km": 6, "relevant": ["Parc Frédéric-Back"]}

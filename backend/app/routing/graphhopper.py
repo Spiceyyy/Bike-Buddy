@@ -54,6 +54,21 @@ class GraphHopperClient:
     ) -> RouteFeature:
         return await self.route_through([start, end], custom_model)
 
+    async def alternatives(
+        self,
+        start: Coordinate,
+        end: Coordinate,
+        custom_model: CustomModel | None = None,
+        max_paths: int = 3,
+    ) -> list[RouteFeature]:
+        """Up to `max_paths` different routes between two points, best first."""
+        return await self._request_all(
+            points=[start, end],
+            custom_model=custom_model,
+            algorithm="alternative_route",
+            **{"alternative_route.max_paths": max_paths},
+        )
+
     async def route_through(
         self, points: list[Coordinate], custom_model: CustomModel | None = None
     ) -> RouteFeature:
@@ -98,6 +113,11 @@ class GraphHopperClient:
     async def _request(
         self, points: list[Coordinate], custom_model: CustomModel | None = None, **options: Any
     ) -> RouteFeature:
+        return (await self._request_all(points, custom_model, **options))[0]
+
+    async def _request_all(
+        self, points: list[Coordinate], custom_model: CustomModel | None = None, **options: Any
+    ) -> list[RouteFeature]:
         payload = {
             "profile": self._profile,
             # GraphHopper's JSON body takes [lon, lat], the same order as GeoJSON.
@@ -129,25 +149,30 @@ class GraphHopperClient:
 
         if response.status_code != httpx.codes.OK:
             raise _error_from_response(response)
-        return self._feature_from_response(response)
+        return self._features_from_response(response)
 
-    def _feature_from_response(self, response: httpx.Response) -> RouteFeature:
+    def _features_from_response(self, response: httpx.Response) -> list[RouteFeature]:
         try:
-            path = response.json()["paths"][0]
-            return RouteFeature(
-                geometry=LineString(
-                    coordinates=[(c[0], c[1]) for c in path["points"]["coordinates"]]
-                ),
-                properties=RouteProperties(
-                    distance_m=path["distance"],
-                    duration_s=path["time"] / 1000,
-                    profile=self._profile,
-                    ascend_m=path.get("ascend"),
-                    descend_m=path.get("descend"),
-                ),
-            )
+            paths = response.json()["paths"]
+            if not paths:
+                raise ValueError("no paths")
+            return [self._feature_from_path(path) for path in paths]
         except (KeyError, IndexError, TypeError, ValueError) as exc:
             raise RoutingEngineError("unexpected GraphHopper response") from exc
+
+    def _feature_from_path(self, path: dict[str, Any]) -> RouteFeature:
+        return RouteFeature(
+            geometry=LineString(
+                coordinates=[(c[0], c[1]) for c in path["points"]["coordinates"]]
+            ),
+            properties=RouteProperties(
+                distance_m=path["distance"],
+                duration_s=path["time"] / 1000,
+                profile=self._profile,
+                ascend_m=path.get("ascend"),
+                descend_m=path.get("descend"),
+            ),
+        )
 
 
 def _error_from_response(response: httpx.Response) -> RoutingError:

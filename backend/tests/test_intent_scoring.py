@@ -81,6 +81,32 @@ def test_planning_when_it_should_not_is_wrong() -> None:
     assert not score.exact and not score.decision_correct
 
 
+def test_searching_first_is_right_when_a_kind_of_place_was_asked_for() -> None:
+    score = score_case("a", LOOP, None, expect_search=True, searched=True)
+
+    assert score.exact and score.decision_correct and score.fields == {}
+
+
+def test_planning_without_searching_is_wrong_when_search_was_needed() -> None:
+    score = score_case("a", LOOP, LOOP, expect_search=True, searched=False)
+
+    assert not score.decision_correct
+
+
+def test_searching_when_not_needed_is_a_wrong_decision() -> None:
+    score = score_case("a", LOOP, None, searched=True)
+
+    assert not score.decision_correct
+
+
+def test_via_places_must_match_in_order() -> None:
+    expected = LOOP.model_copy(update={"via_places": ["Jacques-Cartier Bridge"]})
+    right = LOOP.model_copy(update={"via_places": ["the Jacques-Cartier Bridge"]})
+
+    assert score_case("a", expected, right).fields["via_places"] is True
+    assert score_case("a", expected, LOOP).fields["via_places"] is False
+
+
 def test_summary_excludes_non_ride_requests_from_field_accuracy() -> None:
     wrong_start = LOOP.model_copy(update={"start_place": "Lachine"})
     scores = [score_case("a", LOOP, LOOP), score_case("b", LOOP, wrong_start), score_case("c", None, None)]

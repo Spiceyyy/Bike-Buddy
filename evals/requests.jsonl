@@ -34,3 +34,7 @@
 {"id": "climb-03", "message": "Easy flat ride from Verdun to Lachine, my knees hate hills", "expected": {"route_type": "point_to_point", "start_place": "Verdun", "end_place": "Lachine", "climbing": "avoid"}}
 {"id": "stop-02", "message": "Ride from McGill to Parc Jarry with a coffee break on the way", "expected": {"route_type": "point_to_point", "start_place": "McGill", "end_place": "Parc Jarry", "stop": "cafe"}}
 {"id": "stop-03", "message": "15 km loop from the Old Port, stop for coffee halfway, along the water", "expected": {"route_type": "loop", "start_place": "Old Port", "target_distance_km": 15, "stop": "cafe", "vibes": ["water"]}}
+{"id": "search-01", "message": "25 km loop from the Old Port past a lookout with a view", "search": true, "expected": {"route_type": "loop", "start_place": "Old Port", "target_distance_km": 25}}
+{"id": "search-02", "message": "Je veux une boucle de 20 km depuis Verdun qui passe par une plage", "search": true, "expected": {"route_type": "loop", "start_place": "Verdun", "target_distance_km": 20}}
+{"id": "search-03", "message": "Ride from Verdun to the Old Port, and I'd like to see a lighthouse on the way", "search": true, "expected": {"route_type": "point_to_point", "start_place": "Verdun", "end_place": "Old Port"}}
+{"id": "via-01", "message": "40 km loop from Lachine that goes over the Jacques-Cartier Bridge", "expected": {"route_type": "loop", "start_place": "Lachine", "target_distance_km": 40, "via_places": ["Jacques-Cartier Bridge"]}}

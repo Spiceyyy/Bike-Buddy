@@ -28,6 +28,9 @@ from app.evaluation.intent_scoring import CaseScore, score_case, summarize
 from app.models.llm import LLMResponse, ToolDefinition, UserMessage
 from app.models.spec import RouteSpec
 from app.tools.plan_route import DESCRIPTION, NAME
+from app.tools.search_places import DESCRIPTION as SEARCH_DESCRIPTION
+from app.tools.search_places import NAME as SEARCH_NAME
+from app.tools.search_places import SearchPlacesArgs
 
 EVALS_DIR = Path(__file__).parent
 MAX_RATE_LIMIT_WAITS = 5
@@ -62,26 +65,26 @@ def load_previous(output: Path, model: str, prompt_sha: str) -> dict[str, dict[s
 
 
 async def generate_with_waits(
-    llm: LLMClient, system: str, message: str, tool: ToolDefinition
+    llm: LLMClient, system: str, message: str, tools: list[ToolDefinition]
 ) -> LLMResponse:
     """Call the LLM, waiting out short rate limits rather than losing the case."""
     for _ in range(MAX_RATE_LIMIT_WAITS):
         try:
-            return await llm.generate(system, [UserMessage(text=message)], [tool])
+            return await llm.generate(system, [UserMessage(text=message)], tools)
         except LLMRateLimitError as exc:
             wait = exc.retry_after_seconds or DEFAULT_RATE_LIMIT_WAIT_SECONDS
             if wait > MAX_WAIT_SECONDS:
                 raise QuotaExhausted(wait) from exc
             print(f"  rate limited, waiting {wait:.0f}s", flush=True)
             await asyncio.sleep(wait)
-    return await llm.generate(system, [UserMessage(text=message)], [tool])
+    return await llm.generate(system, [UserMessage(text=message)], tools)
 
 
 async def run_case(
-    llm: LLMClient, system: str, tool: ToolDefinition, case: dict[str, Any]
+    llm: LLMClient, system: str, tools: list[ToolDefinition], case: dict[str, Any]
 ) -> dict[str, Any]:
     started = time.perf_counter()
-    response = await generate_with_waits(llm, system, case["message"], tool)
+    response = await generate_with_waits(llm, system, case["message"], tools)
     latency_ms = round((time.perf_counter() - started) * 1000)
 
     predicted, invalid = None, False
@@ -92,13 +95,21 @@ async def run_case(
         except ValidationError:
             invalid = True
 
+    searches = [call for call in response.message.tool_calls if call.name == SEARCH_NAME]
     expected = RouteSpec.model_validate(case["expected"]) if case["expected"] else None
-    score = score_case(case["id"], expected, predicted)
+    score = score_case(
+        case["id"],
+        expected,
+        predicted,
+        expect_search=case.get("search", False),
+        searched=bool(searches),
+    )
     return {
         "message": case["message"],
         "expected": case["expected"],
         "predicted": predicted.model_dump(mode="json") if predicted else None,
         "invalid_arguments": invalid,
+        "search_queries": [call.arguments.get("query") for call in searches],
         "reply_text": response.message.text,
         "latency_ms": latency_ms,
         "input_tokens": response.input_tokens,
@@ -149,9 +160,15 @@ async def run(version: str, limit: int | None, delay_seconds: float) -> None:
     settings = Settings()
     system = load_prompt("planner")
     prompt_sha = hashlib.sha256(system.encode()).hexdigest()[:12]
-    tool = ToolDefinition(
-        name=NAME, description=DESCRIPTION, parameters=RouteSpec.model_json_schema()
-    )
+    # The same two tools the app offers, so the eval measures the real setup.
+    tools = [
+        ToolDefinition(name=NAME, description=DESCRIPTION, parameters=RouteSpec.model_json_schema()),
+        ToolDefinition(
+            name=SEARCH_NAME,
+            description=SEARCH_DESCRIPTION,
+            parameters=SearchPlacesArgs.model_json_schema(),
+        ),
+    ]
     cases = load_cases(limit)
     output = EVALS_DIR / "results" / f"{version}.json"
     finished = load_previous(output, settings.gemini_model, prompt_sha)
@@ -171,7 +188,7 @@ async def run(version: str, limit: int | None, delay_seconds: float) -> None:
             if case["id"] in finished:
                 continue
             try:
-                finished[case["id"]] = await run_case(llm, system, tool, case)
+                finished[case["id"]] = await run_case(llm, system, tools, case)
             except QuotaExhausted as exc:
                 quota_wait = exc.wait_seconds
                 break

@@ -1,0 +1,899 @@
+{
+  "version": "v2",
+  "created_at": "2026-11-14T17:46:41.949326+00:00",
+  "embedding_model": "gemini-embedding-2",
+  "queries": 23,
+  "modes": {
+    "hybrid": {
+      "recall_at_1": 0.696,
+      "recall_at_5": 1.0,
+      "mrr": 0.802
+    },
+    "semantic": {
+      "recall_at_1": 0.652,
+      "recall_at_5": 1.0,
+      "mrr": 0.778
+    },
+    "name": {
+      "recall_at_1": 0.435,
+      "recall_at_5": 0.565,
+      "mrr": 0.493
+    }
+  },
+  "cases": [
+    {
+      "id": "lookout-city",
+      "query": "lookout with a view of the city",
+      "relevant": [
+        "Belvédère Kondiaronk",
+        "Belvédère Camillien-Houde",
+        "Belvédère Outremont",
+        "Belvédère de Westmount"
+      ],
+      "hybrid": {
+        "rank": 2,
+        "found": [
+          "Belvédère",
+          "Belvédère de Westmount",
+          "Du chemin qui marche",
+          "Tour de Lévis",
+          "Belvédère Outremont"
+        ]
+      },
+      "semantic": {
+        "rank": 2,
+        "found": [
+          "Belvédère",
+          "Belvédère de Westmount",
+          "Du chemin qui marche",
+          "Tour de Lévis",
+          "Belvédère Outremont"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Chai The Lounge",
+          "The Alley",
+          "The Standard Café",
+          "Isabella the Catholic",
+          "Les joueurs - The Players"
+        ]
+      }
+    },
+    {
+      "id": "lookout-mountain",
+      "query": "lookout on Mount Royal",
+      "relevant": [
+        "Belvédère Kondiaronk",
+        "Belvédère Camillien-Houde",
+        "Belvédère Outremont"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Belvédère Outremont",
+          "Belvédère Kondiaronk",
+          "Belvédère Camillien-Houde",
+          "Belvédère de Westmount",
+          "Croix du Mont-Royal"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Belvédère Kondiaronk",
+          "Belvédère Camillien-Houde",
+          "Belvédère Outremont",
+          "Belvédère de Westmount",
+          "Belvédère Léo-Ayotte"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Parc du Mont-Royal",
+          "Croix du Mont-Royal",
+          "Moutton Noir",
+          "Royale Ginette",
+          "La Grande Roue de Montréal"
+        ]
+      }
+    },
+    {
+      "id": "belvedere-fr",
+      "query": "belvédère sur le mont Royal",
+      "relevant": [
+        "Belvédère Kondiaronk",
+        "Belvédère Camillien-Houde",
+        "Belvédère Outremont"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Belvédère Outremont",
+          "Belvédère Kondiaronk",
+          "Belvédère Camillien-Houde",
+          "Belvédère de Westmount",
+          "Belvédère Léo-Ayotte"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Belvédère Camillien-Houde",
+          "Belvédère Kondiaronk",
+          "Belvédère Outremont",
+          "Belvédère de Westmount",
+          "Belvédère Léo-Ayotte"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Belvédère Outremont",
+          "Belvédère",
+          "Parc du Mont-Royal",
+          "Croix du Mont-Royal",
+          "Belvédère Léo-Ayotte"
+        ]
+      }
+    },
+    {
+      "id": "pond-mountain",
+      "query": "pond on the mountain",
+      "relevant": [
+        "Lac aux Castors"
+      ],
+      "hybrid": {
+        "rank": 3,
+        "found": [
+          "Mare au Diable",
+          "Courant Sainte-Marie",
+          "Lac aux Castors",
+          "Lac des Dauphins",
+          "Belvédère"
+        ]
+      },
+      "semantic": {
+        "rank": 3,
+        "found": [
+          "Mare au Diable",
+          "Courant Sainte-Marie",
+          "Lac aux Castors",
+          "Lac des Dauphins",
+          "Belvédère"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Chai The Lounge",
+          "Parc Raymond-Préfontaine",
+          "The Alley",
+          "Parc Molson",
+          "Bain Morgan"
+        ]
+      }
+    },
+    {
+      "id": "big-park-pond",
+      "query": "big park with a pond",
+      "relevant": [
+        "Parc La Fontaine"
+      ],
+      "hybrid": {
+        "rank": 2,
+        "found": [
+          "Parc olympique",
+          "Parc La Fontaine",
+          "Parc Beaubien",
+          "Parc Jean-Drapeau",
+          "Parc des Faubourgs"
+        ]
+      },
+      "semantic": {
+        "rank": 2,
+        "found": [
+          "Parc olympique",
+          "Parc La Fontaine",
+          "Parc Jean-Drapeau",
+          "Parc Beaubien",
+          "Jardin botanique de Montréal"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Parc Baldwin",
+          "Parc Beaubien",
+          "Parc Raymond-Préfontaine",
+          "Parc-école Guy-Drummond",
+          "Parc Sir-Wilfrid-Laurier"
+        ]
+      }
+    },
+    {
+      "id": "botanical",
+      "query": "botanical garden",
+      "relevant": [
+        "Jardin botanique de Montréal"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Jardin botanique de Montréal",
+          "Le Jardin des éricacées Leslie-Hancock",
+          "Jardin nourriecier",
+          "Jardin des nouveautés",
+          "Jardins-jeune"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Jardin botanique de Montréal",
+          "Le Jardin des éricacées Leslie-Hancock",
+          "Jardin nourriecier",
+          "Jardin des nouveautés",
+          "Jardins-jeune"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Jardin botanique de Montréal",
+          "Titanic",
+          "Parc Gabriel-Sagard",
+          "Gare Dalhousie",
+          "Maude Abbott Medical Museum"
+        ]
+      }
+    },
+    {
+      "id": "beach-city",
+      "query": "a beach to cool off in the city",
+      "relevant": [
+        "Plage Jean-Doré",
+        "Plage de l'Horloge",
+        "Plage urbaine de Verdun"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Plage Jean-Doré",
+          "Plage urbaine de Verdun",
+          "Plage de l'Horloge",
+          "Tour de Ville",
+          "Parc Beaubien"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Plage Jean-Doré",
+          "Plage urbaine de Verdun",
+          "Plage de l'Horloge",
+          "Vieux-Port",
+          "Tour de Ville"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "The Alley",
+          "Isabella the Catholic",
+          "Chai The Lounge",
+          "Café-in",
+          "The Standard Café"
+        ]
+      }
+    },
+    {
+      "id": "plage-verdun",
+      "query": "plage",
+      "relevant": [
+        "Plage urbaine de Verdun"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Plage urbaine de Verdun",
+          "Parc de West Vancouver",
+          "Parc de la Fontaine",
+          "Parc de la Vérendrye",
+          "Parc de l'Honorable-George-O'Reilly"
+        ]
+      },
+      "semantic": {
+        "rank": 2,
+        "found": [
+          "Parc de West Vancouver",
+          "Plage urbaine de Verdun",
+          "Parc de la Fontaine",
+          "Parc de la Vérendrye",
+          "Parc de l'Honorable-George-O'Reilly"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Plage urbaine de Verdun",
+          "Parc de l'ancienne-cour-de-triage",
+          "Cafe PS",
+          "Presotea",
+          "Parc Marin"
+        ]
+      }
+    },
+    {
+      "id": "canal-ride",
+      "query": "ride along a canal",
+      "relevant": [
+        "Canal de Lachine",
+        "Canal-de-Lachine",
+        "Canal Lachine",
+        "Canal de l'Aqueduc"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Canal de l'Aqueduc",
+          "Canal de Lachine",
+          "Canal-de-Lachine",
+          "Parc du Canal-de-Lachine",
+          "Canal Lachine"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Canal de Lachine",
+          "Canal de l'Aqueduc",
+          "Canal-de-Lachine",
+          "Parc du Canal-de-Lachine",
+          "Bassin des éclusiers"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Canal de l'Aqueduc",
+          "Canal-de-Lachine",
+          "Canal de Lachine",
+          "Canal Lachine",
+          "Parc du Canal-de-Lachine"
+        ]
+      }
+    },
+    {
+      "id": "lachine-named",
+      "query": "Lachine Canal",
+      "relevant": [
+        "Canal de Lachine",
+        "Canal-de-Lachine",
+        "Canal Lachine",
+        "Vieux canal de Lachine"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Canal Lachine",
+          "Canal-de-Lachine",
+          "Canal de Lachine",
+          "Canal de l'Aqueduc",
+          "Bassin Peel"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Canal Lachine",
+          "Canal-de-Lachine",
+          "Canal de Lachine",
+          "Bassin Peel",
+          "Écluse de Saint-Gabriel"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Canal Lachine",
+          "Canal-de-Lachine",
+          "Canal de Lachine",
+          "Parc du Canal-de-Lachine",
+          "Café La Bine"
+        ]
+      }
+    },
+    {
+      "id": "biosphere",
+      "query": "the Biosphere museum",
+      "relevant": [
+        "Biosphère"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Biosphère",
+          "Centre des sciences de Montréal",
+          "Redpath Museum",
+          "Écomusée du Fier Monde",
+          "Pointe-à-Callière: Pavillon de l'Ancienne-Douane"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Biosphère",
+          "Centre des sciences de Montréal",
+          "Écomusée du Fier Monde",
+          "Pointe-à-Callière: Pavillon de l'Ancienne-Douane",
+          "OASIS immersion"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Biosphère",
+          "Redpath Museum",
+          "The Braemar House",
+          "Maude Abbott Medical Museum",
+          "The Alley"
+        ]
+      }
+    },
+    {
+      "id": "island-park",
+      "query": "island park in the river",
+      "relevant": [
+        "Parc Jean-Drapeau"
+      ],
+      "hybrid": {
+        "rank": 3,
+        "found": [
+          "Parc de l'esplanade de la Pointe-Nord",
+          "Parc Lacoursière",
+          "Parc Jean-Drapeau",
+          "Parc Westmount",
+          "Parc de la Voie maritime"
+        ]
+      },
+      "semantic": {
+        "rank": 3,
+        "found": [
+          "Parc de l'esplanade de la Pointe-Nord",
+          "Parc Lacoursière",
+          "Parc Jean-Drapeau",
+          "Parc de la Voie maritime",
+          "Parc Westmount"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Parc Sutherland-Sackville-Bain",
+          "Riverside",
+          "Parc Raymond",
+          "Parc Arthur-Therrien",
+          "Isabella the Catholic"
+        ]
+      }
+    },
+    {
+      "id": "fine-arts",
+      "query": "fine arts museum",
+      "relevant": [
+        "Musée des Beaux-Arts de Montréal"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Musée des Beaux-Arts de Montréal",
+          "Musée d'Art Contemporain (MAC)",
+          "Redpath Museum",
+          "Musée McCord Stewart",
+          "Maude Abbott Medical Museum"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Musée des Beaux-Arts de Montréal",
+          "Musée d'Art Contemporain (MAC)",
+          "Musée McCord Stewart",
+          "Sir George-Étienne Cartier NHS",
+          "Redpath Museum"
+        ]
+      },
+      "name": {
+        "rank": 3,
+        "found": [
+          "Redpath Museum",
+          "Maude Abbott Medical Museum",
+          "Musée des Beaux-Arts de Montréal",
+          "Café Des Arts",
+          "Musée d'Art Contemporain (MAC)"
+        ]
+      }
+    },
+    {
+      "id": "old-fort",
+      "query": "old fort",
+      "relevant": [
+        "Fort de l'île Sainte-Hélène",
+        "Fort La Montagne"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Fort La Montagne",
+          "Fort de l'île Sainte-Hélène",
+          "Vieux-Port",
+          "Ancienne Gare Viger",
+          "The Braemar House"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Fort La Montagne",
+          "Fort de l'île Sainte-Hélène",
+          "Ancienne Gare Viger",
+          "The Braemar House",
+          "#GoHabsGo"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Fort La Montagne",
+          "Fort de l'île Sainte-Hélène",
+          "Lion de Belfort",
+          "lili & oli",
+          "Fou d'ici"
+        ]
+      }
+    },
+    {
+      "id": "lighthouse",
+      "query": "lighthouse",
+      "relevant": [
+        "Phare du Parc Jean-Drapeau",
+        "Phare de l'Île Notre-Dame"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Phare de l'Île Notre-Dame",
+          "Phare du Parc Jean-Drapeau",
+          "Belvédère",
+          "Tour de Ville",
+          "La Grande Roue"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Phare de l'Île Notre-Dame",
+          "Phare du Parc Jean-Drapeau",
+          "Belvédère",
+          "Tour de Ville",
+          "Phoenix"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Leaves House",
+          "The Braemar House",
+          "Cactus Wa Wa Tea House",
+          "Limoo",
+          "Parc du Limousin"
+        ]
+      }
+    },
+    {
+      "id": "rapids",
+      "query": "rapids on the river",
+      "relevant": [
+        "Parc des Rapides",
+        "Pointe est du parc-des-Rapides",
+        "Pointe ouest du parc-des-Rapides"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Parc des Rapides",
+          "Rapides de Lachine",
+          "Parc Riverside",
+          "Pointe est du parc-des-Rapides",
+          "Pointe ouest du parc-des-Rapides"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Parc des Rapides",
+          "Rapides de Lachine",
+          "Orville Standup Memorial Park",
+          "Parc Riverside",
+          "Pointe est du parc-des-Rapides"
+        ]
+      },
+      "name": {
+        "rank": 2,
+        "found": [
+          "Parc Riverside",
+          "Parc des Rapides",
+          "Rapides de Lachine",
+          "Pointe ouest du parc-des-Rapides",
+          "Maison O Thé"
+        ]
+      }
+    },
+    {
+      "id": "olympic",
+      "query": "Olympic Stadium",
+      "relevant": [
+        "Stade olympique"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Stade olympique",
+          "Olympic Torch",
+          "Parc olympique",
+          "Observatoire de la Tour de Montréal",
+          "Sifflet"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Stade olympique",
+          "Parc olympique",
+          "Olympic Torch",
+          "Observatoire de la Tour de Montréal",
+          "Sifflet"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Stade olympique",
+          "Olympic Torch",
+          "Parc olympique",
+          "Café Olimpico",
+          "Starbucks"
+        ]
+      }
+    },
+    {
+      "id": "tower-view",
+      "query": "tower with an observation deck",
+      "relevant": [
+        "Observatoire de la Tour de Montréal"
+      ],
+      "hybrid": {
+        "rank": 3,
+        "found": [
+          "Tour de Ville",
+          "Tour de Lévis",
+          "Observatoire de la Tour de Montréal",
+          "Tour de l'Horloge",
+          "Du chemin qui marche"
+        ]
+      },
+      "semantic": {
+        "rank": 3,
+        "found": [
+          "Tour de Ville",
+          "Tour de Lévis",
+          "Observatoire de la Tour de Montréal",
+          "Tour de l'Horloge",
+          "Du chemin qui marche"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Observatoire de la Tour de Montréal",
+          "Ton-quartier",
+          "Tour de Ville",
+          "Tour de Lévis",
+          "Station Mahalo"
+        ]
+      }
+    },
+    {
+      "id": "woods-river",
+      "query": "nature park with woods by the river",
+      "relevant": [
+        "Parc-nature de l'Île-de-la-Visitation"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Parc-nature de l'Île-de-la-Visitation",
+          "Parc Nicolas-Viel",
+          "Parc Bernard-Landry",
+          "Parc de la Merci",
+          "Parc du Bois-Franc"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Parc-nature de l'Île-de-la-Visitation",
+          "Parc Nicolas-Viel",
+          "Parc de la Merci",
+          "Parc Bernard-Landry",
+          "Parc du Boisé-de-Saint-Sulpice"
+        ]
+      },
+      "name": {
+        "rank": 1,
+        "found": [
+          "Parc-nature de l'Île-de-la-Visitation",
+          "Centre de la nature",
+          "Parc Rivard",
+          "Parc Berthe-Louard",
+          "Parc Basile-Routhier"
+        ]
+      }
+    },
+    {
+      "id": "parc-lac-fr",
+      "query": "parc avec un lac",
+      "relevant": [
+        "Parc Angrignon",
+        "Lac Angrignon",
+        "Lac Lacoursière",
+        "Parc Lacoursière"
+      ],
+      "hybrid": {
+        "rank": 4,
+        "found": [
+          "Parc de la Voie Maritimne",
+          "Parc de la Fontaine",
+          "Parc Leroux",
+          "Parc Lacoursière",
+          "Parc de West Vancouver"
+        ]
+      },
+      "semantic": {
+        "rank": 5,
+        "found": [
+          "Parc de la Voie Maritimne",
+          "Parc de la Fontaine",
+          "Parc de West Vancouver",
+          "Parc Leroux",
+          "Lac Lacoursière"
+        ]
+      },
+      "name": {
+        "rank": 2,
+        "found": [
+          "Parc du Lac-à-la-Loutre",
+          "Parc Lacoursière",
+          "Parc Le Ber",
+          "Parc Leroux",
+          "Parc Loyola"
+        ]
+      }
+    },
+    {
+      "id": "old-market",
+      "query": "historic market hall in the old town",
+      "relevant": [
+        "Marché Bonsecours"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Marché Bonsecours",
+          "Musée du marché Sainte-Anne et du parlement de la province du Canada",
+          "Gare Dalhousie",
+          "Old Canadian Bank of Commerce Building",
+          "Ancienne Gare Viger"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Marché Bonsecours",
+          "Musée du marché Sainte-Anne et du parlement de la province du Canada",
+          "Gare Dalhousie",
+          "Ancienne Gare Viger",
+          "Hopital général des Soeurs Grises"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Olympic Torch",
+          "The Alley",
+          "Du chemin qui marche",
+          "Magic Idea Tea Lounge",
+          "Café Martin"
+        ]
+      }
+    },
+    {
+      "id": "history-museum",
+      "query": "archaeology and history museum",
+      "relevant": [
+        "Pointe-à-Callière",
+        "Pointe-à-Callière: Pavillon de l'Ancienne-Douane"
+      ],
+      "hybrid": {
+        "rank": 5,
+        "found": [
+          "Musée du marché Sainte-Anne et du parlement de la province du Canada",
+          "Redpath Museum",
+          "Musée McCord Stewart",
+          "Maude Abbott Medical Museum",
+          "Pointe-à-Callière: Pavillon de l'Ancienne-Douane"
+        ]
+      },
+      "semantic": {
+        "rank": 5,
+        "found": [
+          "Musée du marché Sainte-Anne et du parlement de la province du Canada",
+          "Musée McCord Stewart",
+          "Château Ramezay",
+          "Redpath Museum",
+          "Pointe-à-Callière: Pavillon de l'Ancienne-Douane"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Redpath Museum",
+          "Maude Abbott Medical Museum",
+          "Harbour processing and storage building",
+          "Musée d'Art Contemporain (MAC)",
+          "Musée des Beaux-Arts de Montréal"
+        ]
+      }
+    },
+    {
+      "id": "former-quarry",
+      "query": "park on a former quarry",
+      "relevant": [
+        "Parc Frédéric-Back"
+      ],
+      "hybrid": {
+        "rank": 1,
+        "found": [
+          "Parc Frédéric-Back",
+          "Parc Villeray",
+          "Parc Félix-Leclerc",
+          "Parc Jean-Martucci",
+          "Parc Joseph-Paré"
+        ]
+      },
+      "semantic": {
+        "rank": 1,
+        "found": [
+          "Parc Frédéric-Back",
+          "Parc Villeray",
+          "Parc Jean-Martucci",
+          "Parc Félix-Leclerc",
+          "Parc Joseph-Paré"
+        ]
+      },
+      "name": {
+        "rank": null,
+        "found": [
+          "Parc Jarry",
+          "Ton-quartier",
+          "Parc Delorme",
+          "Café qu'on sert",
+          "Parc La Fontaine"
+        ]
+      }
+    }
+  ]
+}

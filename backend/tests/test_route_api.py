@@ -183,3 +183,43 @@ def test_health_reflects_dependencies(
     client = make_client(lambda request: httpx.Response(engine_status, text="OK"))
 
     assert client.get("/health").status_code == expected
+
+
+def test_via_routes_a_loop_through_its_anchors_and_the_chosen_stop() -> None:
+    bodies: list[dict] = []
+
+    def capture(request: httpx.Request) -> httpx.Response:
+        bodies.append(json.loads(request.content))
+        return httpx.Response(200, json=GRAPHHOPPER_SUCCESS)
+
+    body = {
+        "start": {"lat": 41.82, "lon": -71.41},
+        "end": None,
+        "anchors": [{"lat": 41.7, "lon": -71.4}, {"lat": 41.6, "lon": -71.35}],
+        "stop": {"name": "Café X", "coordinate": {"lat": 41.49, "lon": -71.31}},
+        "climbing": "seek",
+    }
+
+    response = make_client(capture).post("/api/route/via", json=body)
+
+    assert response.status_code == 200
+    points = bodies[0]["points"]
+    assert points[0] == points[-1] == [-71.41, 41.82]
+    assert [-71.31, 41.49] in points
+    assert len(points) == 5
+    assert "custom_model" in bodies[0]
+    stop = response.json()["stop"]
+    assert stop["name"] == "Café X"
+    assert stop["distance_along_m"] > 0
+
+
+def test_via_rejects_too_many_anchors() -> None:
+    body = {
+        "start": {"lat": 41.82, "lon": -71.41},
+        "anchors": [{"lat": 41.7, "lon": -71.4}] * 9,
+        "stop": {"name": "Café X", "coordinate": {"lat": 41.49, "lon": -71.31}},
+    }
+
+    client = make_client(lambda request: httpx.Response(200, json=GRAPHHOPPER_SUCCESS))
+
+    assert client.post("/api/route/via", json=body).status_code == 422

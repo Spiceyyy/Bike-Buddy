@@ -9,7 +9,10 @@ from app.agent.prompts import load_prompt
 from app.api.routes import RoutingClient, Scenery
 from app.models.plan import PlanRequest, PlanResponse
 from app.routing.geocoder import NominatimGeocoder
+from app.retrieval.place_search import PlaceSearch
+from app.tools.base import Tool
 from app.tools.plan_route import PlaceFinder, PlanRouteTool
+from app.tools.search_places import PlaceRegistry, SearchPlacesTool
 
 router = APIRouter()
 
@@ -34,6 +37,10 @@ def get_place_finder(request: Request) -> PlaceFinder | None:
     return getattr(request.app.state, "place_finder", None)
 
 
+def get_place_search(request: Request) -> PlaceSearch | None:
+    return getattr(request.app.state, "place_search", None)
+
+
 def _rate_limit_message(retry_after_seconds: float | None) -> str:
     if retry_after_seconds is not None and retry_after_seconds > LONG_WAIT_SECONDS:
         hours = math.ceil(retry_after_seconds / 3600)
@@ -49,13 +56,25 @@ async def create_plan(
     geocoder: Annotated[NominatimGeocoder, Depends(get_geocoder)],
     scenery: Scenery,
     places: Annotated[PlaceFinder | None, Depends(get_place_finder)],
+    place_search: Annotated[PlaceSearch | None, Depends(get_place_search)],
 ) -> PlanResponse:
     """Plan a ride from a plain-language request."""
+    registry = PlaceRegistry()
     tool = PlanRouteTool(
-        routing, geocoder, map_start=body.map_start, scenery=scenery, places=places
+        routing,
+        geocoder,
+        map_start=body.map_start,
+        scenery=scenery,
+        places=places,
+        known_places=registry,
     )
+    tools: list[Tool] = [tool]
+    if place_search is not None:
+        tools.append(
+            SearchPlacesTool(place_search, routing, geocoder, registry, map_start=body.map_start)
+        )
     try:
-        run = await run_agent(llm, load_prompt("planner"), body.message, [tool])
+        run = await run_agent(llm, load_prompt("planner"), body.message, tools)
     except LLMRateLimitError as exc:
         raise HTTPException(
             status.HTTP_429_TOO_MANY_REQUESTS, _rate_limit_message(exc.retry_after_seconds)
@@ -73,6 +92,10 @@ async def create_plan(
         start_name=tool.start_name,
         end_name=tool.end_name,
         stop=tool.stop,
+        options=tool.options,
+        start=tool.start,
+        end=tool.end,
+        via=tool.via,
         not_applied=tool.not_applied,
         usage=run.usage,
     )

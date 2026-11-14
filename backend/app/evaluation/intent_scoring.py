@@ -17,14 +17,16 @@ FIELD_NAMES = (
     "max_climb_m",
     "climbing",
     "stop",
+    "via_places",
     "vibes",
 )
 
 
 class CaseScore(BaseModel):
     id: str
-    decision_correct: bool  # Did the model call the tool exactly when it should?
-    fields: dict[str, bool]  # Empty for requests that should not call the tool.
+    # Did the model make the right first move: plan, search first, or neither?
+    decision_correct: bool
+    fields: dict[str, bool]  # Empty unless the first move should be planning.
     exact: bool
 
 
@@ -57,9 +59,25 @@ def distances_match(expected: float | None, predicted: float | None) -> bool:
     return abs(predicted - expected) <= expected * DISTANCE_TOLERANCE
 
 
-def score_case(case_id: str, expected: RouteSpec | None, predicted: RouteSpec | None) -> CaseScore:
+def score_case(
+    case_id: str,
+    expected: RouteSpec | None,
+    predicted: RouteSpec | None,
+    expect_search: bool = False,
+    searched: bool = False,
+) -> CaseScore:
+    """Score the model's first response.
+
+    For a request naming a kind of place ("past a lookout"), the right first
+    move is search_places; the spec comes a turn later and is not scored here.
+    Searching when it was not needed counts as a wrong decision.
+    """
+    if expect_search:
+        correct = searched and predicted is None
+        return CaseScore(id=case_id, decision_correct=correct, fields={}, exact=correct)
+
     if expected is None:
-        correct = predicted is None
+        correct = predicted is None and not searched
         return CaseScore(id=case_id, decision_correct=correct, fields={}, exact=correct)
 
     if predicted is None:
@@ -77,6 +95,8 @@ def score_case(case_id: str, expected: RouteSpec | None, predicted: RouteSpec | 
         "max_climb_m": expected.max_climb_m == predicted.max_climb_m,
         "climbing": expected.climbing == predicted.climbing,
         "stop": expected.stop == predicted.stop,
+        "via_places": len(expected.via_places) == len(predicted.via_places)
+        and all(places_match(e, p) for e, p in zip(expected.via_places, predicted.via_places)),
         "vibes": set(expected.vibes) == set(predicted.vibes),
     }
     return CaseScore(id=case_id, decision_correct=True, fields=fields, exact=all(fields.values()))

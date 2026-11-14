@@ -13,7 +13,7 @@ from app.tools.base import Tool, to_definition
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_MAX_TURNS = 4
+DEFAULT_MAX_TURNS = 6
 FALLBACK_REPLY = "Sorry, I couldn't finish planning that ride. Please try rephrasing it."
 
 

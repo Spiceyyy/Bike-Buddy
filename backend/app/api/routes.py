@@ -5,14 +5,16 @@ from pydantic import BaseModel
 
 from app.config import Settings
 from app.db.health import postgis_is_available
-from app.models.route import RouteFeature, RouteRequest
+from app.models.route import RouteFeature, RouteRequest, ViaRequest, ViaResponse
+from app.routing.climbing import climbing_model
 from app.routing.graphhopper import (
     GraphHopperClient,
     NoRouteFoundError,
     PointNotRoutableError,
-    RoutingEngineError,
+    RoutingError,
 )
 from app.scoring.route_scenic import ScenicDescriber
+from app.tools.plan_route import make_stop, stop_points
 
 router = APIRouter()
 
@@ -46,25 +48,38 @@ async def create_route(
     """Return a cycling route between two points as a GeoJSON Feature."""
     try:
         route = await routing.route(body.start, body.end)
-    except PointNotRoutableError as exc:
-        label = "start" if exc.point_index == 0 else "end"
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            f"The {label} point is outside the map region or too far from a road.",
-        ) from exc
-    except NoRouteFoundError as exc:
-        raise HTTPException(
-            status.HTTP_404_NOT_FOUND,
-            "No cycling route connects these two points.",
-        ) from exc
-    except RoutingEngineError as exc:
-        raise HTTPException(
-            status.HTTP_502_BAD_GATEWAY,
-            "The routing engine is unavailable.",
-        ) from exc
+    except RoutingError as exc:
+        raise _http_error(exc) from exc
     if scenery is not None:
         route.properties.scenic = await scenery.describe(route)
     return route
+
+
+@router.post("/api/route/via", response_model=ViaResponse)
+async def route_via_stop(
+    body: ViaRequest, routing: RoutingClient, scenery: Scenery
+) -> ViaResponse:
+    """Re-route a planned option through the stop the rider picked."""
+    points = stop_points(body.start, body.end, body.anchors, body.stop.coordinate)
+    try:
+        route = await routing.route_through(points, climbing_model(body.climbing))
+    except RoutingError as exc:
+        raise _http_error(exc) from exc
+    if scenery is not None:
+        route.properties.scenic = await scenery.describe(route)
+    return ViaResponse(route=route, stop=make_stop(body.category, body.stop, route))
+
+
+def _http_error(exc: RoutingError) -> HTTPException:
+    if isinstance(exc, PointNotRoutableError):
+        label = "start" if exc.point_index == 0 else "end"
+        return HTTPException(
+            status.HTTP_422_UNPROCESSABLE_ENTITY,
+            f"The {label} point is outside the map region or too far from a road.",
+        )
+    if isinstance(exc, NoRouteFoundError):
+        return HTTPException(status.HTTP_404_NOT_FOUND, "No cycling route connects these points.")
+    return HTTPException(status.HTTP_502_BAD_GATEWAY, "The routing engine is unavailable.")
 
 
 @router.get("/health", response_model=HealthResponse)

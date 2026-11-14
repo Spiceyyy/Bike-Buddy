@@ -35,22 +35,42 @@ export type RouteFeature = Feature<
   }
 >;
 
+export type Coordinate = { lat: number; lon: number };
+
 export type RouteStop = {
   category: string;
   name: string;
-  coordinate: { lat: number; lon: number };
+  coordinate: Coordinate;
   distance_along_m: number;
+  off_route_m: number | null;
 };
+
+export type RouteOption = {
+  label: string;
+  route: RouteFeature;
+  stop: RouteStop | null;
+  stop_choices: RouteStop[];
+  anchors: Coordinate[];
+};
+
+export type Climbing = "any" | "avoid" | "seek";
 
 export type PlanResponse = {
   reply: string;
   route: RouteFeature | null;
-  spec: { route_type: "loop" | "point_to_point" } | null;
+  spec: { route_type: "loop" | "point_to_point"; climbing: Climbing } | null;
   start_name: string | null;
   end_name: string | null;
   stop: RouteStop | null;
+  options: RouteOption[];
+  start: Coordinate | null;
+  end: Coordinate | null;
+  /** Places the route passes, found by search_places or named by the rider. */
+  via: { name: string; coordinate: Coordinate }[];
   not_applied: string[];
 };
+
+export type ViaResponse = { route: RouteFeature; stop: RouteStop };
 
 export function fetchRoute(
   start: LonLat,
@@ -67,6 +87,21 @@ export function planRide(
 ): Promise<PlanResponse> {
   const map_start = mapStart ? toCoordinate(mapStart) : null;
   return postJson("/api/plan", { message, map_start }, signal);
+}
+
+/** Re-route a planned option through a stop the rider picked. No LLM call. */
+export function routeVia(
+  body: {
+    start: Coordinate;
+    end: Coordinate | null;
+    anchors: Coordinate[];
+    stop: { name: string; coordinate: Coordinate };
+    category: string;
+    climbing: Climbing;
+  },
+  signal: AbortSignal,
+): Promise<ViaResponse> {
+  return postJson("/api/route/via", body, signal);
 }
 
 function toCoordinate([lon, lat]: LonLat) {

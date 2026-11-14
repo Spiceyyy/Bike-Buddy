@@ -3,7 +3,7 @@
 import re
 from enum import StrEnum
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 # "a cafe" or "un café" describes a kind of place, not a place the geocoder can find.
 # Small models sometimes put these in end_place; rejecting them sends the LLM a
@@ -84,6 +84,14 @@ class RouteSpec(BaseModel):
         default=None,
         description="A kind of place to stop at along the way, e.g. cafe. Null if none.",
     )
+    via_places: list[str] = Field(
+        default_factory=list,
+        max_length=3,
+        description=(
+            "Places the route should pass, in riding order: names exactly as search_places "
+            "returned them, or places the rider named. Empty if none."
+        ),
+    )
     vibes: list[Vibe] = Field(
         default_factory=list,
         description="Qualities the rider explicitly asks for. Empty if none.",
@@ -98,3 +106,31 @@ class RouteSpec(BaseModel):
                 "and leave the place null; with no other destination the ride is a loop."
             )
         return value
+
+    @field_validator("via_places")
+    @classmethod
+    def vias_must_be_named_places(cls, values: list[str]) -> list[str]:
+        for value in values:
+            cls.must_be_a_named_place(value)
+        return values
+
+    @model_validator(mode="after")
+    def same_start_and_end_is_a_loop(self) -> "RouteSpec":
+        """The prompt's rule, enforced: a ride back to where it started is a loop."""
+        same = (
+            self.route_type is RouteType.POINT_TO_POINT
+            and self.start_place is not None
+            and self.end_place is not None
+            and self.start_place.strip().casefold() == self.end_place.strip().casefold()
+        )
+        if same:
+            self.route_type = RouteType.LOOP
+            self.end_place = None
+        return self
+
+    @model_validator(mode="after")
+    def climbing_limit_means_avoid(self) -> "RouteSpec":
+        """The prompt's rule, enforced: a climbing limit leans the route away from climbs."""
+        if self.max_climb_m is not None and self.climbing is Climbing.ANY:
+            self.climbing = Climbing.AVOID
+        return self
