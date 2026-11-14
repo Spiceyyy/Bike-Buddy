@@ -10,7 +10,7 @@ from app.routing.graphhopper import (
     RoutingEngineError,
 )
 from app.routing.climbing import AVOID_CLIMBS, SEEK_CLIMBS
-from app.tools.plan_route import MAP_POINT_NAME, PlanRouteTool, stop_points
+from app.tools.plan_route import MAP_POINT_NAME, PlanRouteTool, format_duration, stop_points
 from tests.fakes import FakeGeocoder, FakePlaces, FakeRouting, FakeScenery, make_feature
 
 MAP_PIN = Coordinate(lat=45.6, lon=-73.6)
@@ -389,3 +389,10 @@ def test_ride_back_to_the_start_becomes_a_loop() -> None:
     )
 
     assert (spec.route_type, spec.end_place) == (RouteType.LOOP, None)
+
+
+@pytest.mark.parametrize(
+    ("seconds", "text"), [(5_220, "1 h 27 min"), (1_440, "24 min"), (3_600, "1 h 0 min")]
+)
+def test_riding_time_reaches_the_llm_already_formatted(seconds: float, text: str) -> None:
+    assert format_duration(seconds) == text

@@ -265,7 +265,8 @@ class PlanRouteTool:
             "start": self.start_name,
             "end": self.end_name,
             "distance_km": round(properties.distance_m / 1000, 1),
-            "riding_time_min": round(properties.duration_s / 60),
+            # Pre-formatted: the model once turned 87 minutes into "1 hour and 37 minutes".
+            "riding_time": format_duration(properties.duration_s),
             "not_applied": self.not_applied,
         }
         if self.via:
@@ -452,6 +453,13 @@ class PlanRouteTool:
         return RouteOption(
             label=label, route=route, stop=stop, stop_choices=choices, anchors=candidate.anchors
         )
+
+
+def format_duration(seconds: float) -> str:
+    """Riding time as the rider reads it, e.g. "1 h 27 min", so the LLM never converts units."""
+    total_minutes = round(seconds / 60)
+    hours, minutes = divmod(total_minutes, 60)
+    return f"{hours} h {minutes} min" if hours else f"{minutes} min"
 
 
 def stop_points(

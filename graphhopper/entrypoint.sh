@@ -33,6 +33,8 @@ if [ -d "$graph" ] && [ "$(cat "$graph.build-sha" 2>/dev/null)" != "$build_sha" 
   rm -rf "$graph"
 fi
 rm -f "$graph.scenic-sha"
+# On a fresh volume GraphHopper has not created the cache folder yet.
+mkdir -p "$(dirname "$graph")"
 echo "$build_sha" > "$graph.build-sha"
 
 # Dropwizard reads dots in -Ddw.* as nesting. GraphHopper's keys contain literal

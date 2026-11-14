@@ -4,6 +4,15 @@ Turns a plain-language cycling request into a real, rideable route chosen for sc
 
 **Status: Phase 3 of 5 complete, ready for review.** Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for.
 
+![A 20 km loop from the Old Port with a café stop: three route options, the route coloured by scenery, and the cafés along it](docs/images/plan-cafe-loop.jpg)
+
+*"A 20 km loop from the Old Port with a coffee stop": three labelled routes, the selected one coloured by scenery (green scenic, amber pleasant, grey plain), the café stop in brown, and the cafés near the middle of the route to switch to.*
+
+| Passing a kind of place | Point to point, as flat as possible |
+| --- | --- |
+| ![A loop past a lookout found by search_places](docs/images/search-lookout.jpg) | ![A flat ride from McGill to Parc Jarry with an alternative route](docs/images/flat-ride-options.jpg) |
+| *"25 km loop from the Old Port past a lookout with a view": `search_places` found Tour de Lévis, marked in purple.* | *"Ride from McGill to Parc Jarry, as flat as possible": the best match and a dashed alternative.* |
+
 ## Architecture
 
 ```
@@ -50,18 +59,79 @@ The LLM only ever sees place names, short place descriptions and route summaries
 | [postgres/](postgres/) | PostGIS image with pgvector added |
 | [frontend/components/RouteMap.tsx](frontend/components/RouteMap.tsx) | Map, ride request box, route display |
 
-## Running it
+## Getting started
 
-Requires Docker Desktop. Python and Node run inside containers, so host versions don't matter.
+Everything runs on your own machine in Docker: the app, the database and the routing engine. Nothing needs to be hosted. These steps were tested on a fresh clone and take about 20 minutes the first time, mostly waiting.
+
+### What you need
+
+- **[Docker Desktop](https://www.docker.com/products/docker-desktop/)** (or Docker Engine with Compose). Python, Node and Java all run inside containers, so you don't need them installed.
+- **At least 4 GB of memory for Docker** (6 GB is comfortable). The stack uses about 2.5 GB, and the routing engine can grow to 2 GB while it builds. On Windows and macOS, check this under Docker Desktop's resource settings.
+- **About 4 GB of disk** for images and data.
+- **A free Gemini API key** from [Google AI Studio](https://aistudio.google.com/apikey), for the AI planner. Without one, the map still works: click two points to get a route.
+
+### 1. Configure
 
 ```sh
-cp .env.example .env     # then set POSTGRES_PASSWORD and GEMINI_API_KEY
+git clone https://github.com/Spiceyyy/Bike-Buddy.git
+cd Bike-Buddy
+cp .env.example .env
+```
+
+Open `.env` and set `POSTGRES_PASSWORD` (any value) and `GEMINI_API_KEY`. The other settings default to Montreal.
+
+### 2. Start the app
+
+```sh
 docker compose up --build
 ```
 
-Open <http://localhost:3000>. Describe a ride, or click two points on the map. If you click one point and then describe a ride with no start, the clicked point becomes the start.
+The first start downloads the Montreal map data (about 80 MB) and elevation data, then builds the routing graph. On the test machine this took about 3 minutes; the backend starts once the routing engine is ready. Later starts take seconds.
 
-The first start downloads the OSM extract and builds the routing graph before the backend comes up. Later starts reuse both from a Docker volume. GraphHopper needs about 2 GB of memory (`GRAPHHOPPER_JAVA_OPTS`).
+Open <http://localhost:3000>. Routes work now, but without scenery, cafés or place search, which come from the next step.
+
+### 3. Build the scenery and place index
+
+In a second terminal, while the app is running:
+
+```sh
+docker compose exec backend python -m pipeline.run
+```
+
+This scores about 278,000 road segments, finds cafés and other places, and embeds place descriptions for search. It took about 2.5 minutes plus embedding time.
+
+The free Gemini tier allows about 1,000 embeddings a day, and the index needs about 1,200. The first run embeds what it can and stores the rest; running the same command the next day finishes the job, without repeating any work. Until then, place search matches names instead of meaning. To skip embeddings entirely, add `--no-embeddings`.
+
+### 4. Route with the scenery
+
+```sh
+docker compose restart graphhopper
+```
+
+The routing engine rebuilds its graph with the scenic zones from step 3. This took about 11 minutes on the test machine; the map keeps working meanwhile, once the engine is back up. You only need to do this again after re-running the pipeline.
+
+### 5. Try it
+
+Open <http://localhost:3000> and describe a ride, for example:
+
+- "A 20 km loop from the Old Port with a coffee stop"
+- "Hilly 25 km loop from Parc La Fontaine for climbing training"
+- "Ride from McGill to Parc Jarry, as flat as possible"
+- "25 km loop from the Old Port past a lookout with a view"
+
+You can also click two points on the map. If you click one point and then describe a ride with no start, the clicked point becomes the start.
+
+To stop everything, press Ctrl+C in the first terminal or run `docker compose down`. Your data stays in Docker volumes for next time.
+
+### If something goes wrong
+
+| Problem | What to do |
+| --- | --- |
+| The routing engine stops with an out-of-memory error | Give Docker more memory (see above), or lower `GRAPHHOPPER_JAVA_OPTS` in `.env` for a smaller region |
+| "port is already allocated" | Another program uses port 3000, 8000, 8989 or the Postgres port. Stop it, or change `POSTGRES_PORT` in `.env` |
+| The planner says it has used its quota | The Gemini free tier is per model and per day. Wait, or choose another model (below) |
+| "trouble finding those places" | Place names are looked up with the public Nominatim service, which is rate-limited. Wait a minute and retry |
+| Routes have no scenery or café choices | Run step 3, then step 4 |
 
 ### Choosing a Gemini model
 
@@ -89,7 +159,7 @@ docker compose up -d --build
 
 The graph includes SRTM elevation (downloaded once into the data volume) and `average_slope`, used for climbing requests.
 
-### Scenic scoring pipeline (Phase 3, in progress)
+### Scenic scoring pipeline
 
 ```sh
 docker compose exec backend python -m pipeline.run            # score and write to PostGIS
