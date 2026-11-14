@@ -15,9 +15,12 @@ import os
 import time
 from pathlib import Path
 
+import httpx
 import numpy as np
 import shapely
 
+from app.agent.gemini import GEMINI_BASE_URL
+from app.retrieval.embeddings import GeminiEmbedder
 from pipeline.features import measure
 from pipeline.osm_reader import OsmExtract, read_extract
 from pipeline.projection import LocalProjection
@@ -31,7 +34,9 @@ from pipeline.scoring import (
 )
 from pipeline.scenic_zones import ScenicZones, build_zones, custom_model, write_custom_model
 from pipeline.segments import Segment, intersection_coords, split_roads
-from pipeline.store import ScoredSegmentRow, replace_segments
+from pipeline.embed import embed_with_cache
+from pipeline.places import build_place_rows, worth_embedding
+from pipeline.store import ScoredSegmentRow, replace_places, replace_segments
 
 logger = logging.getLogger("pipeline")
 
@@ -153,6 +158,11 @@ def main() -> None:
     parser.add_argument("--pbf", type=Path, help="OSM extract (default: GraphHopper's)")
     parser.add_argument("--zones", type=Path, help="scenic zones output for GraphHopper")
     parser.add_argument("--dry-run", action="store_true", help="score but do not write")
+    parser.add_argument(
+        "--no-embeddings",
+        action="store_true",
+        help="store places without embeddings (search_places then matches names only)",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(message)s")
 
@@ -181,7 +191,10 @@ def main() -> None:
 
     if args.dry_run:
         return
-    asyncio.run(replace_segments(os.environ["DATABASE_URL"], rows, extract.places))
+    asyncio.run(replace_segments(os.environ["DATABASE_URL"], rows))
+    asyncio.run(
+        store_places(os.environ["DATABASE_URL"], extract, embed=not args.no_embeddings)
+    )
     zones_path = args.zones or default_zones_path(pbf)
     write_custom_model(zones_path, model)
     logger.info(
@@ -191,6 +204,31 @@ def main() -> None:
         time.perf_counter() - started,
     )
     logger.info("Restart GraphHopper to route with the new zones: docker compose restart graphhopper")
+
+
+async def store_places(database_url: str, extract: OsmExtract, embed: bool) -> None:
+    started = time.perf_counter()
+    rows = build_place_rows(extract)
+    embeddings: list[list[float] | None] = [None] * len(rows)
+    api_key = os.environ.get("GEMINI_API_KEY", "")
+    if embed and not api_key:
+        logger.warning("GEMINI_API_KEY is not set; storing places without embeddings")
+    elif embed:
+        chosen = [index for index, row in enumerate(rows) if worth_embedding(row)]
+        async with httpx.AsyncClient(base_url=GEMINI_BASE_URL, timeout=60) as http:
+            embedder = GeminiEmbedder(http, api_key)
+            vectors = await embed_with_cache(
+                database_url, embedder, [rows[index].description for index in chosen]
+            )
+        for index, vector in zip(chosen, vectors):
+            embeddings[index] = vector
+    await replace_places(database_url, rows, embeddings)
+    logger.info(
+        "stage=places places=%d embedded=%d seconds=%.0f",
+        len(rows),
+        sum(vector is not None for vector in embeddings),
+        time.perf_counter() - started,
+    )
 
 
 def _area_km2(geometry: shapely.Geometry) -> float:

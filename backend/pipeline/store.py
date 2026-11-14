@@ -6,7 +6,7 @@ from pathlib import Path
 
 import asyncpg
 
-from pipeline.osm_reader import Place
+from pipeline.places import PlaceRow
 
 SCHEMA_SQL = (Path(__file__).parent / "schema.sql").read_text(encoding="utf-8")
 
@@ -46,9 +46,7 @@ class ScoredSegmentRow:
         return (*(getattr(self, column) for column in COLUMNS), self.geom_wkb)
 
 
-async def replace_segments(
-    database_url: str, rows: Sequence[ScoredSegmentRow], places: Sequence[Place] = ()
-) -> None:
+async def replace_segments(database_url: str, rows: Sequence[ScoredSegmentRow]) -> None:
     connection = await asyncpg.connect(database_url)
     try:
         async with connection.transaction():
@@ -70,12 +68,40 @@ async def replace_segments(
                 f"INSERT INTO road_segments ({column_list}, geom) "
                 f"SELECT {column_list}, ST_SetSRID(ST_GeomFromWKB(geom_wkb), 4326) FROM staging;"
             )
-            await connection.execute("TRUNCATE places RESTART IDENTITY")
-            await connection.executemany(
-                "INSERT INTO places (category, name, geom) "
-                "VALUES ($1, $2, ST_SetSRID(ST_MakePoint($3, $4), 4326))",
-                [(place.category, place.name, place.lon, place.lat) for place in places],
-            )
-        await connection.execute("ANALYZE road_segments; ANALYZE places")
+        await connection.execute("ANALYZE road_segments")
     finally:
         await connection.close()
+
+
+async def replace_places(
+    database_url: str, rows: Sequence[PlaceRow], embeddings: Sequence[list[float] | None]
+) -> None:
+    """Rewrite the places table. A missing embedding leaves that place to name search only."""
+    connection = await asyncpg.connect(database_url)
+    try:
+        async with connection.transaction():
+            await connection.execute(SCHEMA_SQL)
+            await connection.executemany(
+                "INSERT INTO places (category, name, description, area_ha, geom, embedding) "
+                "VALUES ($1, $2, $3, $4, ST_SetSRID(ST_MakePoint($5, $6), 4326), $7::vector)",
+                [
+                    (
+                        row.category,
+                        row.name,
+                        row.description,
+                        row.area_ha,
+                        row.lon,
+                        row.lat,
+                        vector_literal(vector) if vector is not None else None,
+                    )
+                    for row, vector in zip(rows, embeddings)
+                ],
+            )
+        await connection.execute("ANALYZE places")
+    finally:
+        await connection.close()
+
+
+def vector_literal(vector: Sequence[float]) -> str:
+    """pgvector's text format, so no extra driver codec is needed."""
+    return "[" + ",".join(f"{x:.7g}" for x in vector) + "]"

@@ -20,12 +20,29 @@ CREATE TABLE IF NOT EXISTS road_segments (
 CREATE INDEX IF NOT EXISTS road_segments_geom_idx ON road_segments USING gist (geom);
 CREATE INDEX IF NOT EXISTS road_segments_score_idx ON road_segments (scenic_score);
 
--- Named places a ride can stop at, such as cafes. category matches RouteSpec's stop types.
-CREATE TABLE IF NOT EXISTS places (
-    id       bigserial PRIMARY KEY,
-    category text NOT NULL,
-    name     text NOT NULL,
-    geom     geometry(Point, 4326) NOT NULL
+CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
+-- Named places a rider might ride to, past or stop at, rebuilt on every run.
+-- description is what was embedded; search_places ranks by embedding and name.
+DROP TABLE IF EXISTS places;
+CREATE TABLE places (
+    id          bigserial PRIMARY KEY,
+    category    text NOT NULL,
+    name        text NOT NULL,
+    description text NOT NULL,
+    area_ha     real,
+    geom        geometry(Point, 4326) NOT NULL,
+    embedding   vector(768)
 );
 
-CREATE INDEX IF NOT EXISTS places_geom_idx ON places USING gist (geom);
+CREATE INDEX places_geom_idx ON places USING gist (geom);
+CREATE INDEX places_name_trgm_idx ON places USING gin (name gin_trgm_ops);
+CREATE INDEX places_embedding_idx ON places USING hnsw (embedding vector_cosine_ops);
+
+-- Embeddings by model and text, kept across runs so unchanged descriptions are
+-- not sent to the embedding API again.
+CREATE TABLE IF NOT EXISTS embedding_cache (
+    key       text PRIMARY KEY,
+    embedding vector(768) NOT NULL
+);

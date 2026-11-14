@@ -1,6 +1,7 @@
 services:
   postgres:
-    image: postgis/postgis:16-3.4
+    # PostGIS plus pgvector, for place embeddings.
+    build: ./postgres
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?copy .env.example to .env}
       POSTGRES_USER: ${POSTGRES_USER:?copy .env.example to .env}

@@ -92,14 +92,47 @@ def is_viewpoint(tags: Mapping[str, str]) -> bool:
     return tags.get("tourism") == "viewpoint"
 
 
-# Places a rider might stop at, keyed by the category RouteSpec uses.
-PLACE_CATEGORIES: dict[str, tuple[str, str]] = {
-    "cafe": ("amenity", "cafe"),
-}
+# Places a rider might ride to, past or stop at. search_places looks them up by
+# meaning; cafe stops use the "cafe" category directly.
+PLACE_WATER_TYPES = frozenset({"lake", "pond", "reservoir", "basin", "lagoon", "river", "canal"})
+LANDMARK_TOURISM = frozenset({"museum", "attraction"})
+LANDMARK_HISTORIC = frozenset({"monument", "castle", "fort", "ruins", "manor", "building", "church"})
+CONTEXT_PLACE_TYPES = frozenset({"neighbourhood", "suburb", "quarter"})
+
+# Tags read when describing a place, so they stay small in memory.
+KEPT_PLACE_TAGS = (
+    "amenity", "leisure", "tourism", "historic", "natural", "water", "waterway",
+    "man_made", "cuisine", "outdoor_seating", "description",
+)
 
 
 def place_category(tags: Mapping[str, str]) -> str | None:
-    for category, (key, value) in PLACE_CATEGORIES.items():
-        if tags.get(key) == value:
-            return category
+    """The kind of place, or None if it is not one a rider would look for."""
+    if tags.get("amenity") == "cafe":
+        return "cafe"
+    if tags.get("tourism") == "viewpoint":
+        return "viewpoint"
+    if tags.get("leisure") in GREEN_LEISURE:
+        return "park"
+    if tags.get("natural") == "beach":
+        return "beach"
+    if tags.get("natural") == "water" and tags.get("water", "lake") in PLACE_WATER_TYPES:
+        return "water"
+    if tags.get("waterway") == "canal":
+        return "water"
+    if (
+        tags.get("tourism") in LANDMARK_TOURISM
+        or tags.get("historic") in LANDMARK_HISTORIC
+        or tags.get("man_made") == "lighthouse"
+    ):
+        return "landmark"
     return None
+
+
+def is_context_place(tags: Mapping[str, str]) -> bool:
+    """Neighbourhood names, used to say where a place is."""
+    return tags.get("place") in CONTEXT_PLACE_TYPES and "name" in tags
+
+
+def is_named_peak(tags: Mapping[str, str]) -> bool:
+    return tags.get("natural") == "peak" and "name" in tags
