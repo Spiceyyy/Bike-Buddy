@@ -256,3 +256,28 @@ def test_gpx_export_rejects_a_track_of_one_point() -> None:
     response = make_client(no_graphhopper).post("/api/route/gpx", json=body)
 
     assert response.status_code == 422
+
+
+def test_via_recomputes_wind_exposure_when_given_the_wind() -> None:
+    body = {
+        "start": {"lat": 41.82, "lon": -71.41},
+        "anchors": [],
+        "stop": {"name": "Café X", "coordinate": {"lat": 41.49, "lon": -71.31}},
+        "wind_from_deg": 180,
+    }
+    client = make_client(lambda request: httpx.Response(200, json=GRAPHHOPPER_SUCCESS))
+
+    wind = client.post("/api/route/via", json=body).json()["wind"]
+
+    assert wind["headwind_pct"] + wind["tailwind_pct"] + wind["crosswind_pct"] == 100
+
+
+def test_via_without_the_wind_has_no_wind_exposure() -> None:
+    body = {
+        "start": {"lat": 41.82, "lon": -71.41},
+        "anchors": [],
+        "stop": {"name": "Café X", "coordinate": {"lat": 41.49, "lon": -71.31}},
+    }
+    client = make_client(lambda request: httpx.Response(200, json=GRAPHHOPPER_SUCCESS))
+
+    assert client.post("/api/route/via", json=body).json()["wind"] is None

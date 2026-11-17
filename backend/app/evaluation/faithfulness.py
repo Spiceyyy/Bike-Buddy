@@ -4,8 +4,8 @@ The prompt tells the model to copy numbers and names from the `plan_route`
 result. This checks that it did, without an LLM, so it runs on every reply and
 in evals:
 
-- numbers: every distance, riding time, climb and percentage in the reply must
-  match the result or the rider's message
+- numbers: every distance, riding time, climb, percentage, wind speed and
+  temperature in the reply must match the result or the rider's message
 - names:   every proper name in the reply must appear in the result or the
   rider's message, written the same way. Names in the result (start, end, via
   places, the stop, scenery highlights) lie on the route by construction, so
@@ -14,7 +14,8 @@ in evals:
 - scenery: a claim that the route goes along the water, through green space
   or on quiet streets needs a highlight with that reason. The result has no
   surface data, so any claim that the route is paved or gravel is unsupported.
-- facts:   the reply must give the distance and the riding time
+- facts:   the reply must give the distance and the riding time, and pass on
+  any weather notes
 - caveats: when the result says a stop, a climbing limit or a loop distance
   could not be met, the reply must say so
 
@@ -40,6 +41,8 @@ MINUTES_TOLERANCE = 1
 # Climbing may be rounded to the nearest 10 m ("about 120 m" for 118 m).
 CLIMB_TOLERANCE_M = 5
 PERCENT_TOLERANCE = 1
+WIND_TOLERANCE_KMH = 1
+TEMPERATURE_TOLERANCE_C = 1
 
 
 class ProblemKind(str, Enum):
@@ -74,7 +77,14 @@ _DURATION = re.compile(
     rf"|(?<![\w.,])(\d+)\s*{_MINUTES}\b",
     re.IGNORECASE,
 )
-_KM = re.compile(rf"{_NUMBER}\s*(?:km|kilom[eè]t(?:er|re)s?)\b", re.IGNORECASE)
+# Not km/h, which is a wind speed.
+_KM = re.compile(rf"{_NUMBER}\s*(?:km|kilom[eè]t(?:er|re)s?)\b(?!\s*/\s*h)", re.IGNORECASE)
+_KMH = re.compile(rf"{_NUMBER}\s*(?:km\s*/\s*h|kph|km par heure)", re.IGNORECASE)
+_CELSIUS = re.compile(rf"{_NUMBER}\s*(?:°\s*C?|degrees?|degrés?)", re.IGNORECASE)
+# The reply mentions the weather at all.
+_WEATHER_WORDS = re.compile(
+    r"rain|wind|cold|hot|gust|°|pluie|pleuvoir|vent|froid|chaud|rafale", re.IGNORECASE
+)
 _METRES = re.compile(rf"{_NUMBER}\s*(?:m|meters?|metres?|mètres?)\b", re.IGNORECASE)
 _PERCENT = re.compile(rf"{_NUMBER}\s*(?:%|percent|pour\s*cent)", re.IGNORECASE)
 _ANY_NUMBER = re.compile(rf"{_NUMBER}(?!\w)")
@@ -130,6 +140,7 @@ _COMMON_WORDS = {
         "ll re ve s m t "
         "much many some all quiet green water nice lovely great beautiful scenic "
         "flat hilly easy overall mostly notez paved unpaved gravel surfaces "
+        "rain wind windy gusts cold hot weather expect pluie vent froid chaud prévoyez attention "
         # French
         "le la les un une des du de d l ce cette ces votre vos vous il elle nous "
         "je j en au aux à par pour avec sans sur dans vers depuis puis ensuite et "
@@ -301,11 +312,41 @@ def _check_numbers(reply: str, user_message: str, plan: dict[str, Any]) -> list[
         if not _near_any(value, climb_allowed, CLIMB_TOLERANCE_M):
             wrong(f"{value:g} m is not in the result")
 
+    # Weather numbers live in fields and in the pre-written notes.
+    weather = plan.get("weather") or {}
+    weather_text = " ".join([str(weather.get("temperature_c", "")), *weather.get("notes", [])])
+
     share = (plan.get("scenery") or {}).get("scenic_share")
-    percent_allowed = [*from_message, *([share * 100] if share is not None else [])]
+    percent_allowed = [
+        *from_message,
+        *([share * 100] if share is not None else []),
+        *_values(plan, lambda key: key.endswith("_pct")),
+        *_numbers(_PERCENT, weather_text),
+    ]
     for value in _numbers(_PERCENT, reply):
         if not _near_any(value, percent_allowed, PERCENT_TOLERANCE):
             wrong(f"{value:g}% is not in the result")
+
+    speed_allowed = [
+        *from_message,
+        *_values(plan, lambda key: key.endswith("_kmh")),
+        *_numbers(_KMH, weather_text),
+    ]
+    for value in _numbers(_KMH, reply):
+        if not _near_any(value, speed_allowed, WIND_TOLERANCE_KMH):
+            wrong(f"{value:g} km/h is not in the result")
+
+    # Signs are dropped on both sides, so "-2 °C" matches "-2 to 1".
+    temperature_allowed = [
+        *_numbers(_ANY_NUMBER, str(weather.get("temperature_c", ""))),
+        *_numbers(_CELSIUS, weather_text),
+    ]
+    for value in _numbers(_CELSIUS, reply):
+        if not _near_any(value, temperature_allowed, TEMPERATURE_TOLERANCE_C):
+            wrong(f"{value:g} °C is not in the result")
+
+    if weather.get("notes") and not _WEATHER_WORDS.search(reply):
+        missing("the weather notes are not passed on")
     return problems
 
 

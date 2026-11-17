@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from app.models.llm import Usage
 from app.models.route import Coordinate, GeocodedPlace, RouteFeature, RouteOption, RouteStop
 from app.models.spec import RouteSpec
+from app.models.weather import RideWeather
 
 
 class PlanRequest(BaseModel):
@@ -27,4 +28,6 @@ class PlanResponse(BaseModel):
     # Places the route was sent through (found by search_places or named by the rider).
     via: list[GeocodedPlace] = []
     not_applied: list[str] = []
+    # The forecast for the ride window, or null if unavailable.
+    weather: RideWeather | None = None
     usage: Usage

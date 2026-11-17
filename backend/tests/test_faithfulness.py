@@ -265,3 +265,60 @@ def test_feedback_lists_each_problem() -> None:
     text = feedback(problems)
     assert '"Mount Royal"' in text
     assert "the distance is not given" in text
+
+
+WEATHER = {
+    "temperature_c": "12 to 15",
+    "rain_chance_pct": 70,
+    "wind_kmh": 25,
+    "wind_from": "west",
+    "notes": [
+        "rain likely (70% chance)",
+        "windy: 25 km/h from the west, gusts to 50 km/h, into the wind for 40% of the route",
+    ],
+    "headwind_pct": 40,
+}
+
+
+def test_weather_notes_passed_on_pass() -> None:
+    reply = GOOD_REPLY + " Rain is likely (70% chance), with 25 km/h wind from the west."
+    assert kinds(reply, plan(weather=WEATHER)) == []
+
+
+def test_a_wind_speed_is_not_a_distance() -> None:
+    reply = GOOD_REPLY + " Expect gusts to 50 km/h and rain (70% chance)."
+    assert kinds(reply, plan(weather=WEATHER)) == []
+
+
+def test_flags_a_wrong_wind_speed_or_rain_chance() -> None:
+    assert kinds(GOOD_REPLY + " Wind 40 km/h, rain likely.", plan(weather=WEATHER)) == ["wrong_number"]
+    assert kinds(GOOD_REPLY + " Rain: 90% chance.", plan(weather=WEATHER)) == ["wrong_number"]
+
+
+def test_checks_temperatures() -> None:
+    assert kinds(GOOD_REPLY + " It will be 12 to 15 °C, rain likely.", plan(weather=WEATHER)) == []
+    assert kinds(GOOD_REPLY + " It will be 25 °C, rain likely.", plan(weather=WEATHER)) == [
+        "wrong_number"
+    ]
+
+
+def test_negative_temperatures_match() -> None:
+    cold = {**WEATHER, "temperature_c": "-2 to 1", "notes": ["cold: -2 to 1 °C"]}
+    assert kinds(GOOD_REPLY + " It will be cold, -2 to 1 °C.", plan(weather=cold)) == []
+
+
+def test_flags_weather_notes_left_out() -> None:
+    assert kinds(GOOD_REPLY, plan(weather=WEATHER)) == ["missing_fact"]
+
+
+def test_fine_weather_need_not_be_mentioned() -> None:
+    assert kinds(GOOD_REPLY, plan(weather={**WEATHER, "notes": []})) == []
+
+
+def test_french_weather_note_passes() -> None:
+    reply = (
+        "Voici une boucle de 29,8 km depuis Old Port, environ 1 h 27 min. "
+        "Pluie probable (70 %) et vent de 25 km/h."
+    )
+    message = "Une boucle de 30 km depuis le Vieux-Port"
+    assert kinds(reply, plan(weather=WEATHER), message) == []

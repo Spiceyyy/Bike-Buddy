@@ -29,6 +29,7 @@ import { BAND_COLOR_EXPRESSION, stretchFeatures } from "@/lib/scenery";
 import CafeChoices, { sameStop } from "./CafeChoices";
 import RouteOptions from "./RouteOptions";
 import ScenerySummary from "./ScenerySummary";
+import WeatherSummary from "./WeatherSummary";
 
 const ROUTE_SOURCE = "route";
 const STRETCH_SOURCE = "scenic-stretches";
@@ -379,11 +380,12 @@ export default function RouteMap() {
           stop: { name: choice.name, coordinate: choice.coordinate },
           category: choice.category,
           climbing: plan.spec?.climbing ?? "any",
+          wind_from_deg: plan.weather?.forecast.wind_from_deg ?? null,
         },
         controller.signal,
       );
       setOptions((current) =>
-        current.map((o, i) => (i === index ? { ...o, route: result.route, stop: result.stop } : o)),
+        current.map((o, i) => (i === index ? { ...o, route: result.route, stop: result.stop, wind: result.wind } : o)),
       );
     } catch (reason) {
       if (!controller.signal.aborted) {
@@ -550,6 +552,9 @@ export default function RouteMap() {
           >
             {isExporting ? "Preparing GPX…" : "Download GPX"}
           </button>
+        )}
+        {plan?.weather && option && (
+          <WeatherSummary weather={plan.weather} wind={option.wind} />
         )}
         {option && (
           <CafeChoices

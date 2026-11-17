@@ -12,6 +12,7 @@ from app.api.plan import router as plan_router
 from app.api.routes import router as routes_router
 from app.config import Settings
 from app.db.places import PostgisPlaceFinder
+from app.enrichment.weather import OpenMeteoClient
 from app.retrieval.embedding_cache import CachingEmbedder
 from app.retrieval.embeddings import GeminiEmbedder
 from app.retrieval.place_search import PostgisPlaceSearch
@@ -40,6 +41,9 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 timeout=resolved.geocoder_timeout_seconds,
                 headers={"User-Agent": GEOCODER_USER_AGENT},
             ) as geocoder_http,
+            httpx.AsyncClient(
+                base_url=resolved.weather_url, timeout=resolved.weather_timeout_seconds
+            ) as weather_http,
             # min_size=0 connects lazily, so the API still starts if Postgres is down.
             asyncpg.create_pool(resolved.database_url, min_size=0, max_size=5) as db_pool,
         ):
@@ -55,6 +59,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
                 routing_http, profile=resolved.graphhopper_profile
             )
             app.state.geocoder = NominatimGeocoder(geocoder_http)
+            app.state.weather = OpenMeteoClient(weather_http)
             app.state.llm_client = (
                 GeminiClient(llm_http, api_key=api_key, model=resolved.gemini_model)
                 if api_key

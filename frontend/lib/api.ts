@@ -45,12 +45,29 @@ export type RouteStop = {
   off_route_m: number | null;
 };
 
+export type WindExposure = { headwind_pct: number; tailwind_pct: number; crosswind_pct: number };
+
+export type RideWeather = {
+  forecast: {
+    hours: number;
+    temperature_min_c: number;
+    temperature_max_c: number;
+    rain_chance_pct: number;
+    rain_mm: number;
+    wind_kmh: number;
+    wind_from_deg: number;
+    gusts_kmh: number;
+  };
+  notes: string[];
+};
+
 export type RouteOption = {
   label: string;
   route: RouteFeature;
   stop: RouteStop | null;
   stop_choices: RouteStop[];
   anchors: Coordinate[];
+  wind: WindExposure | null;
 };
 
 export type Climbing = "any" | "avoid" | "seek";
@@ -68,9 +85,10 @@ export type PlanResponse = {
   /** Places the route passes, found by search_places or named by the rider. */
   via: { name: string; coordinate: Coordinate }[];
   not_applied: string[];
+  weather: RideWeather | null;
 };
 
-export type ViaResponse = { route: RouteFeature; stop: RouteStop };
+export type ViaResponse = { route: RouteFeature; stop: RouteStop; wind: WindExposure | null };
 
 export function fetchRoute(
   start: LonLat,
@@ -98,6 +116,7 @@ export function routeVia(
     stop: { name: string; coordinate: Coordinate };
     category: string;
     climbing: Climbing;
+    wind_from_deg: number | null;
   },
   signal: AbortSignal,
 ): Promise<ViaResponse> {

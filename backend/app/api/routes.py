@@ -7,6 +7,7 @@ from app.config import Settings
 from app.db.health import postgis_is_available
 from app.models.gpx import GpxRequest
 from app.models.route import RouteFeature, RouteRequest, ViaRequest, ViaResponse
+from app.enrichment.wind import wind_exposure
 from app.routing.climbing import climbing_model
 from app.routing.gpx import build_gpx, gpx_filename
 from app.routing.graphhopper import (
@@ -69,7 +70,12 @@ async def route_via_stop(
         raise _http_error(exc) from exc
     if scenery is not None:
         route.properties.scenic = await scenery.describe(route)
-    return ViaResponse(route=route, stop=make_stop(body.category, body.stop, route))
+    wind = (
+        wind_exposure(route.geometry.coordinates, body.wind_from_deg)
+        if body.wind_from_deg is not None
+        else None
+    )
+    return ViaResponse(route=route, stop=make_stop(body.category, body.stop, route), wind=wind)
 
 
 @router.post(

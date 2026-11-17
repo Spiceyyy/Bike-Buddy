@@ -1,14 +1,18 @@
 """Faithfulness eval: do the planner's replies match the routes it planned?
 
 Runs every request in requests.jsonl end to end, exactly as /api/plan does:
-the live LLM, the real geocoder, routing engine, scenery and café index. For
+the live LLM, the real geocoder, routing engine, scenery, café index and forecast. For
 each request that produces a route, the reply is checked against the
 plan_route result (app/evaluation/faithfulness.py):
 
-- wrong_number:   a distance, riding time, climb or percentage not in the result
+- wrong_number:   a distance, riding time, climb, percentage, wind speed or
+                  temperature not in the result
 - unknown_name:   a name that is not on the route or in the request
-- missing_fact:   no distance or no riding time
+- missing_fact:   no distance or riding time, or weather notes left out
 - missing_caveat: an unmet stop, climbing limit or loop distance left unsaid
+- unsupported_scenery: water, green space or quiet streets with no such
+                  highlight, or any claim about the surface
+- wrong_caveat:   saying the loop missed its distance when it did not
 
 Each reply is scored twice: the model's first draft, and the final reply after
 the one rewrite the app allows. The gap shows what the live check buys.
@@ -45,6 +49,7 @@ from app.agent.orchestrator import run_agent
 from app.agent.prompts import load_prompt
 from app.config import Settings
 from app.db.places import PostgisPlaceFinder
+from app.enrichment.weather import OpenMeteoClient
 from app.evaluation.faithfulness import check_reply, last_plan_result, reply_check
 from app.main import GEOCODER_USER_AGENT
 from app.models.llm import LLMResponse, Message, ToolDefinition
@@ -92,8 +97,9 @@ class WaitingLLM:
 class Planner:
     """Builds the same tools for each request as /api/plan."""
 
-    def __init__(self, routing, geocoder, pool: asyncpg.Pool, place_search) -> None:
+    def __init__(self, routing, geocoder, pool: asyncpg.Pool, place_search, weather) -> None:
         self._routing = routing
+        self._weather = weather
         self._geocoder = geocoder
         self._scenery = PostgisScenicDescriber(pool)
         self._places = PostgisPlaceFinder(pool)
@@ -108,6 +114,7 @@ class Planner:
                 scenery=self._scenery,
                 places=self._places,
                 known_places=registry,
+                weather=self._weather,
             ),
             SearchPlacesTool(self._place_search, self._routing, self._geocoder, registry),
         ]
@@ -250,11 +257,16 @@ async def run(version: str, limit: int | None, delay_seconds: float) -> None:
             timeout=settings.geocoder_timeout_seconds,
             headers={"User-Agent": GEOCODER_USER_AGENT},
         ) as geocoder_http,
+        httpx.AsyncClient(
+            base_url=settings.weather_url, timeout=settings.weather_timeout_seconds
+        ) as weather_http,
     ):
         llm = WaitingLLM(GeminiClient(llm_http, api_key=api_key, model=settings.gemini_model))
         routing = GraphHopperClient(routing_http, profile=settings.graphhopper_profile)
         search = PostgisPlaceSearch(pool, CachingEmbedder(GeminiEmbedder(llm_http, api_key), pool))
-        planner = Planner(routing, NominatimGeocoder(geocoder_http), pool, search)
+        planner = Planner(
+            routing, NominatimGeocoder(geocoder_http), pool, search, OpenMeteoClient(weather_http)
+        )
 
         for index, case in enumerate(cases, 1):
             if case["id"] in results:

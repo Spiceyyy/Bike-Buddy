@@ -175,3 +175,31 @@ class FakeScenery:
     async def describe(self, route: RouteFeature):
         self.described.append(route)
         return self.scenic
+
+
+class FakeWeather:
+    """Returns a fixed forecast, or fails, recording what it was asked for."""
+
+    def __init__(self, forecast=None, fail: bool = False) -> None:
+        from app.models.weather import RideForecast
+
+        self.forecast_value = forecast or RideForecast(
+            hours=2,
+            temperature_min_c=12.0,
+            temperature_max_c=15.0,
+            rain_chance_pct=70,
+            rain_mm=2.0,
+            wind_kmh=25.0,
+            wind_from_deg=180.0,
+            gusts_kmh=30.0,
+        )
+        self.fail = fail
+        self.requests: list[tuple[Coordinate, int]] = []
+
+    async def forecast(self, at: Coordinate, hours: int):
+        from app.enrichment.weather import WeatherError
+
+        self.requests.append((at, hours))
+        if self.fail:
+            raise WeatherError("down")
+        return self.forecast_value

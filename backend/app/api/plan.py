@@ -7,6 +7,7 @@ from app.agent.llm import LLMClient, LLMError, LLMRateLimitError
 from app.agent.orchestrator import run_agent
 from app.agent.prompts import load_prompt
 from app.api.routes import RoutingClient, Scenery
+from app.enrichment.weather import Weather
 from app.evaluation.faithfulness import reply_check
 from app.models.plan import PlanRequest, PlanResponse
 from app.routing.geocoder import NominatimGeocoder
@@ -42,6 +43,10 @@ def get_place_search(request: Request) -> PlaceSearch | None:
     return getattr(request.app.state, "place_search", None)
 
 
+def get_weather(request: Request) -> Weather | None:
+    return getattr(request.app.state, "weather", None)
+
+
 def _rate_limit_message(retry_after_seconds: float | None) -> str:
     if retry_after_seconds is not None and retry_after_seconds > LONG_WAIT_SECONDS:
         hours = math.ceil(retry_after_seconds / 3600)
@@ -58,6 +63,7 @@ async def create_plan(
     scenery: Scenery,
     places: Annotated[PlaceFinder | None, Depends(get_place_finder)],
     place_search: Annotated[PlaceSearch | None, Depends(get_place_search)],
+    weather: Annotated[Weather | None, Depends(get_weather)],
 ) -> PlanResponse:
     """Plan a ride from a plain-language request."""
     registry = PlaceRegistry()
@@ -68,6 +74,7 @@ async def create_plan(
         scenery=scenery,
         places=places,
         known_places=registry,
+        weather=weather,
     )
     tools: list[Tool] = [tool]
     if place_search is not None:
@@ -100,5 +107,6 @@ async def create_plan(
         end=tool.end,
         via=tool.via,
         not_applied=tool.not_applied,
+        weather=tool.weather,
         usage=run.usage,
     )

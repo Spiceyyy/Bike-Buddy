@@ -18,3 +18,6 @@ class Settings(BaseSettings):
 
     geocoder_url: str = "https://nominatim.openstreetmap.org"
     geocoder_timeout_seconds: float = 10.0
+
+    weather_url: str = "https://api.open-meteo.com"
+    weather_timeout_seconds: float = 5.0

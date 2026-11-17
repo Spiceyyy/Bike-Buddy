@@ -6,11 +6,21 @@ another LLM call.
 """
 
 import asyncio
+import logging
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
 from pydantic import BaseModel
 
+from app.enrichment.weather import (
+    Weather,
+    WeatherError,
+    compass,
+    ride_hours,
+    ride_weather,
+    whole,
+)
+from app.enrichment.wind import wind_exposure
 from app.models.route import (
     BoundingBox,
     Coordinate,
@@ -22,6 +32,7 @@ from app.models.route import (
 )
 from app.models.scenic import RouteScenic, ScenicBand
 from app.models.spec import Climbing, RouteSpec, RouteType, Stop, Surface
+from app.models.weather import RideWeather
 from app.routing.climbing import climbing_model
 from app.routing.geocoder import GeocodingError
 from app.routing.geometry import distance_along, distance_m, point_at_fraction
@@ -34,6 +45,8 @@ from app.routing.graphhopper import (
 )
 from app.scoring.candidates import choose_options
 from app.scoring.route_scenic import ScenicDescriber
+
+logger = logging.getLogger(__name__)
 
 NAME = "plan_route"
 DESCRIPTION = (
@@ -143,6 +156,7 @@ class PlanRouteTool:
         scenery: ScenicDescriber | None = None,
         places: PlaceFinder | None = None,
         known_places: KnownPlaces | None = None,
+        weather: Weather | None = None,
     ) -> None:
         self._routing = routing
         self._geocoder = geocoder
@@ -150,6 +164,7 @@ class PlanRouteTool:
         self._scenery = scenery
         self._places = places
         self._known_places = known_places
+        self._weather = weather
         self._reset(None)
 
     def _reset(self, spec: RouteSpec | None) -> None:
@@ -160,6 +175,7 @@ class PlanRouteTool:
         self.start: Coordinate | None = None
         self.end: Coordinate | None = None
         self.via: list[GeocodedPlace] = []
+        self.weather: RideWeather | None = None
 
     @property
     def route(self) -> RouteFeature | None:
@@ -254,7 +270,25 @@ class PlanRouteTool:
         self.start_name, self.end_name = start.name, end_name
         self.start, self.end = start.coordinate, end_coordinate
         self.via = vias
+        await self._add_weather(start.coordinate)
         return self._result(spec, stop_requested)
+
+    async def _add_weather(self, start: Coordinate) -> None:
+        """Forecast for the ride window, and how much of each option rides into the wind.
+
+        Weather is a nice-to-have: if the forecast fails, the plan goes ahead without it.
+        """
+        if self._weather is None:
+            return
+        hours = ride_hours(self.options[0].route.properties.duration_s)
+        try:
+            forecast = await self._weather.forecast(start, hours)
+        except WeatherError as exc:
+            logger.warning("weather unavailable: %s", exc)
+            return
+        for option in self.options:
+            option.wind = wind_exposure(option.route.geometry.coordinates, forecast.wind_from_deg)
+        self.weather = ride_weather(forecast, self.options[0].wind)
 
     def _result(self, spec: RouteSpec, stop_requested: bool) -> dict[str, Any]:
         best = self.options[0]
@@ -291,6 +325,8 @@ class PlanRouteTool:
                 result["stop_found"] = False
         if properties.scenic is not None:
             result["scenery"] = summarize_scenery(properties.scenic)
+        if self.weather is not None:
+            result["weather"] = summarize_weather(self.weather, best)
         result["other_options"] = [
             {
                 "label": option.label,
@@ -545,6 +581,21 @@ def find_not_applied(spec: RouteSpec) -> list[str]:
     if spec.vibes:
         not_applied.append("vibe preferences")
     return not_applied
+
+
+def summarize_weather(weather: RideWeather, option: RouteOption) -> dict[str, Any]:
+    """What the LLM may say about the weather. The notes are already written."""
+    forecast = weather.forecast
+    summary: dict[str, Any] = {
+        "temperature_c": f"{whole(forecast.temperature_min_c)} to {whole(forecast.temperature_max_c)}",
+        "rain_chance_pct": forecast.rain_chance_pct,
+        "wind_kmh": round(forecast.wind_kmh),
+        "wind_from": compass(forecast.wind_from_deg),
+        "notes": weather.notes,
+    }
+    if option.wind is not None:
+        summary["headwind_pct"] = option.wind.headwind_pct
+    return summary
 
 
 def summarize_scenery(scenic: RouteScenic) -> dict[str, Any]:

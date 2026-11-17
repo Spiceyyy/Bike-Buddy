@@ -4,6 +4,7 @@ from pydantic import BaseModel, Field, model_validator
 
 from app.models.scenic import RouteScenic
 from app.models.spec import Climbing
+from app.models.weather import WindExposure
 
 
 class Coordinate(BaseModel):
@@ -89,6 +90,8 @@ class RouteOption(BaseModel):
     stop_choices: list[RouteStop] = []
     # Points that keep the route's shape when it is re-routed through a chosen stop.
     anchors: list[Coordinate] = []
+    # How much of this route rides into the forecast wind. Null without a forecast.
+    wind: WindExposure | None = None
 
 
 class ViaRequest(BaseModel):
@@ -101,8 +104,11 @@ class ViaRequest(BaseModel):
     stop: GeocodedPlace
     category: str = "cafe"
     climbing: Climbing = Climbing.ANY
+    # The plan's forecast wind direction, to recompute wind exposure.
+    wind_from_deg: float | None = Field(default=None, ge=0, lt=360)
 
 
 class ViaResponse(BaseModel):
     route: RouteFeature
     stop: RouteStop
+    wind: WindExposure | None = None

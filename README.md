@@ -2,7 +2,7 @@
 
 Turns a plain-language cycling request into a real, rideable route chosen for scenery and riding feel. The design rule throughout: **the LLM plans; the routing engine routes.**
 
-**Status: Phase 4 of 5 in progress** (faithful replies and GPX export done). Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app.
+**Status: Phase 4 of 5 in progress** (faithful replies, GPX export and weather done). Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app. Each plan carries the forecast for the ride and how much of each route rides into the wind.
 
 ![A 20 km loop from the Old Port with a café stop: three route options, the route coloured by scenery, and the cafés along it](docs/images/plan-cafe-loop.jpg)
 
@@ -29,7 +29,8 @@ FastAPI backend
    │      ├─▶ plan_route tool (RouteSpec)
    │      │      ├─▶ Nominatim   (place name → coordinates)
    │      │      ├─▶ GraphHopper (coordinates → real routes, with elevation)
-   │      │      └─▶ PostGIS     (scenery along each route, cafés nearby)
+   │      │      ├─▶ PostGIS     (scenery along each route, cafés nearby)
+   │      │      └─▶ Open-Meteo  (forecast for the ride; wind set against each route)
    │      │
    │      └─▶ faithfulness check (reply vs plan_route result; one rewrite if it fails)
    │
@@ -51,6 +52,7 @@ The LLM only ever sees place names, short place descriptions and route summaries
 | [backend/app/tools/plan_route.py](backend/app/tools/plan_route.py) | Turns a `RouteSpec` into up to three route options |
 | [backend/app/tools/search_places.py](backend/app/tools/search_places.py) | Finds real places matching a kind of place ("a lookout") |
 | [backend/app/retrieval/](backend/app/retrieval/) | Embedding client and hybrid place search |
+| [backend/app/enrichment/](backend/app/enrichment/) | Weather for the ride window and wind exposure per route |
 | [backend/app/scoring/](backend/app/scoring/) | Scenery along a route, and choosing distinct route options |
 | [backend/pipeline/](backend/pipeline/) | Offline OSM pipeline: segment scores, scenic zones, places and embeddings |
 | [backend/app/models/spec.py](backend/app/models/spec.py) | `RouteSpec`, the structured form of a ride request |
@@ -310,6 +312,22 @@ Embeddings match meaning across words and languages ("lookout" and "belvédère"
 
 The browser sends the route it already has to a stateless endpoint, [`POST /api/route/gpx`](#post-apiroutegpx), which builds the file ([gpx.py](backend/app/routing/gpx.py)) without calling the routing engine or the LLM. No elevation is written: devices and apps fill it in from their own data, and SRTM reads high in the city (see Known limitations).
 
+### Weather and wind
+
+Each plan fetches the forecast at the start point for the hours the ride takes, from [Open-Meteo](https://open-meteo.com/) (free, no API key): temperature, the highest hourly chance of rain, mean wind speed and direction, and gusts ([weather.py](backend/app/enrichment/weather.py)).
+
+The wind is then set against each route option ([wind.py](backend/app/enrichment/wind.py)). Every piece of the route is classed by the angle between the direction of travel and the direction the wind comes from: within 45° is a headwind, within 45° of the opposite a tailwind, anything else a crosswind, weighted by distance. The panel shows the share for the route on screen ("This route: 36% into the wind, 22% with it"), and it is recomputed when the rider picks another option or café.
+
+Notes worth telling the rider are written in code from fixed thresholds, so the model only passes them on, and the faithfulness check verifies their numbers:
+
+| Note | When |
+| --- | --- |
+| Rain likely / a chance of rain | Highest hourly chance of rain 50% or more / 30% or more |
+| Windy, with gusts and the headwind share | Mean wind 20 km/h or more, or gusts 45 km/h or more; the route's headwind share is added from 30% |
+| Cold / hot | High of 3 °C or less / 30 °C or more |
+
+Weather is optional: if Open-Meteo fails or times out (5 s), the plan goes ahead without it. Only the start point's coordinates are sent.
+
 ### Faithful replies
 
 The model writes the reply, so it is the one part of a plan that could say something untrue: a place the route does not pass, a wrong distance, or water views on a street through a park. Every reply is now checked in code against the `plan_route` result before it is shown ([faithfulness.py](backend/app/evaluation/faithfulness.py)):
@@ -331,7 +349,8 @@ When a check fails, the agent loop sends the reply back once with the list of pr
 - **Surface and vibes** are parsed but not applied yet. The app says so on each result.
 - **Climbing figures are approximate.** SRTM elevation partly measures buildings and trees, so city routes show extra climbing: the flat Lachine Canal path reads 113 m over 14 km. Comparisons between routes are still meaningful.
 - **Climbing limits on point-to-point rides** choose among at most three GraphHopper alternatives, so a limit may be reported as missed.
-- **The faithfulness check is rule-based.** It finds names as runs of capitalised words and scenery claims by phrase, in English and French. A claim phrased in a way it does not know ("hugging the river") passes. Its rules were written after reading the eval's replies, so it has not been tested on unseen replies yet.
+- **The faithfulness check is rule-based.** It finds names as runs of capitalised words and scenery claims by phrase, in English and French. A claim phrased in a way it does not know ("hugging the river") passes. Its rules were written after reading the first three eval runs; on the one run since (32 new replies), it raised no false alarms and missed nothing, but that run had no real errors to catch.
+- **The forecast is for riding now.** Requests don't carry a start time yet, so "tomorrow morning" still gets the forecast for the next hours, at the start point only.
 - **The reply describes the best match.** Switching to another option or café updates the map and panel, but not the written reply.
 - **Café distances in the list** ("km 7.7") are measured along the route the list was made for. After switching to another café, the route changes slightly, so they are approximate.
 - **Loop distance** is approximate. The planner tries 8 loops and keeps the closest, which landed within 10% for 22 of 24 tested start and distance pairs. When it misses, the reply says so.
@@ -349,7 +368,7 @@ When a check fails, the agent loop sends the reply back once with the list of pr
 
 `map_start` is an optional `{ "lat", "lon" }`, used when the message names no start.
 
-Returns `reply`, `route` (a GeoJSON Feature, or null), `spec` (the parsed `RouteSpec`), `start_name` and `end_name` (the places actually matched), `stop` (the café routed through, with its coordinate and `distance_along_m`, or null), `options` (up to three, each with `label`, `route`, `stop`, `stop_choices` and `anchors`; the first matches `route` and `stop`), `start` and `end` (resolved coordinates; `end` is null for loops), `via` (the places the route passes, with coordinates), `not_applied`, and `usage` (LLM calls, tokens, latency).
+Returns `reply`, `route` (a GeoJSON Feature, or null), `spec` (the parsed `RouteSpec`), `start_name` and `end_name` (the places actually matched), `stop` (the café routed through, with its coordinate and `distance_along_m`, or null), `options` (up to three, each with `label`, `route`, `stop`, `stop_choices` and `anchors`; the first matches `route` and `stop`), `start` and `end` (resolved coordinates; `end` is null for loops), `via` (the places the route passes, with coordinates), `not_applied`, `weather` (the forecast for the ride window and its notes, or null), and `usage` (LLM calls, tokens, latency). Each option also carries `wind`, its headwind, tailwind and crosswind shares. `/api/route/via` takes an optional `wind_from_deg` and then returns `wind` for the re-routed option too.
 
 | Status | Meaning |
 | --- | --- |
@@ -569,14 +588,15 @@ docker compose exec backend python /evals/run_faithfulness.py --version my-versi
 
 Runs the 40 requests from [requests.jsonl](evals/requests.jsonl) end to end, exactly as `/api/plan` does (live LLM, geocoder, routing engine, scenery and café index), and checks every reply that describes a route. Each reply is scored twice: the model's first draft, and the final reply after the one rewrite the app allows. Because the checker is a heuristic, every reply was also read by hand against its `plan_route` result. Hand verdicts are in [faithfulness_review.json](evals/faithfulness_review.json).
 
-Three runs, 92 routes in all, every reply read by hand:
+Four runs, 124 routes in all, every reply read by hand:
 
 | Run | Routes | First drafts with a real error | Checker flags | False alarms | Real errors missed |
 | --- | --- | --- | --- | --- | --- |
 | [v1](evals/results/faithfulness-v1.json) | 31 | 0 | 5 | 5 | 0 |
 | [v2](evals/results/faithfulness-v2.json) | 30 | 1 | 0 | 0 | 1 |
 | [v3](evals/results/faithfulness-v3.json) | 31 | 1 | 2 | 2 | 1 |
-| **All, re-scored with the final checker** | **92** | **2 (97.8% faithful)** | **2** | **0** | **0** |
+| [v4](evals/results/faithfulness-v4.json), with weather | 32 | 0 | 0 | 0 | 0 |
+| **All, re-scored with the final checker** | **124** | **2 (98.4% faithful)** | **2** | **0** | **0** |
 
 The model is already faithful almost every time: copying names and pre-formatted numbers from tool results works. The two real errors were both invented scenery, not wrong facts:
 
@@ -589,14 +609,16 @@ Most of the work went into the checker:
 - **v2: no flags, one real error missed.** Reading every reply found the invented water views, which named no place, so the name check could not see them. The scenery check was added.
 - **v3: two false alarms ("Notez", French for "Note") and one miss** (the surface claim and the wrong caveat). Rules for both were added.
 
-Re-scored with the final checker, the stored first drafts of all three runs give exactly the two real errors and no false alarms. That figure is optimistic: the rules were written while reading these same 92 replies. A run on new requests would show how well the checker holds up.
+Re-scored with the final checker, the stored first drafts of the first three runs give exactly the two real errors and no false alarms. That figure is optimistic, because the rules were written while reading those same 92 replies.
+
+- **v4: the first run on new replies, now with weather.** Every plan carried a cold note (it was about 0 °C), and all 32 replies passed it on with the right numbers, in English and French. Wind mentions matched the data: "a 9 km/h headwind from the southwest" was on a route that rides 82% into the wind. The checker raised no false alarms and missed nothing, but with no real errors in the run, it was not tested on catching one.
 
 ## Roadmap
 
 1. **Routing skeleton** (done)
 2. **LLM planner** (done): intent parsing into `RouteSpec`, `plan_route` tool, first evals
 3. Scenic layer and RAG: scoring pipeline, vector index, `search_places`, multiple candidates and re-ranking, retrieval and constraint evals (done)
-4. Polish and proof: faithful explanations (done), GPX export (done), weather, feedback, deployment
+4. Polish and proof: faithful explanations (done), GPX export (done), weather (done), feedback, deployment
 5. Trainer mode
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Geocoding by [Nominatim](https://nominatim.org/). Basemap by [OpenFreeMap](https://openfreemap.org/).

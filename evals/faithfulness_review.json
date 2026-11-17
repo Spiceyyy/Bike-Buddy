@@ -1,5 +1,5 @@
 {
-  "_about": "Hand verdicts on first drafts the checker flagged, by run and request id: 'real' or 'false_alarm'. Each was checked against the plan_route result stored in that run's results file. Every reply in v1, v2 and v3 was also read by hand to look for errors the checker missed; those are listed as 'missed'.",
+  "_about": "Hand verdicts on first drafts the checker flagged, by run and request id: 'real' or 'false_alarm'. Each was checked against the plan_route result stored in that run's results file. Every reply in v1 to v4 was also read by hand to look for errors the checker missed; those are listed as 'missed'.",
   "v1": {
     "loop-05": {
       "verdict": "false_alarm",

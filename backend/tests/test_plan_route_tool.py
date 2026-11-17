@@ -11,7 +11,14 @@ from app.routing.graphhopper import (
 )
 from app.routing.climbing import AVOID_CLIMBS, SEEK_CLIMBS
 from app.tools.plan_route import MAP_POINT_NAME, PlanRouteTool, format_duration, stop_points
-from tests.fakes import FakeGeocoder, FakePlaces, FakeRouting, FakeScenery, make_feature
+from tests.fakes import (
+    FakeGeocoder,
+    FakePlaces,
+    FakeRouting,
+    FakeScenery,
+    FakeWeather,
+    make_feature,
+)
 
 MAP_PIN = Coordinate(lat=45.6, lon=-73.6)
 
@@ -396,3 +403,47 @@ def test_ride_back_to_the_start_becomes_a_loop() -> None:
 )
 def test_riding_time_reaches_the_llm_already_formatted(seconds: float, text: str) -> None:
     assert format_duration(seconds) == text
+
+
+async def test_weather_covers_the_ride_from_the_start() -> None:
+    weather = FakeWeather()
+    # make_feature routes take 1800 s and run south-west.
+    tool = PlanRouteTool(FakeRouting([50_000]), FakeGeocoder(), weather=weather)
+
+    result = await tool.run(loop_spec())
+
+    assert weather.requests == [(Coordinate(lat=45.5, lon=-73.55), 1)]
+    assert result["weather"] == {
+        "temperature_c": "12 to 15",
+        "rain_chance_pct": 70,
+        "wind_kmh": 25,
+        "wind_from": "south",
+        "notes": [
+            "rain likely (70% chance)",
+            "windy: 25 km/h from the south, into the wind for 100% of the route",
+        ],
+        "headwind_pct": 100,
+    }
+    assert tool.weather is not None
+    assert all(option.wind is not None for option in tool.options)
+
+
+async def test_plan_goes_ahead_when_the_forecast_fails() -> None:
+    tool = PlanRouteTool(FakeRouting([50_000]), FakeGeocoder(), weather=FakeWeather(fail=True))
+
+    result = await tool.run(loop_spec())
+
+    assert result["status"] == "ok"
+    assert "weather" not in result
+    assert tool.weather is None
+    assert tool.options[0].wind is None
+
+
+async def test_no_forecast_is_asked_for_a_plan_that_failed() -> None:
+    weather = FakeWeather()
+    tool = PlanRouteTool(FakeRouting([50_000]), FakeGeocoder(), weather=weather)
+
+    result = await tool.run(loop_spec(start_place=None))
+
+    assert result["status"] == "needs_input"
+    assert weather.requests == []
