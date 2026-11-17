@@ -7,6 +7,7 @@ from app.agent.llm import LLMClient, LLMError, LLMRateLimitError
 from app.agent.orchestrator import run_agent
 from app.agent.prompts import load_prompt
 from app.api.routes import RoutingClient, Scenery
+from app.evaluation.faithfulness import reply_check
 from app.models.plan import PlanRequest, PlanResponse
 from app.routing.geocoder import NominatimGeocoder
 from app.retrieval.place_search import PlaceSearch
@@ -74,7 +75,9 @@ async def create_plan(
             SearchPlacesTool(place_search, routing, geocoder, registry, map_start=body.map_start)
         )
     try:
-        run = await run_agent(llm, load_prompt("planner"), body.message, tools)
+        run = await run_agent(
+            llm, load_prompt("planner"), body.message, tools, check=reply_check(body.message)
+        )
     except LLMRateLimitError as exc:
         raise HTTPException(
             status.HTTP_429_TOO_MANY_REQUESTS, _rate_limit_message(exc.retry_after_seconds)

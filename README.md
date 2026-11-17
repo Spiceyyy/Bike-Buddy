@@ -2,7 +2,7 @@
 
 Turns a plain-language cycling request into a real, rideable route chosen for scenery and riding feel. The design rule throughout: **the LLM plans; the routing engine routes.**
 
-**Status: Phase 3 of 5 complete, ready for review.** Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for.
+**Status: Phase 4 of 5 in progress** (faithful replies done). Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have.
 
 ![A 20 km loop from the Old Port with a café stop: three route options, the route coloured by scenery, and the cafés along it](docs/images/plan-cafe-loop.jpg)
 
@@ -26,10 +26,12 @@ FastAPI backend
    │      ├─▶ search_places tool ──▶ Gemini embedding of the query
    │      │                          + hybrid search over places (pgvector + name match)
    │      │
-   │      └─▶ plan_route tool (RouteSpec)
-   │             ├─▶ Nominatim   (place name → coordinates)
-   │             ├─▶ GraphHopper (coordinates → real routes, with elevation)
-   │             └─▶ PostGIS     (scenery along each route, cafés nearby)
+   │      ├─▶ plan_route tool (RouteSpec)
+   │      │      ├─▶ Nominatim   (place name → coordinates)
+   │      │      ├─▶ GraphHopper (coordinates → real routes, with elevation)
+   │      │      └─▶ PostGIS     (scenery along each route, cafés nearby)
+   │      │
+   │      └─▶ faithfulness check (reply vs plan_route result; one rewrite if it fails)
    │
    └─▶ Postgres + PostGIS + pgvector
           ▲  scored road segments, places with description embeddings
@@ -53,6 +55,7 @@ The LLM only ever sees place names, short place descriptions and route summaries
 | [backend/pipeline/](backend/pipeline/) | Offline OSM pipeline: segment scores, scenic zones, places and embeddings |
 | [backend/app/models/spec.py](backend/app/models/spec.py) | `RouteSpec`, the structured form of a ride request |
 | [backend/app/routing/](backend/app/routing/) | GraphHopper and geocoder clients |
+| [backend/app/evaluation/faithfulness.py](backend/app/evaluation/faithfulness.py) | Checks each reply against the route it describes, used live and in evals |
 | [backend/app/evaluation/intent_scoring.py](backend/app/evaluation/intent_scoring.py) | Eval scoring, unit tested without an LLM |
 | [evals/](evals/) | Labelled requests, eval runner, one results file per version |
 | [graphhopper/](graphhopper/) | Pinned GraphHopper image, config, and extract download |
@@ -301,11 +304,28 @@ Embeddings match meaning across words and languages ("lookout" and "belvédère"
 
 **Free-tier limits.** The Gemini free tier allows about 100 embeddings a minute and about 1,000 a day, shared by indexing and searching. Indexing the 1,182 places therefore needed pipeline runs on two days; each run continues from the cache. Searches then cost one embedding per new query, and none for repeated ones.
 
+### Faithful replies
+
+The model writes the reply, so it is the one part of a plan that could say something untrue: a place the route does not pass, a wrong distance, or water views on a street through a park. Every reply is now checked in code against the `plan_route` result before it is shown ([faithfulness.py](backend/app/evaluation/faithfulness.py)):
+
+| Check | Fails when the reply |
+| --- | --- |
+| Numbers | gives a distance, riding time, climb or scenic percentage that is not in the result or the request (rounding allowed: 29.8 km may be "30 km") |
+| Names | names a place or road that is not in the result or the request, or writes it differently ("Lachine Canal" for "Canal de Lachine") |
+| Scenery | says the route goes along the water, through green space or on quiet streets with no highlight of that kind, or describes its surface, which the app has no data for |
+| Facts | leaves out the distance or the riding time |
+| Caveats | leaves out that no café was found, that a climbing limit or loop distance was missed, or claims a miss that did not happen |
+
+Names in the result (start, end, places passed, the café, scenery highlights) all lie on the route, so the name check enforces the design rule that every place named lies on the route. A place that `search_places` found but the route does not pass does not count.
+
+When a check fails, the agent loop sends the reply back once with the list of problems, asking the model to fix only those ([prompt](backend/app/agent/prompts/reply_feedback.md)). The check is plain Python over English and French text, with no LLM, so it costs nothing when the reply is fine and one extra LLM call when it is not. Rewrites are logged as `reply_check` events.
+
 ## Known limitations
 
 - **Surface and vibes** are parsed but not applied yet. The app says so on each result.
 - **Climbing figures are approximate.** SRTM elevation partly measures buildings and trees, so city routes show extra climbing: the flat Lachine Canal path reads 113 m over 14 km. Comparisons between routes are still meaningful.
 - **Climbing limits on point-to-point rides** choose among at most three GraphHopper alternatives, so a limit may be reported as missed.
+- **The faithfulness check is rule-based.** It finds names as runs of capitalised words and scenery claims by phrase, in English and French. A claim phrased in a way it does not know ("hugging the river") passes. Its rules were written after reading the eval's replies, so it has not been tested on unseen replies yet.
 - **The reply describes the best match.** Switching to another option or café updates the map and panel, but not the written reply.
 - **Café distances in the list** ("km 7.7") are measured along the route the list was made for. After switching to another café, the route changes slightly, so they are approximate.
 - **Loop distance** is approximate. The planner tries 8 loops and keeps the closest, which landed within 10% for 22 of 24 tested start and distance pairs. When it misses, the reply says so.
@@ -518,12 +538,42 @@ Current result (v2):
 
 The scenic profile helps loops most, because a loop has freedom to choose where it goes. Point-to-point trips gain little, because the bike model already prefers bike paths and a stronger push causes long detours. Twenty trips is a small sample, and the same scores are used both to steer and to judge the routes, so this measures whether the steering works, not whether riders find the routes nicer.
 
+### Faithfulness: do replies match the route?
+
+```sh
+docker compose exec backend python /evals/run_faithfulness.py --version my-version
+```
+
+Runs the 40 requests from [requests.jsonl](evals/requests.jsonl) end to end, exactly as `/api/plan` does (live LLM, geocoder, routing engine, scenery and café index), and checks every reply that describes a route. Each reply is scored twice: the model's first draft, and the final reply after the one rewrite the app allows. Because the checker is a heuristic, every reply was also read by hand against its `plan_route` result. Hand verdicts are in [faithfulness_review.json](evals/faithfulness_review.json).
+
+Three runs, 92 routes in all, every reply read by hand:
+
+| Run | Routes | First drafts with a real error | Checker flags | False alarms | Real errors missed |
+| --- | --- | --- | --- | --- | --- |
+| [v1](evals/results/faithfulness-v1.json) | 31 | 0 | 5 | 5 | 0 |
+| [v2](evals/results/faithfulness-v2.json) | 30 | 1 | 0 | 0 | 1 |
+| [v3](evals/results/faithfulness-v3.json) | 31 | 1 | 2 | 2 | 1 |
+| **All, re-scored with the final checker** | **92** | **2 (97.8% faithful)** | **2** | **0** | **0** |
+
+The model is already faithful almost every time: copying names and pre-formatted numbers from tool results works. The two real errors were both invented scenery, not wrong facts:
+
+- v2, "15 km loop from the Old Port, stop for coffee halfway, along the water": the reply said the loop "follows the water", telling the rider what they asked for. Its only highlight was a street through green space, and the water preference is not applied yet.
+- v3, "Gravel ride, 60k, starting in Laval": the reply said "unpaved surfaces are not supported yet, so this route is paved", which the app cannot know, and called a loop on target "the closest loop I could find".
+
+Most of the work went into the checker:
+
+- **v1: 5 false alarms out of 5 flags.** "You'll" was read as a name, and "Rue Willibrord and the Piste Cyclable du Canal de Lachine" as one name. The false alarms were not harmless: two rewrites came back worse, one dropping two correct street names and one turning into a list ("Distance: 18.5 km. Riding time: …"). The checker was fixed, and the rewrite prompt now asks to fix only the listed problems and keep the rest.
+- **v2: no flags, one real error missed.** Reading every reply found the invented water views, which named no place, so the name check could not see them. The scenery check was added.
+- **v3: two false alarms ("Notez", French for "Note") and one miss** (the surface claim and the wrong caveat). Rules for both were added.
+
+Re-scored with the final checker, the stored first drafts of all three runs give exactly the two real errors and no false alarms. That figure is optimistic: the rules were written while reading these same 92 replies. A run on new requests would show how well the checker holds up.
+
 ## Roadmap
 
 1. **Routing skeleton** (done)
 2. **LLM planner** (done): intent parsing into `RouteSpec`, `plan_route` tool, first evals
 3. Scenic layer and RAG: scoring pipeline, vector index, `search_places`, multiple candidates and re-ranking, retrieval and constraint evals (done)
-4. Polish and proof: faithful explanations, weather, GPX export, feedback, deployment
+4. Polish and proof: faithful explanations (done), GPX export, weather, feedback, deployment
 5. Trainer mode
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Geocoding by [Nominatim](https://nominatim.org/). Basemap by [OpenFreeMap](https://openfreemap.org/).

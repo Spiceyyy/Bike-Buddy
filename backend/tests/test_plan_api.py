@@ -8,6 +8,8 @@ from app.main import create_app
 from tests.fakes import FakeGeocoder, FakeLLM, FakeRouting, text_response, tool_call_response
 
 LOOP_ARGS = {"route_type": "loop", "start_place": "Old Port", "target_distance_km": 50}
+# FakeRouting's routes take 1800 s.
+FAITHFUL_REPLY = "A 50 km loop, about 30 min of riding."
 
 
 def make_client(llm, routing: FakeRouting | None = None) -> TestClient:
@@ -19,17 +21,32 @@ def make_client(llm, routing: FakeRouting | None = None) -> TestClient:
 
 
 def test_returns_route_spec_and_reply() -> None:
-    llm = FakeLLM(tool_call_response(LOOP_ARGS), text_response("A 50 km loop."))
+    llm = FakeLLM(tool_call_response(LOOP_ARGS), text_response(FAITHFUL_REPLY))
 
     response = make_client(llm).post("/api/plan", json={"message": "50 km loop from the Old Port"})
 
     assert response.status_code == 200
     body = response.json()
-    assert body["reply"] == "A 50 km loop."
+    assert body["reply"] == FAITHFUL_REPLY
     assert body["route"]["type"] == "Feature"
     assert body["spec"]["target_distance_km"] == 50
     assert (body["start_name"], body["end_name"]) == ("Old Port", "Old Port")
     assert body["usage"]["llm_calls"] == 2
+
+
+def test_unfaithful_reply_is_rewritten_once() -> None:
+    llm = FakeLLM(
+        tool_call_response(LOOP_ARGS),
+        text_response("A 50 km loop past Mount Royal, about 30 min of riding."),
+        text_response(FAITHFUL_REPLY),
+    )
+
+    response = make_client(llm).post("/api/plan", json={"message": "50 km loop from the Old Port"})
+
+    body = response.json()
+    assert body["reply"] == FAITHFUL_REPLY
+    assert body["usage"]["llm_calls"] == 3
+    assert '"Mount Royal"' in llm.conversations[2][-1].text
 
 
 def test_non_ride_message_returns_reply_without_route() -> None:
@@ -44,7 +61,7 @@ def test_non_ride_message_returns_reply_without_route() -> None:
 
 def test_map_start_reaches_the_tool() -> None:
     args = {"route_type": "loop", "target_distance_km": 50}
-    llm = FakeLLM(tool_call_response(args), text_response("Done."))
+    llm = FakeLLM(tool_call_response(args), text_response(FAITHFUL_REPLY))
     body = {"message": "50 km loop", "map_start": {"lat": 45.6, "lon": -73.6}}
 
     response = make_client(llm).post("/api/plan", json=body)

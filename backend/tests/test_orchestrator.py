@@ -87,3 +87,44 @@ async def test_adds_up_usage_across_turns() -> None:
 
     assert run.usage.input_tokens == 220
     assert run.usage.output_tokens == 50
+
+
+def flag_unless_fixed(reply, tool_results):
+    return None if "fixed" in reply else "please fix"
+
+
+async def test_check_sends_a_failing_reply_back_once() -> None:
+    llm = FakeLLM(tool_call_response(VALID_ARGS), text_response("wrong"), text_response("fixed"))
+
+    run = await run_agent(llm, "system", "50 km loop", [make_tool()], check=flag_unless_fixed)
+
+    assert run.reply == "fixed"
+    assert run.draft_reply == "wrong"
+    assert llm.conversations[2][-1].text == "please fix"
+
+
+async def test_check_does_not_loop_on_a_second_failure() -> None:
+    llm = FakeLLM(tool_call_response(VALID_ARGS), text_response("wrong"), text_response("still wrong"))
+
+    run = await run_agent(llm, "system", "50 km loop", [make_tool()], check=flag_unless_fixed)
+
+    assert run.reply == "still wrong"
+    assert run.usage.llm_calls == 3
+
+
+async def test_passing_reply_is_not_rewritten() -> None:
+    llm = FakeLLM(tool_call_response(VALID_ARGS), text_response("fixed"))
+
+    run = await run_agent(llm, "system", "50 km loop", [make_tool()], check=flag_unless_fixed)
+
+    assert run.draft_reply is None
+    assert run.usage.llm_calls == 2
+
+
+async def test_run_keeps_the_tool_results() -> None:
+    llm = FakeLLM(tool_call_response(VALID_ARGS), text_response("Done."))
+
+    run = await run_agent(llm, "system", "50 km loop", [make_tool()])
+
+    assert [r.name for r in run.tool_results] == ["plan_route"]
+    assert run.tool_results[0].content["status"] == "ok"

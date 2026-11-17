@@ -3,7 +3,7 @@
 import json
 import logging
 import time
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 from pydantic import BaseModel, ValidationError
 
@@ -17,9 +17,17 @@ DEFAULT_MAX_TURNS = 6
 FALLBACK_REPLY = "Sorry, I couldn't finish planning that ride. Please try rephrasing it."
 
 
+# Looks at a final reply and the tool results behind it. Returns feedback for the
+# model when the reply needs fixing, or None when it is fine.
+ReplyCheck = Callable[[str, Sequence[ToolResultMessage]], str | None]
+
+
 class AgentRun(BaseModel):
     reply: str
     usage: Usage
+    tool_results: list[ToolResultMessage] = []
+    # The first reply, when a check sent it back to be rewritten.
+    draft_reply: str | None = None
 
 
 async def run_agent(
@@ -28,14 +36,19 @@ async def run_agent(
     user_message: str,
     tools: Sequence[Tool],
     max_turns: int = DEFAULT_MAX_TURNS,
+    check: ReplyCheck | None = None,
 ) -> AgentRun:
+    """Run the loop. With a `check`, a failing reply goes back once to be rewritten."""
     registry = {tool.name: tool for tool in tools}
     definitions = [to_definition(tool) for tool in tools]
     messages: list[Message] = [UserMessage(text=user_message)]
+    tool_results: list[ToolResultMessage] = []
+    draft_reply: str | None = None
     usage = Usage()
     started = time.perf_counter()
 
-    for _ in range(max_turns):
+    # The rewrite gets its own turn so it never cuts the planning short.
+    for _ in range(max_turns + (1 if check else 0)):
         call_started = time.perf_counter()
         response = await llm.generate(system, messages, definitions)
         assistant = response.message
@@ -54,15 +67,31 @@ async def run_agent(
         )
 
         if not assistant.tool_calls:
+            reply = assistant.text.strip() or FALLBACK_REPLY
+            note = check(reply, tool_results) if check and draft_reply is None else None
+            if note:
+                _log("reply_check", reply=reply, feedback=note)
+                draft_reply = reply
+                messages += [assistant, UserMessage(text=note)]
+                continue
             usage.latency_ms = _elapsed_ms(started)
-            return AgentRun(reply=assistant.text.strip() or FALLBACK_REPLY, usage=usage)
+            return AgentRun(
+                reply=reply, usage=usage, tool_results=tool_results, draft_reply=draft_reply
+            )
 
         messages.append(assistant)
         for call in assistant.tool_calls:
-            messages.append(await _execute(call, registry))
+            result = await _execute(call, registry)
+            messages.append(result)
+            tool_results.append(result)
 
     usage.latency_ms = _elapsed_ms(started)
-    return AgentRun(reply=FALLBACK_REPLY, usage=usage)
+    return AgentRun(
+        reply=draft_reply or FALLBACK_REPLY,
+        usage=usage,
+        tool_results=tool_results,
+        draft_reply=draft_reply,
+    )
 
 
 async def _execute(call: ToolCall, registry: dict[str, Tool]) -> ToolResultMessage:

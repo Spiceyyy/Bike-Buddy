@@ -1,0 +1,45 @@
+{
+  "_about": "Hand verdicts on first drafts the checker flagged, by run and request id: 'real' or 'false_alarm'. Each was checked against the plan_route result stored in that run's results file. Every reply in v1, v2 and v3 was also read by hand to look for errors the checker missed; those are listed as 'missed'.",
+  "v1": {
+    "loop-05": {
+      "verdict": "false_alarm",
+      "note": "Chemin Senneville and Boulevard Gouin Ouest are both highlights; the checker joined the names across 'and'."
+    },
+    "loop-06": {
+      "verdict": "false_alarm",
+      "note": "Avenue du Parc-La Fontaine and Piste cyclable du Canal de l'Aqueduc are both highlights; joined across 'and the'."
+    },
+    "p2p-01": {
+      "verdict": "false_alarm",
+      "note": "\"You'll\" read as a name."
+    },
+    "climb-03": {
+      "verdict": "false_alarm",
+      "note": "Rue Willibrord and Piste Cyclable du Canal de Lachine are both highlights; joined across 'and the'."
+    },
+    "stop-02": {
+      "verdict": "false_alarm",
+      "note": "\"You'll\" read as a name."
+    }
+  },
+  "v2": {
+    "stop-03": {
+      "verdict": "missed",
+      "note": "Says the loop 'follows the water'; the only highlight is Rue Sainte-Catherine Ouest, through green space. Not flagged by the v2 checker, which had no scenery-claim rule; the rule was added after this."
+    }
+  },
+  "v3": {
+    "fr-01": {
+      "verdict": "false_alarm",
+      "note": "\"Notez\" (French 'Note') at the start of a sentence read as a name."
+    },
+    "fr-03": {
+      "verdict": "false_alarm",
+      "note": "\"Notez\" read as a name."
+    },
+    "loop-04": {
+      "verdict": "missed",
+      "note": "Says 'this route is paved' (the app has no surface data) and 'the closest loop I could find' although distance_on_target is true. Neither was checked in v3; both rules were added after this."
+    }
+  }
+}
