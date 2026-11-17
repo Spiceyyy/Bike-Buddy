@@ -71,6 +71,8 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         allow_origins=resolved.cors_origins,
         allow_methods=["GET", "POST"],
         allow_headers=["Content-Type"],
+        # Lets the browser read the GPX download's file name.
+        expose_headers=["Content-Disposition"],
     )
     app.include_router(routes_router)
     app.include_router(plan_router)

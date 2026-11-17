@@ -223,3 +223,36 @@ def test_via_rejects_too_many_anchors() -> None:
     client = make_client(lambda request: httpx.Response(200, json=GRAPHHOPPER_SUCCESS))
 
     assert client.post("/api/route/via", json=body).status_code == 422
+
+
+GPX_BODY = {
+    "name": "Loop from L'Île-des-Sœurs",
+    "track": {"type": "LineString", "coordinates": [[-73.55, 45.46], [-73.54, 45.47]]},
+    "waypoints": [
+        {"name": "L'Île-des-Sœurs", "coordinate": {"lat": 45.46, "lon": -73.55}, "kind": "start"}
+    ],
+}
+
+
+def no_graphhopper(request: httpx.Request) -> httpx.Response:
+    raise AssertionError("GPX export must not call the routing engine")
+
+
+def test_gpx_export_returns_a_download() -> None:
+    response = make_client(no_graphhopper).post("/api/route/gpx", json=GPX_BODY)
+
+    assert response.status_code == 200
+    assert response.headers["content-type"] == "application/gpx+xml"
+    assert response.headers["content-disposition"] == (
+        'attachment; filename="loop-from-l-ile-des-soeurs.gpx"'
+    )
+    assert "<trkpt" in response.text
+    assert "L'Île-des-Sœurs" in response.text
+
+
+def test_gpx_export_rejects_a_track_of_one_point() -> None:
+    body = {**GPX_BODY, "track": {"type": "LineString", "coordinates": [[-73.55, 45.46]]}}
+
+    response = make_client(no_graphhopper).post("/api/route/gpx", json=body)
+
+    assert response.status_code == 422

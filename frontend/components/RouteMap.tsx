@@ -13,6 +13,7 @@ import {
 import { useEffect, useRef, useState, type FormEvent } from "react";
 
 import {
+  downloadGpx,
   fetchRoute,
   planRide,
   routeVia,
@@ -23,6 +24,7 @@ import {
   type RouteStop,
 } from "@/lib/api";
 import { MAP_CENTER, MAP_STYLE_URL } from "@/lib/config";
+import { gpxRequest } from "@/lib/gpx";
 import { BAND_COLOR_EXPRESSION, stretchFeatures } from "@/lib/scenery";
 import CafeChoices, { sameStop } from "./CafeChoices";
 import RouteOptions from "./RouteOptions";
@@ -132,13 +134,15 @@ export default function RouteMap() {
   const [viaError, setViaError] = useState<string | null>(null);
 
   const [selectedStretch, setSelectedStretch] = useState<number | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
+  const [exportError, setExportError] = useState<string | null>(null);
 
   const option = options[selectedOption] ?? null;
   const route = option?.route ?? clickedRoute;
   const stop = option?.stop ?? null;
   const scenic = route?.properties.scenic ?? null;
   const isLoop = plan?.spec?.route_type === "loop";
-  const error = planError ?? routeError ?? viaError;
+  const error = planError ?? routeError ?? viaError ?? exportError;
 
   // Create the map once. Clicks are enabled only after the route layers exist.
   useEffect(() => {
@@ -390,6 +394,21 @@ export default function RouteMap() {
     }
   }
 
+  /** Download the route on screen, including a café the rider switched to. */
+  async function handleDownloadGpx() {
+    if (!route) return;
+    const label = options.length > 1 ? (option?.label ?? null) : null;
+    setIsExporting(true);
+    setExportError(null);
+    try {
+      await downloadGpx(gpxRequest(route, plan, stop, label), new AbortController().signal);
+    } catch (reason) {
+      setExportError(errorMessage(reason, "Could not create the GPX file."));
+    } finally {
+      setIsExporting(false);
+    }
+  }
+
   selectOptionRef.current = handleSelectOption;
   hasOptionsRef.current = options.length > 0;
   pickCafeRef.current = (index: number) => {
@@ -436,6 +455,7 @@ export default function RouteMap() {
     setOptions([]);
     setPlanError(null);
     setViaError(null);
+    setExportError(null);
     setPoints([]);
   }
 
@@ -521,6 +541,16 @@ export default function RouteMap() {
             )}
           </dl>
         )}
+        {route && (
+          <button
+            type="button"
+            className="panel-button"
+            onClick={handleDownloadGpx}
+            disabled={isExporting || isRerouting}
+          >
+            {isExporting ? "Preparing GPX…" : "Download GPX"}
+          </button>
+        )}
         {option && (
           <CafeChoices
             choices={option.stop_choices}
@@ -541,7 +571,7 @@ export default function RouteMap() {
           <p className="panel-note">Not supported yet: {plan.not_applied.join(", ")}.</p>
         )}
         {canClear && (
-          <button type="button" className="panel-clear" onClick={handleClear}>
+          <button type="button" className="panel-button" onClick={handleClear}>
             Clear
           </button>
         )}

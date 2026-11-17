@@ -5,8 +5,10 @@ from pydantic import BaseModel
 
 from app.config import Settings
 from app.db.health import postgis_is_available
+from app.models.gpx import GpxRequest
 from app.models.route import RouteFeature, RouteRequest, ViaRequest, ViaResponse
 from app.routing.climbing import climbing_model
+from app.routing.gpx import build_gpx, gpx_filename
 from app.routing.graphhopper import (
     GraphHopperClient,
     NoRouteFoundError,
@@ -68,6 +70,20 @@ async def route_via_stop(
     if scenery is not None:
         route.properties.scenic = await scenery.describe(route)
     return ViaResponse(route=route, stop=make_stop(body.category, body.stop, route))
+
+
+@router.post(
+    "/api/route/gpx",
+    response_class=Response,
+    responses={200: {"content": {"application/gpx+xml": {}}}},
+)
+async def export_gpx(body: GpxRequest) -> Response:
+    """The route the rider is looking at, as a GPX file for a bike computer or app."""
+    return Response(
+        content=build_gpx(body),
+        media_type="application/gpx+xml",
+        headers={"Content-Disposition": f'attachment; filename="{gpx_filename(body.name)}"'},
+    )
 
 
 def _http_error(exc: RoutingError) -> HTTPException:

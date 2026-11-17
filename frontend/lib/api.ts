@@ -104,6 +104,40 @@ export function routeVia(
   return postJson("/api/route/via", body, signal);
 }
 
+export type GpxWaypoint = {
+  name: string;
+  coordinate: Coordinate;
+  kind: "start" | "end" | "stop" | "via";
+};
+
+/** Download a route as a GPX file for a bike computer or phone app. No LLM call. */
+export async function downloadGpx(
+  body: { name: string; track: LineString; waypoints: GpxWaypoint[] },
+  signal: AbortSignal,
+): Promise<void> {
+  const response = await fetch(`${API_URL}/api/route/gpx`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (!response.ok) {
+    throw new Error(await readErrorMessage(response));
+  }
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const filename = /filename="([^"]+)"/.exec(disposition)?.[1] ?? "route.gpx";
+
+  // Save the file by clicking a temporary link to it.
+  const url = URL.createObjectURL(await response.blob());
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
 function toCoordinate([lon, lat]: LonLat) {
   return { lon, lat };
 }

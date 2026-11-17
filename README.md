@@ -2,7 +2,7 @@
 
 Turns a plain-language cycling request into a real, rideable route chosen for scenery and riding feel. The design rule throughout: **the LLM plans; the routing engine routes.**
 
-**Status: Phase 4 of 5 in progress** (faithful replies done). Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have.
+**Status: Phase 4 of 5 in progress** (faithful replies and GPX export done). Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app.
 
 ![A 20 km loop from the Old Port with a café stop: three route options, the route coloured by scenery, and the cafés along it](docs/images/plan-cafe-loop.jpg)
 
@@ -304,6 +304,12 @@ Embeddings match meaning across words and languages ("lookout" and "belvédère"
 
 **Free-tier limits.** The Gemini free tier allows about 100 embeddings a minute and about 1,000 a day, shared by indexing and searching. Indexing the 1,182 places therefore needed pipeline runs on two days; each run continues from the cache. Searches then cost one embedding per new query, and none for repeated ones.
 
+### GPX export
+
+**Download GPX** under the route stats saves the route on screen as a GPX 1.1 file: the option selected, through the café picked, or a route between two map clicks. The track is the routing engine's line point for point, and waypoints mark the start, the end (for point-to-point rides), the café stop and places passed. GPX 1.1 is the format Garmin, Wahoo and most phone apps import (checked against the schema's element order, not yet on a device). The file is named after the ride, such as `loop-from-vieux-port-most-scenic.gpx`.
+
+The browser sends the route it already has to a stateless endpoint, [`POST /api/route/gpx`](#post-apiroutegpx), which builds the file ([gpx.py](backend/app/routing/gpx.py)) without calling the routing engine or the LLM. No elevation is written: devices and apps fill it in from their own data, and SRTM reads high in the city (see Known limitations).
+
 ### Faithful replies
 
 The model writes the reply, so it is the one part of a plan that could say something untrue: a place the route does not pass, a wrong distance, or water views on a street through a park. Every reply is now checked in code against the `plan_route` result before it is shown ([faithfulness.py](backend/app/evaluation/faithfulness.py)):
@@ -368,6 +374,23 @@ Re-routes a planned option through a stop the rider picked. No LLM is involved.
 ```
 
 `start`, `end` and `anchors` come from the plan response (`end` is null for a loop, at most 8 anchors). Returns `route` (with scenery) and `stop` (with `distance_along_m`). Errors are the same as `/api/route`.
+
+### `POST /api/route/gpx`
+
+Builds a GPX 1.1 file for a route the client already has. No routing engine or LLM is involved.
+
+```json
+{
+  "name": "Loop from Vieux-Port (Most scenic)",
+  "track": { "type": "LineString", "coordinates": [[-73.553078, 45.504263], "..."] },
+  "waypoints": [
+    { "name": "Vieux-Port", "coordinate": { "lat": 45.504263, "lon": -73.553078 }, "kind": "start" },
+    { "name": "Komma Rosta", "coordinate": { "lat": 45.52, "lon": -73.58 }, "kind": "stop" }
+  ]
+}
+```
+
+`track` takes 2 to 50,000 `[longitude, latitude]` points; `kind` is `start`, `end`, `stop` or `via` (at most 12 waypoints). Returns `application/gpx+xml` with `Content-Disposition: attachment` and an ASCII file name made from `name`. Invalid input returns 422.
 
 ### `POST /api/route`
 
@@ -573,7 +596,7 @@ Re-scored with the final checker, the stored first drafts of all three runs give
 1. **Routing skeleton** (done)
 2. **LLM planner** (done): intent parsing into `RouteSpec`, `plan_route` tool, first evals
 3. Scenic layer and RAG: scoring pipeline, vector index, `search_places`, multiple candidates and re-ranking, retrieval and constraint evals (done)
-4. Polish and proof: faithful explanations (done), GPX export, weather, feedback, deployment
+4. Polish and proof: faithful explanations (done), GPX export (done), weather, feedback, deployment
 5. Trainer mode
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Geocoding by [Nominatim](https://nominatim.org/). Basemap by [OpenFreeMap](https://openfreemap.org/).
