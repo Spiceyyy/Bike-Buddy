@@ -35,7 +35,9 @@ services:
       start_interval: 5s
 
   backend:
-    build: ./backend
+    build:
+      context: ./backend
+      target: dev
     command: uvicorn app.main:create_app --factory --host 0.0.0.0 --port 8000 --reload
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
@@ -62,7 +64,9 @@ services:
         condition: service_healthy
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      target: dev
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
       NEXT_PUBLIC_MAP_CENTER: ${MAP_CENTER:--73.6,45.52}

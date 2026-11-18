@@ -2,7 +2,7 @@
 
 Turns a plain-language cycling request into a real, rideable route chosen for scenery and riding feel. The design rule throughout: **the LLM plans; the routing engine routes.**
 
-**Status: Phase 4 of 5 in progress** (faithful replies, GPX export and weather done). Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app. Each plan carries the forecast for the ride and how much of each route rides into the wind.
+**Status: Phase 4 of 5 complete, ready for review.** Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app. Each plan carries the forecast for the ride and how much of each route rides into the wind. Riders can rate a route with a thumbs up or down, stored with the route's line for later analysis, and a production setup (HTTPS reverse proxy, rate limits) is ready for when it is hosted.
 
 ![A 20 km loop from the Old Port with a café stop: three route options, the route coloured by scenery, and the cafés along it](docs/images/plan-cafe-loop.jpg)
 
@@ -328,6 +328,18 @@ Notes worth telling the rider are written in code from fixed thresholds, so the 
 
 Weather is optional: if Open-Meteo fails or times out (5 s), the plan goes ahead without it. Only the start point's coordinates are sent.
 
+### Route feedback
+
+Under each route, **Was this a good route?** takes a thumbs up or down and an optional comment. The rating is stored for the route on screen, after any option or café switch, with the request, the parsed `RouteSpec`, the option label, the route's distance, climbing and scenic share, and its full line ([feedback.py](backend/app/db/feedback.py)). No account, cookie or IP address is kept.
+
+The table belongs to the app, not the pipeline, so rebuilding the scenery never deletes ratings. Keeping the line is what makes the ratings useful later: each rated route can be joined to the scored road segments it passed, which is the input for learning the scenic weights from riders instead of setting them by hand.
+
+```sh
+docker compose exec backend python /evals/feedback_report.py          # or --json
+```
+
+The report gives the share of thumbs up by route option and by ride type, compares liked and disliked routes (distance, climbing, scenic share), and averages the segment features along each group (water, green space, quietness, calmness, surface), weighted by length. A segment counts when its midpoint lies within 15 m of the route, so a road running beside a bike path is counted too. The differences mean little until there are many ratings, so the report prints counts next to every figure.
+
 ### Faithful replies
 
 The model writes the reply, so it is the one part of a plan that could say something untrue: a place the route does not pass, a wrong distance, or water views on a street through a park. Every reply is now checked in code against the `plan_route` result before it is shown ([faithfulness.py](backend/app/evaluation/faithfulness.py)):
@@ -344,12 +356,49 @@ Names in the result (start, end, places passed, the café, scenery highlights) a
 
 When a check fails, the agent loop sends the reply back once with the list of problems, asking the model to fix only those ([prompt](backend/app/agent/prompts/reply_feedback.md)). The check is plain Python over English and French text, with no LLM, so it costs nothing when the reply is fine and one extra LLM call when it is not. Rewrites are logged as `reply_check` events.
 
+## Deploying
+
+Not hosted yet. [docker-compose.prod.yml](docker-compose.prod.yml) runs the same services as production builds behind [Caddy](https://caddyserver.com/), on one server:
+
+| | Development (`docker-compose.yml`) | Production (`docker-compose.prod.yml`) |
+| --- | --- | --- |
+| Entry point | Frontend on :3000, API on :8000 | Caddy on :80/:443 only; HTTPS certificates are automatic for `SITE_ADDRESS` |
+| Frontend | `next dev`, source mounted | Built once, [standalone](https://nextjs.org/docs/app/api-reference/config/next-config-js/output) output, 431 MB image |
+| Backend | `--reload`, source mounted, test tools | No test tools, non-root user, `--proxy-headers` |
+| API calls | Cross-origin, allowed by CORS | Same origin (`/api` proxied), no CORS |
+| Postgres, GraphHopper | Bound to 127.0.0.1 | Internal network only |
+| Rate limits | Off | 5 plans a minute and 50 a day, 10 ratings a minute, per client address |
+| Restarts | Manual | `restart: unless-stopped`, health checks |
+
+To run it on a server (Linux, Docker, 4 GB of memory or more, ports 80 and 443 open, a domain whose DNS points at it):
+
+1. Clone the repository and copy `.env.example` to `.env`. Set a strong `POSTGRES_PASSWORD`, `GEMINI_API_KEY`, and `SITE_ADDRESS` to the domain.
+2. Start it:
+   ```sh
+   docker compose -f docker-compose.prod.yml up -d --build
+   ```
+3. Build the scenery and place index, then let GraphHopper load the scenic zones, as in Getting started:
+   ```sh
+   docker compose -f docker-compose.prod.yml exec backend python -m pipeline.run
+   docker compose -f docker-compose.prod.yml restart graphhopper
+   ```
+
+To try the production stack on your own machine, set `SITE_ADDRESS=:80` and `HTTP_PORT=8080` in `.env` and open <http://localhost:8080>. It was tested this way: planning, café switching, GPX export and ratings all worked through the proxy with no cross-origin requests, the internal ports were closed, the plan limit returned 429 with `Retry-After` on the sixth request in a minute, and a forged `X-Forwarded-For` header did not change the client address the backend saw. Run under the same Compose project name, it reuses the database and routing graph already built by the development stack.
+
+Before opening it to the public:
+
+- **Geocoding.** Public Nominatim allows one request a second and forbids heavy use. Real traffic needs a self-hosted Nominatim or a commercial geocoder behind the same interface ([geocoder.py](backend/app/routing/geocoder.py)).
+- **LLM quota.** Each plan makes 2 to 4 Gemini calls. The free tier covers a demo; the rate limits keep one visitor from using it up.
+- **Backups.** Everything except the ratings can be rebuilt from OpenStreetMap. Back them up with `docker compose -f docker-compose.prod.yml exec postgres pg_dump -U scenic -t route_feedback scenic > feedback.sql`.
+- **One backend process.** Rate limits are counted in memory, per process. Running several backend replicas would need a shared store such as Redis.
+
 ## Known limitations
 
 - **Surface and vibes** are parsed but not applied yet. The app says so on each result.
 - **Climbing figures are approximate.** SRTM elevation partly measures buildings and trees, so city routes show extra climbing: the flat Lachine Canal path reads 113 m over 14 km. Comparisons between routes are still meaningful.
 - **Climbing limits on point-to-point rides** choose among at most three GraphHopper alternatives, so a limit may be reported as missed.
 - **The faithfulness check is rule-based.** It finds names as runs of capitalised words and scenery claims by phrase, in English and French. A claim phrased in a way it does not know ("hugging the river") passes. Its rules were written after reading the first three eval runs; on the one run since (32 new replies), it raised no false alarms and missed nothing, but that run had no real errors to catch.
+- **Ratings are anonymous and unauthenticated.** Anyone can post one; the per-address limit slows spam but does not stop it.
 - **The forecast is for riding now.** Requests don't carry a start time yet, so "tomorrow morning" still gets the forecast for the next hours, at the start point only.
 - **The reply describes the best match.** Switching to another option or café updates the map and panel, but not the written reply.
 - **Café distances in the list** ("km 7.7") are measured along the route the list was made for. After switching to another café, the route changes slightly, so they are approximate.
@@ -376,6 +425,8 @@ Returns `reply`, `route` (a GeoJSON Feature, or null), `spec` (the parsed `Route
 | 429 | The LLM provider's rate limit or quota was reached |
 | 502 | The LLM provider failed |
 | 503 | `GEMINI_API_KEY` is not set |
+
+With rate limits on (production), too many requests from one address return 429 with a `Retry-After` header, before the LLM is called.
 
 ### `POST /api/route/via`
 
@@ -410,6 +461,26 @@ Builds a GPX 1.1 file for a route the client already has. No routing engine or L
 ```
 
 `track` takes 2 to 50,000 `[longitude, latitude]` points; `kind` is `start`, `end`, `stop` or `via` (at most 12 waypoints). Returns `application/gpx+xml` with `Content-Disposition: attachment` and an ASCII file name made from `name`. Invalid input returns 422.
+
+### `POST /api/feedback`
+
+Stores a rating of the route on screen. No LLM or routing engine is involved.
+
+```json
+{
+  "rating": "up",
+  "comment": "Lovely canal stretch",
+  "message": "A 20 km loop from the Old Port with a coffee stop",
+  "spec": { "route_type": "loop", "start_place": "Old Port", "target_distance_km": 20, "stop": "cafe" },
+  "option_label": "Most scenic",
+  "route": {
+    "geometry": { "type": "LineString", "coordinates": [[-73.553078, 45.504263], "..."] },
+    "distance_m": 18500, "ascend_m": 216, "scenic_score": 0.61, "scenic_share": 0.82, "stop_name": "Yaya Café"
+  }
+}
+```
+
+`rating` is `up` or `down`; `comment` (up to 1,000 characters), `message`, `spec`, `option_label` and the route's figures other than `distance_m` are optional; a route between two map clicks has no `message` or `spec`. Returns 201 with `{ "id": 1 }`, 422 for invalid input, 503 if the database is unavailable.
 
 ### `POST /api/route`
 
@@ -448,6 +519,20 @@ docker compose run --rm --no-deps backend pytest
 The LLM, geocoder and routing engine are all faked, so the tests need no running services and no API key.
 
 ## Evaluation
+
+Five evals, each with its own runner and one results file per version in [evals/results/](evals/results/). Current results:
+
+| Eval | What it measures | Result |
+| --- | --- | --- |
+| [Intent parsing](#intent-parsing-does-the-llm-understand-the-request) | The LLM's `RouteSpec` (or search) against hand labels, 40 requests in English and French | 95.0% exact (38 of 40) |
+| [Retrieval](#retrieval-does-search_places-find-the-right-places) | `search_places` finds the labelled places, 23 queries | Recall@1 73.9%, recall@5 100%, MRR 0.824 (names alone: 43.5%, 56.5%) |
+| [Constraints](#constraints-do-planned-routes-meet-the-request) | Planned routes meet distance, climbing, café and place requests, 34 fixed specs | 97.1% meet everything (33 of 34) |
+| [Route quality](#route-quality-scenic-profile-against-the-plain-bike-profile) | Scenic score of the scenic profile against the plain bike profile, 20 trips | Loops 0.476 → 0.552 (+16%), median +4.6% distance |
+| [Faithfulness](#faithfulness-do-replies-match-the-route) | Replies match the route they describe, 124 routes read by hand | 98.4% of first drafts faithful; checker flags only real errors |
+
+All five sets were written by one person, who also built what they test, and several thresholds were tuned on them. Held-out sets would give more reliable figures.
+
+### Intent parsing: does the LLM understand the request?
 
 ```sh
 docker compose exec backend python /evals/run_evals.py --version my-version
@@ -618,7 +703,7 @@ Re-scored with the final checker, the stored first drafts of the first three run
 1. **Routing skeleton** (done)
 2. **LLM planner** (done): intent parsing into `RouteSpec`, `plan_route` tool, first evals
 3. Scenic layer and RAG: scoring pipeline, vector index, `search_places`, multiple candidates and re-ranking, retrieval and constraint evals (done)
-4. Polish and proof: faithful explanations (done), GPX export (done), weather (done), feedback, deployment
+4. **Polish and proof** (done): faithful explanations, GPX export, weather, feedback, deployment config, eval summary
 5. Trainer mode
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Geocoding by [Nominatim](https://nominatim.org/). Basemap by [OpenFreeMap](https://openfreemap.org/).

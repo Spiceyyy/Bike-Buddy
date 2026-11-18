@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, status
 from app.agent.llm import LLMClient, LLMError, LLMRateLimitError
 from app.agent.orchestrator import run_agent
 from app.agent.prompts import load_prompt
+from app.api.rate_limit import limit_requests
 from app.api.routes import RoutingClient, Scenery
 from app.enrichment.weather import Weather
 from app.evaluation.faithfulness import reply_check
@@ -54,7 +55,13 @@ def _rate_limit_message(retry_after_seconds: float | None) -> str:
     return "The AI planner is busy. Please try again in a minute."
 
 
-@router.post("/api/plan", response_model=PlanResponse)
+@router.post(
+    "/api/plan",
+    response_model=PlanResponse,
+    dependencies=[
+        Depends(limit_requests("plan_limiter", "Too many ride requests. Please wait a little."))
+    ],
+)
 async def create_plan(
     body: PlanRequest,
     routing: RoutingClient,

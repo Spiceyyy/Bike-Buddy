@@ -1,0 +1,109 @@
+# Production stack: built images, no source mounts, one public entry point.
+#
+#   docker compose -f docker-compose.prod.yml up -d --build
+#
+# Caddy is the only service with public ports. It serves the frontend and
+# proxies /api and /health to the backend on the same origin, so the browser
+# needs no CORS, and it gets HTTPS certificates automatically for SITE_ADDRESS.
+# Postgres, GraphHopper and the backend are reachable only inside the network.
+#
+# Volumes have the same names as in docker-compose.yml, so run under the same
+# project name to reuse a routing graph and database already built locally.
+
+services:
+  postgres:
+    build: ./postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?copy .env.example to .env}
+      POSTGRES_USER: ${POSTGRES_USER:?copy .env.example to .env}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set a strong password in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 3s
+      retries: 20
+
+  graphhopper:
+    build: ./graphhopper
+    restart: unless-stopped
+    environment:
+      OSM_EXTRACT_URL: ${OSM_EXTRACT_URL:?copy .env.example to .env}
+      JAVA_OPTS: ${GRAPHHOPPER_JAVA_OPTS:--Xmx2g}
+    volumes:
+      - graphhopper-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://localhost:8989/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 6
+      start_period: 15m
+      start_interval: 5s
+
+  backend:
+    build:
+      context: ./backend
+      target: prod
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      GRAPHHOPPER_URL: http://graphhopper:8989
+      GEMINI_API_KEY: ${GEMINI_API_KEY:?the planner needs GEMINI_API_KEY in production}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      OSM_EXTRACT_URL: ${OSM_EXTRACT_URL}
+      # Same origin behind Caddy, so the browser sends no cross-origin requests.
+      CORS_ORIGINS: '[]'
+      # Per client address. Each plan costs LLM calls; keep these within your quota.
+      PLAN_REQUESTS_PER_MINUTE: ${PLAN_REQUESTS_PER_MINUTE:-5}
+      PLAN_REQUESTS_PER_DAY: ${PLAN_REQUESTS_PER_DAY:-50}
+      FEEDBACK_REQUESTS_PER_MINUTE: ${FEEDBACK_REQUESTS_PER_MINUTE:-10}
+    volumes:
+      # The pipeline reads the extract and writes scenic zones for GraphHopper.
+      - graphhopper-data:/osm
+    depends_on:
+      postgres:
+        condition: service_healthy
+      graphhopper:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      target: prod
+      args:
+        NEXT_PUBLIC_API_URL: ""
+        NEXT_PUBLIC_MAP_CENTER: ${MAP_CENTER:--73.6,45.52}
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  caddy:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    environment:
+      # A domain name gets an automatic HTTPS certificate (point its DNS here first).
+      # ":80" serves plain HTTP, for trying the stack locally.
+      SITE_ADDRESS: ${SITE_ADDRESS:-localhost}
+    ports:
+      - "${HTTP_PORT:-80}:80"
+      - "${HTTPS_PORT:-443}:443"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - backend
+      - frontend
+
+volumes:
+  postgres-data:
+  graphhopper-data:
+  caddy-data:
+  caddy-config:

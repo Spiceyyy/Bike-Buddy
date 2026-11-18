@@ -21,3 +21,8 @@ class Settings(BaseSettings):
 
     weather_url: str = "https://api.open-meteo.com"
     weather_timeout_seconds: float = 5.0
+
+    # Requests per client address; 0 turns a limit off (the default, for local use).
+    plan_requests_per_minute: int = 0
+    plan_requests_per_day: int = 0
+    feedback_requests_per_minute: int = 0

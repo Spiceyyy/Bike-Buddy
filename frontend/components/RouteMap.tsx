@@ -27,6 +27,7 @@ import { MAP_CENTER, MAP_STYLE_URL } from "@/lib/config";
 import { gpxRequest } from "@/lib/gpx";
 import { BAND_COLOR_EXPRESSION, stretchFeatures } from "@/lib/scenery";
 import CafeChoices, { sameStop } from "./CafeChoices";
+import RouteFeedback from "./RouteFeedback";
 import RouteOptions from "./RouteOptions";
 import ScenerySummary from "./ScenerySummary";
 import WeatherSummary from "./WeatherSummary";
@@ -125,6 +126,8 @@ export default function RouteMap() {
 
   const [message, setMessage] = useState("");
   const [plan, setPlan] = useState<PlanResponse | null>(null);
+  // The request as sent, which the input box may no longer show.
+  const [plannedMessage, setPlannedMessage] = useState("");
   const [isPlanning, setIsPlanning] = useState(false);
   const [planError, setPlanError] = useState<string | null>(null);
 
@@ -436,6 +439,7 @@ export default function RouteMap() {
     try {
       const result = await planRide(text, points[0] ?? null, controller.signal);
       setPlan(result);
+      setPlannedMessage(text);
       setOptions(result.options);
       setSelectedOption(0);
       if (result.route) setPoints([]);
@@ -570,6 +574,25 @@ export default function RouteMap() {
             scenic={scenic}
             selected={selectedStretch}
             onSelect={handleSelectStretch}
+          />
+        )}
+        {route && !isRerouting && (
+          <RouteFeedback
+            // A new route on screen starts a new rating.
+            key={`${selectedOption}:${stop?.name ?? ""}:${route.properties.distance_m}`}
+            feedback={{
+              message: plan ? plannedMessage : null,
+              spec: plan?.spec ?? null,
+              option_label: options.length > 0 ? (option?.label ?? null) : null,
+              route: {
+                geometry: route.geometry,
+                distance_m: route.properties.distance_m,
+                ascend_m: route.properties.ascend_m,
+                scenic_score: scenic?.score ?? null,
+                scenic_share: scenic?.band_shares.scenic ?? null,
+                stop_name: stop?.name ?? null,
+              },
+            }}
           />
         )}
         {plan && plan.not_applied.length > 0 && (

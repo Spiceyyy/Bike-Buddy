@@ -8,9 +8,12 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.agent.gemini import GEMINI_BASE_URL, GeminiClient
+from app.api.feedback import router as feedback_router
 from app.api.plan import router as plan_router
+from app.api.rate_limit import RateLimiter
 from app.api.routes import router as routes_router
 from app.config import Settings
+from app.db.feedback import PostgisFeedbackStore
 from app.db.places import PostgisPlaceFinder
 from app.enrichment.weather import OpenMeteoClient
 from app.retrieval.embedding_cache import CachingEmbedder
@@ -49,6 +52,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
         ):
             app.state.scenic_describer = PostgisScenicDescriber(db_pool)
             app.state.place_finder = PostgisPlaceFinder(db_pool)
+            app.state.feedback_store = PostgisFeedbackStore(db_pool)
             api_key = resolved.gemini_api_key.get_secret_value()
             embedder = (
                 CachingEmbedder(GeminiEmbedder(llm_http, api_key), db_pool) if api_key else None
@@ -71,6 +75,10 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app = FastAPI(title="Scenic Route Finder", lifespan=lifespan)
     app.state.settings = resolved
+    app.state.plan_limiter = RateLimiter(
+        resolved.plan_requests_per_minute, resolved.plan_requests_per_day
+    )
+    app.state.feedback_limiter = RateLimiter(resolved.feedback_requests_per_minute)
     app.add_middleware(
         CORSMiddleware,
         allow_origins=resolved.cors_origins,
@@ -81,4 +89,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     )
     app.include_router(routes_router)
     app.include_router(plan_router)
+    app.include_router(feedback_router)
     return app

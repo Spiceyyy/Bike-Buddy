@@ -157,6 +157,27 @@ export async function downloadGpx(
   URL.revokeObjectURL(url);
 }
 
+export type FeedbackBody = {
+  rating: "up" | "down";
+  comment: string | null;
+  message: string | null;
+  spec: PlanResponse["spec"];
+  option_label: string | null;
+  route: {
+    geometry: LineString;
+    distance_m: number;
+    ascend_m: number | null;
+    scenic_score: number | null;
+    scenic_share: number | null;
+    stop_name: string | null;
+  };
+};
+
+/** Store a rating of the route on screen. No account or IP address is kept. */
+export function sendFeedback(body: FeedbackBody): Promise<{ id: number }> {
+  return postJson("/api/feedback", body, new AbortController().signal);
+}
+
 function toCoordinate([lon, lat]: LonLat) {
   return { lon, lat };
 }
