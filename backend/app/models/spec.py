@@ -116,7 +116,8 @@ class RouteSpec(BaseModel):
 
     @model_validator(mode="after")
     def same_start_and_end_is_a_loop(self) -> "RouteSpec":
-        """The prompt's rule, enforced: a ride back to where it started is a loop."""
+        """The prompt's rules, enforced: a ride back to where it started is a loop, and a
+        loop has no destination (the planner would ignore it)."""
         same = (
             self.route_type is RouteType.POINT_TO_POINT
             and self.start_place is not None
@@ -125,6 +126,7 @@ class RouteSpec(BaseModel):
         )
         if same:
             self.route_type = RouteType.LOOP
+        if self.route_type is RouteType.LOOP:
             self.end_place = None
         return self
 

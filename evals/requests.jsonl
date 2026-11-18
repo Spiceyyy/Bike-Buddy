@@ -38,3 +38,9 @@
 {"id": "search-02", "message": "Je veux une boucle de 20 km depuis Verdun qui passe par une plage", "search": true, "expected": {"route_type": "loop", "start_place": "Verdun", "target_distance_km": 20}}
 {"id": "search-03", "message": "Ride from Verdun to the Old Port, and I'd like to see a lighthouse on the way", "search": true, "expected": {"route_type": "point_to_point", "start_place": "Verdun", "end_place": "Old Port"}}
 {"id": "via-01", "message": "40 km loop from Lachine that goes over the Jacques-Cartier Bridge", "expected": {"route_type": "loop", "start_place": "Lachine", "target_distance_km": 40, "via_places": ["Jacques-Cartier Bridge"]}}
+{"id": "train-01", "message": "How is my training going?", "training": true, "expected": null}
+{"id": "train-02", "message": "Plan today's ride based on my training, from Verdun", "training": true, "expected": null}
+{"id": "train-03", "message": "Am I too tired for a hard ride today?", "training": true, "expected": null}
+{"id": "train-04", "message": "What should I ride today? I'm starting from the Old Port", "training": true, "expected": null}
+{"id": "train-05", "message": "Quelle sortie me conseilles-tu aujourd'hui selon mon entraînement ?", "training": true, "expected": null}
+{"id": "train-06", "message": "A 40 km training ride from Lachine with some climbing", "expected": {"route_type": "loop", "start_place": "Lachine", "target_distance_km": 40, "climbing": "seek"}}

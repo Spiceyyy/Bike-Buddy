@@ -35,6 +35,7 @@ from app.agent.prompts import load_prompt
 from app.models.llm import ToolResultMessage
 
 PLAN_TOOL = "plan_route"
+TRAINING_TOOL = "get_training_status"
 # Rounding is fine: 29.8 km may be "30 km", but not "35 km".
 KM_TOLERANCE = 0.5
 MINUTES_TOLERANCE = 1
@@ -260,26 +261,52 @@ def _says(reply: str, topic: str) -> bool:
 
 
 def last_plan_result(tool_results: Sequence[ToolResultMessage]) -> dict[str, Any] | None:
-    plans = [result.content for result in tool_results if result.name == PLAN_TOOL]
-    return plans[-1] if plans else None
+    return _last_result(tool_results, PLAN_TOOL)
+
+
+def _last_result(tool_results: Sequence[ToolResultMessage], name: str) -> dict[str, Any] | None:
+    results = [result.content for result in tool_results if result.name == name]
+    return results[-1] if results else None
 
 
 def check_reply(
     reply: str, user_message: str, tool_results: Sequence[ToolResultMessage]
 ) -> list[Problem]:
-    """Problems with a reply that describes a planned route. Other replies pass."""
+    """Problems with a reply that describes a planned route or training figures.
+
+    Other replies (questions back to the rider, errors, chat) pass.
+    """
     plan = last_plan_result(tool_results)
-    if plan is None or plan.get("status") != "ok":
-        return []
+    training = _last_result(tool_results, TRAINING_TOOL)
+    plan = plan if plan and plan.get("status") == "ok" else None
+    training = training if training and training.get("status") == "ok" else None
+    if plan is None:
+        # Training figures only: their numbers must come from the tool.
+        return _check_numbers(reply, user_message, {}, training) if training else []
     return [
-        *_check_numbers(reply, user_message, plan),
+        *_check_numbers(reply, user_message, plan, training),
         *_check_names(reply, user_message, plan),
         *_check_scenery(reply, plan),
         *_check_caveats(reply, plan),
     ]
 
 
-def _check_numbers(reply: str, user_message: str, plan: dict[str, Any]) -> list[Problem]:
+def _strings(content: Any, wanted, key: str = "") -> list[str]:
+    """Every text value in a result stored under a key that `wanted` accepts."""
+    if isinstance(content, dict):
+        return [v for k, item in content.items() for v in _strings(item, wanted, k)]
+    if isinstance(content, list):
+        return [v for item in content for v in _strings(item, wanted, key)]
+    return [content] if isinstance(content, str) and wanted(key) else []
+
+
+def _check_numbers(
+    reply: str, user_message: str, plan: dict[str, Any], training: dict[str, Any] | None = None
+) -> list[Problem]:
+    """Numbers against the plan result, and the training result when there is one.
+
+    With no plan (a training answer), the distance and riding time are not required.
+    """
     problems: list[Problem] = []
 
     def wrong(detail: str) -> None:
@@ -289,25 +316,29 @@ def _check_numbers(reply: str, user_message: str, plan: dict[str, Any]) -> list[
         problems.append(Problem(kind=ProblemKind.MISSING_FACT, detail=detail))
 
     from_message = _numbers(_ANY_NUMBER, user_message)
+    sources = {"plan": plan, "training": training or {}}
+    planned = bool(plan)
 
-    km_allowed = [*_values(plan, lambda key: key.endswith("_km")), *from_message]
+    km_allowed = [*_values(sources, lambda key: key.endswith("_km")), *from_message]
     km_in_reply = _numbers(_KM, reply)
     for value in km_in_reply:
         if not _near_any(value, km_allowed, KM_TOLERANCE):
             wrong(f"{value:g} km is not in the result")
-    if not km_in_reply:
+    if planned and not km_in_reply:
         missing("the distance is not given")
 
     riding_time = plan.get("riding_time", "")
-    expected_minutes = durations_in(riding_time)
+    time_texts = _strings(sources, lambda key: key.endswith("time") or key == "duration")
+    allowed_minutes = [m for text in time_texts for m in durations_in(text)]
     reply_minutes = durations_in(reply)
     for minutes in reply_minutes:
-        if expected_minutes and abs(minutes - expected_minutes[0]) > MINUTES_TOLERANCE:
-            wrong(f"a riding time of {minutes} min, but the result says {riding_time}")
-    if not reply_minutes:
+        if not _near_any(minutes, allowed_minutes, MINUTES_TOLERANCE):
+            expected = f", but the result says {riding_time}" if planned else ""
+            wrong(f"a riding time of {minutes} min{expected}")
+    if planned and not reply_minutes:
         missing("the riding time is not given")
 
-    climb_allowed = [*_values(plan, lambda key: key == "climb_m"), *from_message]
+    climb_allowed = [*_values(sources, lambda key: key == "climb_m"), *from_message]
     for value in _numbers(_METRES, reply):
         if not _near_any(value, climb_allowed, CLIMB_TOLERANCE_M):
             wrong(f"{value:g} m is not in the result")
@@ -320,7 +351,7 @@ def _check_numbers(reply: str, user_message: str, plan: dict[str, Any]) -> list[
     percent_allowed = [
         *from_message,
         *([share * 100] if share is not None else []),
-        *_values(plan, lambda key: key.endswith("_pct")),
+        *_values(sources, lambda key: key.endswith("_pct")),
         *_numbers(_PERCENT, weather_text),
     ]
     for value in _numbers(_PERCENT, reply):
@@ -329,7 +360,7 @@ def _check_numbers(reply: str, user_message: str, plan: dict[str, Any]) -> list[
 
     speed_allowed = [
         *from_message,
-        *_values(plan, lambda key: key.endswith("_kmh")),
+        *_values(sources, lambda key: key.endswith("_kmh")),
         *_numbers(_KMH, weather_text),
     ]
     for value in _numbers(_KMH, reply):

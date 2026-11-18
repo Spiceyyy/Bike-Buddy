@@ -65,19 +65,27 @@ def score_case(
     predicted: RouteSpec | None,
     expect_search: bool = False,
     searched: bool = False,
+    expect_training: bool = False,
+    checked_training: bool = False,
 ) -> CaseScore:
     """Score the model's first response.
 
     For a request naming a kind of place ("past a lookout"), the right first
-    move is search_places; the spec comes a turn later and is not scored here.
-    Searching when it was not needed counts as a wrong decision.
+    move is search_places; for a question about the rider's training, or a ride
+    to suit it, it is get_training_status. The spec comes a turn later and is
+    not scored here. Calling either tool when it was not needed counts as a
+    wrong decision.
     """
     if expect_search:
         correct = searched and predicted is None
         return CaseScore(id=case_id, decision_correct=correct, fields={}, exact=correct)
 
+    if expect_training:
+        correct = checked_training and predicted is None and not searched
+        return CaseScore(id=case_id, decision_correct=correct, fields={}, exact=correct)
+
     if expected is None:
-        correct = predicted is None and not searched
+        correct = predicted is None and not searched and not checked_training
         return CaseScore(id=case_id, decision_correct=correct, fields={}, exact=correct)
 
     if predicted is None:

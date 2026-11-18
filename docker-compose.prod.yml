@@ -59,6 +59,9 @@ services:
       PLAN_REQUESTS_PER_MINUTE: ${PLAN_REQUESTS_PER_MINUTE:-5}
       PLAN_REQUESTS_PER_DAY: ${PLAN_REQUESTS_PER_DAY:-50}
       FEEDBACK_REQUESTS_PER_MINUTE: ${FEEDBACK_REQUESTS_PER_MINUTE:-10}
+      # Trainer mode stores one rider's rides and has no accounts, so a hosted
+      # copy would share them with every visitor. Off unless you host it for yourself.
+      TRAINING_ENABLED: ${TRAINING_ENABLED:-false}
     volumes:
       # The pipeline reads the extract and writes scenic zones for GraphHopper.
       - graphhopper-data:/osm

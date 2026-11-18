@@ -447,3 +447,14 @@ async def test_no_forecast_is_asked_for_a_plan_that_failed() -> None:
 
     assert result["status"] == "needs_input"
     assert weather.requests == []
+
+
+def test_a_ride_back_to_its_start_becomes_a_loop() -> None:
+    spec = RouteSpec(route_type=RouteType.POINT_TO_POINT, start_place="Outremont", end_place="outremont")
+    assert (spec.route_type, spec.end_place) == (RouteType.LOOP, None)
+
+
+def test_a_loop_has_no_destination() -> None:
+    # Intent eval v8: the model set end_place to the start on a loop.
+    spec = RouteSpec(route_type=RouteType.LOOP, start_place="Parc La Fontaine", end_place="Parc La Fontaine")
+    assert spec.end_place is None

@@ -61,6 +61,9 @@ from app.routing.graphhopper import GraphHopperClient
 from app.scoring.route_scenic import PostgisScenicDescriber
 from app.tools.plan_route import PlanRouteTool
 from app.tools.search_places import PlaceRegistry, SearchPlacesTool
+from app.tools.training_status import TrainingStatusTool
+from app.db.rides import PostgisRideStore
+from app.training.service import Trainer
 from run_evals import (
     DEFAULT_RATE_LIMIT_WAIT_SECONDS,
     MAX_RATE_LIMIT_WAITS,
@@ -97,8 +100,9 @@ class WaitingLLM:
 class Planner:
     """Builds the same tools for each request as /api/plan."""
 
-    def __init__(self, routing, geocoder, pool: asyncpg.Pool, place_search, weather) -> None:
+    def __init__(self, routing, geocoder, pool: asyncpg.Pool, place_search, weather, trainer=None) -> None:
         self._routing = routing
+        self._trainer = trainer
         self._weather = weather
         self._geocoder = geocoder
         self._scenery = PostgisScenicDescriber(pool)
@@ -117,6 +121,7 @@ class Planner:
                 weather=self._weather,
             ),
             SearchPlacesTool(self._place_search, self._routing, self._geocoder, registry),
+            *([TrainingStatusTool(self._trainer)] if self._trainer else []),
         ]
 
 
@@ -129,6 +134,8 @@ async def run_case(llm: LLMClient, system: str, planner: Planner, case: dict[str
     plan = last_plan_result(run.tool_results)
     draft = run.draft_reply or run.reply
     planned = plan is not None and plan.get("status") == "ok"
+    training = next((r.content for r in reversed(run.tool_results) if r.name == "get_training_status"), None)
+    training_answer = not planned and training is not None and training.get("status") == "ok"
     return {
         "message": message,
         "planned": planned,
@@ -139,6 +146,8 @@ async def run_case(llm: LLMClient, system: str, planner: Planner, case: dict[str
         "draft_problems": [p.model_dump(mode="json") for p in check_reply(draft, message, run.tool_results)],
         "final_problems": [p.model_dump(mode="json") for p in check_reply(run.reply, message, run.tool_results)],
         "plan_result": plan if planned else None,
+        "training_answer": training_answer,
+        "training_result": training,
         "llm_calls": run.usage.llm_calls,
         "input_tokens": run.usage.input_tokens,
         "output_tokens": run.usage.output_tokens,
@@ -165,7 +174,9 @@ def summarize(results: dict[str, dict[str, Any]], review: dict[str, dict[str, st
 
     # Each flagged draft is reviewed by hand: was the problem real? Errors found by
     # reading the unflagged replies are recorded as "missed".
-    flagged = [case_id for case_id, r in planned.items() if r["draft_problems"]]
+    # Answers about training with no route are checked too, and counted apart.
+    answers = {case_id: r for case_id, r in results.items() if r.get("training_answer")}
+    flagged = [case_id for case_id, r in {**planned, **answers}.items() if r["draft_problems"]]
     reviewed = [case_id for case_id in flagged if case_id in review]
     real = [case_id for case_id in reviewed if review[case_id]["verdict"] == "real"]
     missed = [case_id for case_id, entry in review.items() if entry["verdict"] == "missed"]
@@ -182,6 +193,10 @@ def summarize(results: dict[str, dict[str, Any]], review: dict[str, dict[str, st
         "flags_real": len(real),
         "flags_false_alarm": len(reviewed) - len(real),
         "missed": len(missed),
+        "training_answers": len(answers),
+        "training_answers_faithful": (
+            sum(1 for r in answers.values() if not r["draft_problems"]) / len(answers) if answers else None
+        ),
     }
 
 
@@ -223,6 +238,8 @@ def print_report(report: dict[str, Any], output: Path) -> None:
             f"{s['flags_real']} real, {s['flags_false_alarm']} false alarms, "
             f"{s['missed']} missed"
         )
+    if s.get("training_answers"):
+        print(f"Training answers:       {s['training_answers']}, {s['training_answers_faithful']:.1%} faithful drafts")
     print(f"Median latency: {report['latency_ms']['median']} ms")
     print(f"Saved to {output}")
 
@@ -265,7 +282,12 @@ async def run(version: str, limit: int | None, delay_seconds: float) -> None:
         routing = GraphHopperClient(routing_http, profile=settings.graphhopper_profile)
         search = PostgisPlaceSearch(pool, CachingEmbedder(GeminiEmbedder(llm_http, api_key), pool))
         planner = Planner(
-            routing, NominatimGeocoder(geocoder_http), pool, search, OpenMeteoClient(weather_http)
+            routing,
+            NominatimGeocoder(geocoder_http),
+            pool,
+            search,
+            OpenMeteoClient(weather_http),
+            Trainer(PostgisRideStore(pool), settings.rider_timezone),
         )
 
         for index, case in enumerate(cases, 1):
@@ -277,7 +299,9 @@ async def run(version: str, limit: int | None, delay_seconds: float) -> None:
                 quota_wait = exc.wait_seconds
                 break
             results[case["id"]] = result
-            if not result["planned"]:
+            if result["training_answer"]:
+                status = "UNFAITHFUL" if result["draft_problems"] else "training answer"
+            elif not result["planned"]:
                 status = f"no route ({result['plan_status']})"
             elif result["final_problems"]:
                 status = "UNFAITHFUL"

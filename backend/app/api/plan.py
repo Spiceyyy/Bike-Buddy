@@ -16,6 +16,8 @@ from app.retrieval.place_search import PlaceSearch
 from app.tools.base import Tool
 from app.tools.plan_route import PlaceFinder, PlanRouteTool
 from app.tools.search_places import PlaceRegistry, SearchPlacesTool
+from app.tools.training_status import TrainingStatusTool
+from app.training.service import Trainer
 
 router = APIRouter()
 
@@ -48,6 +50,10 @@ def get_weather(request: Request) -> Weather | None:
     return getattr(request.app.state, "weather", None)
 
 
+def get_optional_trainer(request: Request) -> Trainer | None:
+    return getattr(request.app.state, "trainer", None)
+
+
 def _rate_limit_message(retry_after_seconds: float | None) -> str:
     if retry_after_seconds is not None and retry_after_seconds > LONG_WAIT_SECONDS:
         hours = math.ceil(retry_after_seconds / 3600)
@@ -71,6 +77,7 @@ async def create_plan(
     places: Annotated[PlaceFinder | None, Depends(get_place_finder)],
     place_search: Annotated[PlaceSearch | None, Depends(get_place_search)],
     weather: Annotated[Weather | None, Depends(get_weather)],
+    trainer: Annotated[Trainer | None, Depends(get_optional_trainer)],
 ) -> PlanResponse:
     """Plan a ride from a plain-language request."""
     registry = PlaceRegistry()
@@ -88,6 +95,8 @@ async def create_plan(
         tools.append(
             SearchPlacesTool(place_search, routing, geocoder, registry, map_start=body.map_start)
         )
+    if trainer is not None:
+        tools.append(TrainingStatusTool(trainer))
     try:
         run = await run_agent(
             llm, load_prompt("planner"), body.message, tools, check=reply_check(body.message)

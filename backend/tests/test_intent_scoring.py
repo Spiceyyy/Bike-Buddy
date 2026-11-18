@@ -118,3 +118,17 @@ def test_summary_excludes_non_ride_requests_from_field_accuracy() -> None:
     assert summary.decision_accuracy == 1.0
     assert summary.field_accuracy["start_place"] == 0.5
     assert summary.field_accuracy["route_type"] == 1.0
+
+
+def test_training_question_is_right_when_the_status_is_checked_first() -> None:
+    assert score_case("t", None, None, expect_training=True, checked_training=True).exact
+    assert not score_case("t", None, None, expect_training=True, checked_training=False).exact
+
+
+def test_planning_straight_away_misses_a_training_request() -> None:
+    planned = RouteSpec(route_type="loop", start_place="Verdun", target_distance_km=25)
+    assert not score_case("t", None, planned, expect_training=True, checked_training=True).exact
+
+
+def test_checking_training_when_not_needed_is_a_wrong_decision() -> None:
+    assert not score_case("t", None, None, checked_training=True).decision_correct

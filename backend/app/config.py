@@ -26,3 +26,7 @@ class Settings(BaseSettings):
     plan_requests_per_minute: int = 0
     plan_requests_per_day: int = 0
     feedback_requests_per_minute: int = 0
+
+    # Trainer mode keeps one rider's history: on for local use, off when hosted.
+    training_enabled: bool = True
+    rider_timezone: str = "America/Toronto"

@@ -1,0 +1,1702 @@
+{
+  "version": "v8-gemini-3.5-flash-lite",
+  "created_at": "2026-11-18T04:36:35+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "prompt_sha256": "412fee52090a",
+  "complete": true,
+  "summary": {
+    "total": 46,
+    "exact_match": 0.891,
+    "decision_accuracy": 0.935,
+    "field_accuracy": {
+      "route_type": 0.909,
+      "start_place": 0.909,
+      "end_place": 0.879,
+      "target_distance_km": 0.909,
+      "surface": 0.909,
+      "max_climb_m": 0.909,
+      "climbing": 0.909,
+      "stop": 0.909,
+      "via_places": 0.879,
+      "vibes": 0.879
+    }
+  },
+  "latency_ms": {
+    "median": 780,
+    "max": 3770
+  },
+  "tokens": {
+    "input": 116503,
+    "output": 1870
+  },
+  "cases": [
+    {
+      "message": "A quiet 50 km loop along the water with a café halfway",
+      "expected": {
+        "route_type": "loop",
+        "target_distance_km": 50,
+        "vibes": [
+          "quiet",
+          "water"
+        ],
+        "stop": "cafe"
+      },
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [
+        "waterfront or river or lake"
+      ],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 703,
+      "input_tokens": 2533,
+      "output_tokens": 34,
+      "id": "loop-01",
+      "decision_correct": false,
+      "fields": {
+        "route_type": false,
+        "start_place": false,
+        "end_place": false,
+        "target_distance_km": false,
+        "surface": false,
+        "max_climb_m": false,
+        "climbing": false,
+        "stop": false,
+        "via_places": false,
+        "vibes": false
+      },
+      "exact": false
+    },
+    {
+      "message": "40 km loop from the Old Port",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 40
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "end_place": null,
+        "target_distance_km": 40.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 919,
+      "input_tokens": 2527,
+      "output_tokens": 36,
+      "id": "loop-02",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "I want to ride about 30 miles from Verdun and come back the same way",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 48.3
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "end_place": null,
+        "target_distance_km": 48.27,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1392,
+      "input_tokens": 2536,
+      "output_tokens": 39,
+      "id": "loop-03",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Gravel ride, 60k, starting in Laval",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Laval",
+        "target_distance_km": 60,
+        "surface": "unpaved"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Laval",
+        "end_place": null,
+        "target_distance_km": 60.0,
+        "surface": "unpaved",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1250,
+      "input_tokens": 2531,
+      "output_tokens": 44,
+      "id": "loop-04",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "A 20 km loop through the forest from Cap-Saint-Jacques with no more than 200 m of climbing",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Cap-Saint-Jacques",
+        "target_distance_km": 20,
+        "max_climb_m": 200,
+        "vibes": [
+          "forest"
+        ],
+        "climbing": "avoid"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Cap-Saint-Jacques",
+        "end_place": null,
+        "target_distance_km": 20.0,
+        "surface": "any",
+        "max_climb_m": 200,
+        "climbing": "avoid",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "forest"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 3770,
+      "input_tokens": 2545,
+      "output_tokens": 70,
+      "id": "loop-05",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "35km, paved only, low traffic, start at Parc La Fontaine",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 35,
+        "surface": "paved",
+        "vibes": [
+          "quiet"
+        ]
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "end_place": "Parc La Fontaine",
+        "target_distance_km": 35.0,
+        "surface": "paved",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "quiet"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 962,
+      "input_tokens": 2534,
+      "output_tokens": 70,
+      "id": "loop-06",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": false,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": false
+    },
+    {
+      "message": "Quick 10 km spin around Nuns' Island",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Nuns' Island",
+        "target_distance_km": 10
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Nuns' Island",
+        "end_place": null,
+        "target_distance_km": 10.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 657,
+      "input_tokens": 2530,
+      "output_tokens": 38,
+      "id": "loop-07",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Long ride: 100 km loop from Longueuil, stay under 500 meters elevation gain, coffee stop please",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Longueuil",
+        "target_distance_km": 100,
+        "max_climb_m": 500,
+        "stop": "cafe",
+        "climbing": "avoid"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Longueuil",
+        "end_place": null,
+        "target_distance_km": 100.0,
+        "surface": "any",
+        "max_climb_m": 500,
+        "climbing": "avoid",
+        "stop": "cafe",
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 848,
+      "input_tokens": 2546,
+      "output_tokens": 83,
+      "id": "loop-08",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Loop from Sainte-Anne-de-Bellevue along the lake, 45 kilometres",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Sainte-Anne-de-Bellevue",
+        "target_distance_km": 45,
+        "vibes": [
+          "water"
+        ]
+      },
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [
+        "lake"
+      ],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 948,
+      "input_tokens": 2538,
+      "output_tokens": 46,
+      "id": "loop-09",
+      "decision_correct": false,
+      "fields": {
+        "route_type": false,
+        "start_place": false,
+        "end_place": false,
+        "target_distance_km": false,
+        "surface": false,
+        "max_climb_m": false,
+        "climbing": false,
+        "stop": false,
+        "via_places": false,
+        "vibes": false
+      },
+      "exact": false
+    },
+    {
+      "message": "12 mile loop from Westmount with a bakery stop",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Westmount",
+        "target_distance_km": 19.3,
+        "stop": "cafe"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Westmount",
+        "end_place": null,
+        "target_distance_km": 19.308,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": "cafe",
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1953,
+      "input_tokens": 2530,
+      "output_tokens": 52,
+      "id": "loop-10",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Quiet gravel 15 km by the river from Boucherville",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Boucherville",
+        "target_distance_km": 15,
+        "surface": "unpaved",
+        "vibes": [
+          "quiet",
+          "water"
+        ]
+      },
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [
+        "river"
+      ],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 608,
+      "input_tokens": 2531,
+      "output_tokens": 32,
+      "id": "loop-11",
+      "decision_correct": false,
+      "fields": {
+        "route_type": false,
+        "start_place": false,
+        "end_place": false,
+        "target_distance_km": false,
+        "surface": false,
+        "max_climb_m": false,
+        "climbing": false,
+        "stop": false,
+        "via_places": false,
+        "vibes": false
+      },
+      "exact": false
+    },
+    {
+      "message": "Historic streets and good views, 18 km loop from Old Montreal",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Old Montreal",
+        "target_distance_km": 18,
+        "vibes": [
+          "historic",
+          "viewpoint"
+        ]
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Old Montreal",
+        "end_place": null,
+        "target_distance_km": 18.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "historic",
+          "viewpoint"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 732,
+      "input_tokens": 2533,
+      "output_tokens": 48,
+      "id": "loop-12",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Une boucle tranquille de 25 km au départ de Verdun",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 25,
+        "vibes": [
+          "quiet"
+        ]
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "end_place": null,
+        "target_distance_km": 25.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "quiet"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 818,
+      "input_tokens": 2531,
+      "output_tokens": 56,
+      "id": "fr-01",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "De Longueuil au Vieux-Port en vélo, s'il vous plaît",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Longueuil",
+        "end_place": "Vieux-Port"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Longueuil",
+        "end_place": "Vieux-Port",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 650,
+      "input_tokens": 2535,
+      "output_tokens": 43,
+      "id": "fr-02",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Trouve-moi un trajet de Laval à Montréal-Nord sur piste cyclable asphaltée",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Laval",
+        "end_place": "Montréal-Nord",
+        "surface": "paved"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Laval",
+        "end_place": "Montréal-Nord",
+        "target_distance_km": null,
+        "surface": "paved",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 834,
+      "input_tokens": 2537,
+      "output_tokens": 49,
+      "id": "fr-03",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Balade de 30 km en forêt, départ Pointe-aux-Prairies",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Pointe-aux-Prairies",
+        "target_distance_km": 30,
+        "vibes": [
+          "forest"
+        ]
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Pointe-aux-Prairies",
+        "end_place": null,
+        "target_distance_km": 30.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "forest"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 623,
+      "input_tokens": 2536,
+      "output_tokens": 67,
+      "id": "fr-04",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Take me from Lachine to Parc Jean-Drapeau",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Lachine",
+        "end_place": "Parc Jean-Drapeau"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Lachine",
+        "end_place": "Parc Jean-Drapeau",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 710,
+      "input_tokens": 2531,
+      "output_tokens": 45,
+      "id": "p2p-01",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Bike route from Mile End to Atwater Market, avoiding gravel",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Mile End",
+        "end_place": "Atwater Market",
+        "surface": "paved"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Mile End",
+        "end_place": "Atwater Market",
+        "target_distance_km": null,
+        "surface": "paved",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 622,
+      "input_tokens": 2531,
+      "output_tokens": 48,
+      "id": "p2p-02",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Ride to Mount Royal from McGill, I want nice views",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "McGill",
+        "end_place": "Mount Royal",
+        "vibes": [
+          "viewpoint"
+        ]
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "McGill",
+        "end_place": "Mount Royal",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "viewpoint"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 658,
+      "input_tokens": 2530,
+      "output_tokens": 48,
+      "id": "p2p-03",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Scenic historic ride from the Old Port to Lachine along the canal",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Old Port",
+        "end_place": "Lachine",
+        "vibes": [
+          "historic",
+          "water"
+        ]
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Old Port",
+        "end_place": "Lachine",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [
+          "canal"
+        ],
+        "vibes": [
+          "historic"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 712,
+      "input_tokens": 2532,
+      "output_tokens": 55,
+      "id": "p2p-04",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": false,
+        "vibes": false
+      },
+      "exact": false
+    },
+    {
+      "message": "I'd like a park-heavy ride from Outremont to Verdun",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Outremont",
+        "end_place": "Verdun",
+        "vibes": [
+          "park"
+        ]
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Outremont",
+        "end_place": "Verdun",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": [
+          "park"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1068,
+      "input_tokens": 2534,
+      "output_tokens": 48,
+      "id": "p2p-05",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "From the Olympic Stadium to the Old Port, flat as possible, under 50 m of climbing",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Olympic Stadium",
+        "end_place": "Old Port",
+        "max_climb_m": 50,
+        "climbing": "avoid"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Olympic Stadium",
+        "end_place": "Old Port",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": 50,
+        "climbing": "avoid",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 637,
+      "input_tokens": 2539,
+      "output_tokens": 63,
+      "id": "p2p-06",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Plan me a ride",
+      "expected": {
+        "route_type": "loop"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": null,
+        "end_place": null,
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 780,
+      "input_tokens": 2523,
+      "output_tokens": 18,
+      "id": "missing-01",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "I want to cycle to Parc Jean-Drapeau",
+      "expected": {
+        "route_type": "point_to_point",
+        "end_place": "Parc Jean-Drapeau"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": null,
+        "end_place": "Parc Jean-Drapeau",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1212,
+      "input_tokens": 2530,
+      "output_tokens": 36,
+      "id": "missing-02",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "A loop from Saint-Lambert",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Saint-Lambert"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Saint-Lambert",
+        "end_place": null,
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 770,
+      "input_tokens": 2525,
+      "output_tokens": 28,
+      "id": "missing-03",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "What's the best bike to buy for commuting?",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "I plan bike routes. What ride would you like?",
+      "latency_ms": 1617,
+      "input_tokens": 2530,
+      "output_tokens": 11,
+      "id": "none-01",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Hello!",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "I plan bike routes. What ride would you like?",
+      "latency_ms": 835,
+      "input_tokens": 2521,
+      "output_tokens": 11,
+      "id": "none-02",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "What's the weather tomorrow?",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "I plan bike routes. What ride would you like?",
+      "latency_ms": 780,
+      "input_tokens": 2526,
+      "output_tokens": 11,
+      "id": "none-03",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Recommend a good restaurant in Mile End",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "I plan bike routes. What ride would you like?",
+      "latency_ms": 694,
+      "input_tokens": 2526,
+      "output_tokens": 11,
+      "id": "none-04",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Is the Lachine Canal path open in winter?",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "I plan bike routes. What ride would you like?",
+      "latency_ms": 1293,
+      "input_tokens": 2529,
+      "output_tokens": 11,
+      "id": "none-05",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "I want to go to a cafe and have a good elevation training, 40 km from Outremont",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Outremont",
+        "target_distance_km": 40,
+        "climbing": "seek",
+        "stop": "cafe"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Outremont",
+        "end_place": null,
+        "target_distance_km": 40.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "seek",
+        "stop": "cafe",
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 760,
+      "input_tokens": 2541,
+      "output_tokens": 80,
+      "id": "stop-01",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Hilly 25 km loop from Parc La Fontaine, I want to work on my climbing",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "target_distance_km": 25,
+        "climbing": "seek"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Parc La Fontaine",
+        "end_place": null,
+        "target_distance_km": 25.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "seek",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 791,
+      "input_tokens": 2538,
+      "output_tokens": 45,
+      "id": "climb-01",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Une boucle de 30 km avec beaucoup de côtes depuis Côte-des-Neiges",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Côte-des-Neiges",
+        "target_distance_km": 30,
+        "climbing": "seek"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Côte-des-Neiges",
+        "end_place": null,
+        "target_distance_km": 30.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "seek",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 653,
+      "input_tokens": 2537,
+      "output_tokens": 48,
+      "id": "climb-02",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Easy flat ride from Verdun to Lachine, my knees hate hills",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Verdun",
+        "end_place": "Lachine",
+        "climbing": "avoid"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "Verdun",
+        "end_place": "Lachine",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "avoid",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 706,
+      "input_tokens": 2532,
+      "output_tokens": 53,
+      "id": "climb-03",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "Ride from McGill to Parc Jarry with a coffee break on the way",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "McGill",
+        "end_place": "Parc Jarry",
+        "stop": "cafe"
+      },
+      "predicted": {
+        "route_type": "point_to_point",
+        "start_place": "McGill",
+        "end_place": "Parc Jarry",
+        "target_distance_km": null,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": "cafe",
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 706,
+      "input_tokens": 2533,
+      "output_tokens": 48,
+      "id": "stop-02",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "15 km loop from the Old Port, stop for coffee halfway, along the water",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 15,
+        "stop": "cafe",
+        "vibes": [
+          "water"
+        ]
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "end_place": null,
+        "target_distance_km": 15.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": "cafe",
+        "via_places": [],
+        "vibes": [
+          "water"
+        ]
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1949,
+      "input_tokens": 2536,
+      "output_tokens": 49,
+      "id": "stop-03",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "25 km loop from the Old Port past a lookout with a view",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Old Port",
+        "target_distance_km": 25
+      },
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [
+        "lookout with a view"
+      ],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 949,
+      "input_tokens": 2533,
+      "output_tokens": 42,
+      "id": "search-01",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Je veux une boucle de 20 km depuis Verdun qui passe par une plage",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Verdun",
+        "target_distance_km": 20
+      },
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [
+        "plage"
+      ],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 1032,
+      "input_tokens": 2535,
+      "output_tokens": 38,
+      "id": "search-02",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Ride from Verdun to the Old Port, and I'd like to see a lighthouse on the way",
+      "expected": {
+        "route_type": "point_to_point",
+        "start_place": "Verdun",
+        "end_place": "Old Port"
+      },
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [
+        "lighthouse"
+      ],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 585,
+      "input_tokens": 2539,
+      "output_tokens": 31,
+      "id": "search-03",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "40 km loop from Lachine that goes over the Jacques-Cartier Bridge",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "target_distance_km": 40,
+        "via_places": [
+          "Jacques-Cartier Bridge"
+        ]
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "end_place": null,
+        "target_distance_km": 40.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "any",
+        "stop": null,
+        "via_places": [
+          "Jacques-Cartier Bridge"
+        ],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 763,
+      "input_tokens": 2535,
+      "output_tokens": 48,
+      "id": "via-01",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    },
+    {
+      "message": "How is my training going?",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": true,
+      "reply_text": "",
+      "latency_ms": 629,
+      "input_tokens": 2525,
+      "output_tokens": 12,
+      "id": "train-01",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Plan today's ride based on my training, from Verdun",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": true,
+      "reply_text": "",
+      "latency_ms": 537,
+      "input_tokens": 2531,
+      "output_tokens": 12,
+      "id": "train-02",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Am I too tired for a hard ride today?",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": true,
+      "reply_text": "",
+      "latency_ms": 851,
+      "input_tokens": 2529,
+      "output_tokens": 12,
+      "id": "train-03",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "What should I ride today? I'm starting from the Old Port",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": true,
+      "reply_text": "",
+      "latency_ms": 822,
+      "input_tokens": 2533,
+      "output_tokens": 12,
+      "id": "train-04",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "Quelle sortie me conseilles-tu aujourd'hui selon mon entraînement ?",
+      "expected": null,
+      "predicted": null,
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": true,
+      "reply_text": "",
+      "latency_ms": 899,
+      "input_tokens": 2534,
+      "output_tokens": 12,
+      "id": "train-05",
+      "decision_correct": true,
+      "fields": {},
+      "exact": true
+    },
+    {
+      "message": "A 40 km training ride from Lachine with some climbing",
+      "expected": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "target_distance_km": 40,
+        "climbing": "seek"
+      },
+      "predicted": {
+        "route_type": "loop",
+        "start_place": "Lachine",
+        "end_place": null,
+        "target_distance_km": 40.0,
+        "surface": "any",
+        "max_climb_m": null,
+        "climbing": "seek",
+        "stop": null,
+        "via_places": [],
+        "vibes": []
+      },
+      "invalid_arguments": false,
+      "search_queries": [],
+      "checked_training": false,
+      "reply_text": "",
+      "latency_ms": 690,
+      "input_tokens": 2532,
+      "output_tokens": 77,
+      "id": "train-06",
+      "decision_correct": true,
+      "fields": {
+        "route_type": true,
+        "start_place": true,
+        "end_place": true,
+        "target_distance_km": true,
+        "surface": true,
+        "max_climb_m": true,
+        "climbing": true,
+        "stop": true,
+        "via_places": true,
+        "vibes": true
+      },
+      "exact": true
+    }
+  ]
+}

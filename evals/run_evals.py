@@ -31,6 +31,9 @@ from app.tools.plan_route import DESCRIPTION, NAME
 from app.tools.search_places import DESCRIPTION as SEARCH_DESCRIPTION
 from app.tools.search_places import NAME as SEARCH_NAME
 from app.tools.search_places import SearchPlacesArgs
+from app.tools.training_status import DESCRIPTION as TRAINING_DESCRIPTION
+from app.tools.training_status import NAME as TRAINING_NAME
+from app.tools.training_status import TrainingStatusArgs
 
 EVALS_DIR = Path(__file__).parent
 MAX_RATE_LIMIT_WAITS = 5
@@ -96,6 +99,7 @@ async def run_case(
             invalid = True
 
     searches = [call for call in response.message.tool_calls if call.name == SEARCH_NAME]
+    checked_training = any(call.name == TRAINING_NAME for call in response.message.tool_calls)
     expected = RouteSpec.model_validate(case["expected"]) if case["expected"] else None
     score = score_case(
         case["id"],
@@ -103,6 +107,8 @@ async def run_case(
         predicted,
         expect_search=case.get("search", False),
         searched=bool(searches),
+        expect_training=case.get("training", False),
+        checked_training=checked_training,
     )
     return {
         "message": case["message"],
@@ -110,6 +116,7 @@ async def run_case(
         "predicted": predicted.model_dump(mode="json") if predicted else None,
         "invalid_arguments": invalid,
         "search_queries": [call.arguments.get("query") for call in searches],
+        "checked_training": checked_training,
         "reply_text": response.message.text,
         "latency_ms": latency_ms,
         "input_tokens": response.input_tokens,
@@ -160,13 +167,18 @@ async def run(version: str, limit: int | None, delay_seconds: float) -> None:
     settings = Settings()
     system = load_prompt("planner")
     prompt_sha = hashlib.sha256(system.encode()).hexdigest()[:12]
-    # The same two tools the app offers, so the eval measures the real setup.
+    # The same three tools the app offers (locally), so the eval measures the real setup.
     tools = [
         ToolDefinition(name=NAME, description=DESCRIPTION, parameters=RouteSpec.model_json_schema()),
         ToolDefinition(
             name=SEARCH_NAME,
             description=SEARCH_DESCRIPTION,
             parameters=SearchPlacesArgs.model_json_schema(),
+        ),
+        ToolDefinition(
+            name=TRAINING_NAME,
+            description=TRAINING_DESCRIPTION,
+            parameters=TrainingStatusArgs.model_json_schema(),
         ),
     ]
     cases = load_cases(limit)

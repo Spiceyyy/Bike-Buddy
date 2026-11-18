@@ -1,0 +1,2670 @@
+{
+  "version": "v5",
+  "created_at": "2026-11-18T04:51:59+00:00",
+  "model": "gemini-3.5-flash-lite",
+  "prompt_sha256": "e2d196124722",
+  "complete": true,
+  "summary": {
+    "requests": 46,
+    "planned": 34,
+    "draft_faithful": 0.9705882352941176,
+    "final_faithful": 1.0,
+    "rewritten": 1,
+    "draft_problems_by_kind": {
+      "wrong_caveat": 1
+    },
+    "final_problems_by_kind": {},
+    "flagged_drafts": 1,
+    "flags_reviewed": 1,
+    "flags_real": 1,
+    "flags_false_alarm": 0,
+    "missed": 0,
+    "training_answers": 3,
+    "training_answers_faithful": 1.0
+  },
+  "latency_ms": {
+    "median": 3425,
+    "max": 48478
+  },
+  "tokens": {
+    "input": 259396,
+    "output": 5046
+  },
+  "cases": {
+    "loop-01": {
+      "message": "A quiet 50 km loop along the water with a café halfway",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "Where would you like to start your ride?",
+      "reply": "Where would you like to start your ride?",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5175,
+      "output_tokens": 44,
+      "latency_ms": 1796
+    },
+    "loop-02": {
+      "message": "40 km loop from the Old Port",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your 38 km loop from Vieux-Port takes about 2 h 11 min with 371 m of climbing. The route passes through green space along Avenue du Parc-La Fontaine. Expect temperatures of 6 to 7°C with a west wind of 15 km/h. You can also pick another route or café on the map.",
+      "reply": "Your 38 km loop from Vieux-Port takes about 2 h 11 min with 371 m of climbing. The route passes through green space along Avenue du Parc-La Fontaine. Expect temperatures of 6 to 7°C with a west wind of 15 km/h. You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Vieux-Port",
+        "end": "Vieux-Port",
+        "distance_km": 38.0,
+        "riding_time": "2 h 11 min",
+        "not_applied": [],
+        "requested_distance_km": 40.0,
+        "distance_on_target": true,
+        "climb_m": 371,
+        "scenery": {
+          "scenic_share": 0.3,
+          "highlights": [
+            {
+              "name": "Avenue du Parc-La Fontaine",
+              "why": "through green space",
+              "from_km": 3.0,
+              "to_km": 4.0
+            },
+            {
+              "name": "Rue de Brébeuf",
+              "why": "through green space",
+              "from_km": 5.0,
+              "to_km": 5.6
+            },
+            {
+              "name": "Avenue du Parc-La Fontaine",
+              "why": "through green space",
+              "from_km": 34.2,
+              "to_km": 35.0
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 15,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 20
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 42.9
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 34.5
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5441,
+      "output_tokens": 112,
+      "latency_ms": 20401
+    },
+    "loop-03": {
+      "message": "I want to ride about 30 miles from Verdun and come back the same way",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your 46.9 km loop from Verdun takes about 2 h 44 min with around 307 m of climbing. The route is scenic along the water on the Piste multifonctionnelle. You can also pick another route option on the map if you'd like a different distance.",
+      "reply": "Your 46.9 km loop from Verdun takes about 2 h 44 min with around 307 m of climbing. The route is scenic along the water on the Piste multifonctionnelle. You can also pick another route option on the map if you'd like a different distance.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Verdun",
+        "end": "Verdun",
+        "distance_km": 46.9,
+        "riding_time": "2 h 44 min",
+        "not_applied": [],
+        "requested_distance_km": 48.27,
+        "distance_on_target": true,
+        "climb_m": 307,
+        "scenery": {
+          "scenic_share": 0.46,
+          "highlights": [
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "along the water",
+              "from_km": 0.6,
+              "to_km": 5.8
+            },
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "along the water",
+              "from_km": 38.5,
+              "to_km": 41.6
+            },
+            {
+              "name": "Piste cyclable des Berges",
+              "why": "on quiet streets",
+              "from_km": 43.1,
+              "to_km": 45.7
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 32
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 39.6
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 53.7
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5473,
+      "output_tokens": 103,
+      "latency_ms": 7885
+    },
+    "loop-04": {
+      "message": "Gravel ride, 60k, starting in Laval",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "I've planned a 63.3 km loop starting and ending in Laval (région administrative), taking about 3 h 45 min of riding time with 496 m of climbing. The surface preference could not be applied. Along the way, the route passes through green space on Route Verte 1 and Boulevard Gouin Ouest. You can also pick another route or café on the map.",
+      "reply": "I've planned a 63.3 km loop starting and ending in Laval (région administrative), taking about 3 h 45 min of riding time with 496 m of climbing. The surface preference could not be applied. Along the way, the route passes through green space on Route Verte 1 and Boulevard Gouin Ouest. You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Laval (région administrative)",
+        "end": "Laval (région administrative)",
+        "distance_km": 63.3,
+        "riding_time": "3 h 45 min",
+        "not_applied": [
+          "surface preference"
+        ],
+        "requested_distance_km": 60.0,
+        "distance_on_target": true,
+        "climb_m": 496,
+        "scenery": {
+          "scenic_share": 0.24,
+          "highlights": [
+            {
+              "name": "Route Verte 1",
+              "why": "through green space",
+              "from_km": 1.7,
+              "to_km": 2.8
+            },
+            {
+              "name": "Boulevard Gouin Ouest",
+              "why": "through green space",
+              "from_km": 32.7,
+              "to_km": 35.1
+            },
+            {
+              "name": "Boucle des Bois-Francs",
+              "why": "through green space",
+              "from_km": 35.6,
+              "to_km": 38.5
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "4 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 12,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 23
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 64.0
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 67.9
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5476,
+      "output_tokens": 129,
+      "latency_ms": 8407
+    },
+    "loop-05": {
+      "message": "A 20 km loop through the forest from Cap-Saint-Jacques with no more than 200 m of climbing",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This 20.6 km loop starts and ends at Cap Saint-Jacques and takes about 1 h 10 min, with 187 m of climbing. The route goes along Chemin Senneville through green space. It's windy: 23 km/h from the west, into the wind for 32% of the route. You can also pick another route or café on the map.",
+      "reply": "This 20.6 km loop starts and ends at Cap Saint-Jacques and takes about 1 h 10 min, with 187 m of climbing. The route goes along Chemin Senneville through green space. It's windy: 23 km/h from the west, into the wind for 32% of the route. You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Cap Saint-Jacques",
+        "end": "Cap Saint-Jacques",
+        "distance_km": 20.6,
+        "riding_time": "1 h 10 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "requested_distance_km": 20.0,
+        "distance_on_target": true,
+        "climb_m": 187,
+        "climb_on_target": true,
+        "scenery": {
+          "scenic_share": 0.38,
+          "highlights": [
+            {
+              "name": "Chemin Senneville",
+              "why": "through green space",
+              "from_km": 1.2,
+              "to_km": 7.6
+            },
+            {
+              "name": "Boulevard des Anciens-Combattants",
+              "why": "on quiet streets",
+              "from_km": 8.9,
+              "to_km": 11.4
+            },
+            {
+              "name": "Boulevard Gouin Ouest",
+              "why": "along the water",
+              "from_km": 18.8,
+              "to_km": 20.6
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 23,
+          "wind_from": "west",
+          "notes": [
+            "windy: 23 km/h from the west, into the wind for 32% of the route"
+          ],
+          "headwind_pct": 32
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 23.7
+          },
+          {
+            "label": "Flattest",
+            "distance_km": 16.2
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5563,
+      "output_tokens": 157,
+      "latency_ms": 29157
+    },
+    "loop-06": {
+      "message": "35km, paved only, low traffic, start at Parc La Fontaine",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is your 34 km loop starting and ending at Parc La Fontaine, taking about 1 h 58 min to ride. The route features nice stretches along the water via Avenue du Parc-La Fontaine and the Piste cyclable du Canal de l'Aqueduc. Surface and vibe preferences are not supported yet. You can also pick another route or café on the map.",
+      "reply": "Here is your 34 km loop starting and ending at Parc La Fontaine, taking about 1 h 58 min to ride. The route features nice stretches along the water via Avenue du Parc-La Fontaine and the Piste cyclable du Canal de l'Aqueduc. Surface and vibe preferences are not supported yet. You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Parc La Fontaine",
+        "end": "Parc La Fontaine",
+        "distance_km": 34.0,
+        "riding_time": "1 h 58 min",
+        "not_applied": [
+          "surface preference",
+          "vibe preferences"
+        ],
+        "requested_distance_km": 35.0,
+        "distance_on_target": true,
+        "climb_m": 413,
+        "scenery": {
+          "scenic_share": 0.77,
+          "highlights": [
+            {
+              "name": "Avenue du Parc-La Fontaine",
+              "why": "along the water",
+              "from_km": 0.0,
+              "to_km": 0.9
+            },
+            {
+              "name": "Piste cyclable du Canal de l'Aqueduc",
+              "why": "along the water",
+              "from_km": 3.2,
+              "to_km": 16.1
+            },
+            {
+              "name": "Piste cyclable des Berges",
+              "why": "along the water",
+              "from_km": 16.4,
+              "to_km": 24.6
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 18,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 27
+        },
+        "other_options": [
+          {
+            "label": "Flattest",
+            "distance_km": 29.9
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 36.2
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5500,
+      "output_tokens": 137,
+      "latency_ms": 5654
+    },
+    "loop-07": {
+      "message": "Quick 10 km spin around Nuns' Island",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This loop around L'Île-des-Sœurs is 11.1 km and takes about 40 min. This was the closest loop we could find to your requested distance. You'll ride along the water on Lien vers l'Ile-des-Soeurs.",
+      "reply": "This loop around L'Île-des-Sœurs is 11.1 km and takes about 40 min. This was the closest loop we could find to your requested distance. You'll ride along the water on Lien vers l'Ile-des-Soeurs.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "L'Île-des-Sœurs",
+        "end": "L'Île-des-Sœurs",
+        "distance_km": 11.1,
+        "riding_time": "40 min",
+        "not_applied": [],
+        "requested_distance_km": 10.0,
+        "distance_on_target": false,
+        "climb_m": 109,
+        "scenery": {
+          "scenic_share": 0.33,
+          "highlights": [
+            {
+              "name": "Lien vers l'Ile-des-Soeurs",
+              "why": "along the water",
+              "from_km": 1.4,
+              "to_km": 2.5
+            },
+            {
+              "name": "Boulevard Gaétan-Laberge",
+              "why": "on quiet streets",
+              "from_km": 2.8,
+              "to_km": 3.2
+            },
+            {
+              "name": "Rue Marc-Cantin",
+              "why": "on quiet streets",
+              "from_km": 5.8,
+              "to_km": 6.2
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "8 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 31
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 8.5
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 11.7
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5469,
+      "output_tokens": 97,
+      "latency_ms": 10829
+    },
+    "loop-08": {
+      "message": "Long ride: 100 km loop from Longueuil, stay under 500 meters elevation gain, coffee stop please",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": true,
+      "draft_reply": "This loop from Longueuil is 90.1 km and takes 5 h 15 min, with about 341 m of climbing. This was the closest loop I could find to the requested distance. You'll find a Tim Hortons cafe at 26.8 km. You can pick another route or café on the map if you like.",
+      "reply": "This loop from Longueuil is 90.1 km and takes 5 h 15 min, with about 341 m of climbing. You'll find a Tim Hortons cafe at 26.8 km. You can pick another route or café on the map if you like.",
+      "draft_problems": [
+        {
+          "kind": "wrong_caveat",
+          "detail": "the reply says the loop missed its distance, but it is on target"
+        }
+      ],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Longueuil",
+        "end": "Longueuil",
+        "distance_km": 90.1,
+        "riding_time": "5 h 15 min",
+        "not_applied": [],
+        "requested_distance_km": 100.0,
+        "distance_on_target": true,
+        "climb_m": 341,
+        "climb_on_target": true,
+        "stop": {
+          "name": "Tim Hortons",
+          "at_km": 26.8
+        },
+        "scenery": {
+          "scenic_share": 0.41,
+          "highlights": [
+            {
+              "name": "Montée du Chemin-de-Chambly",
+              "why": "on quiet streets",
+              "from_km": 10.3,
+              "to_km": 14.6
+            },
+            {
+              "name": "Rang Saint-Marc",
+              "why": "along the water",
+              "from_km": 44.1,
+              "to_km": 46.1
+            },
+            {
+              "name": "Promenade fluviale du Grand Montréal,",
+              "why": "along the water",
+              "from_km": 68.7,
+              "to_km": 83.9
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "5 to 7",
+          "rain_chance_pct": 1,
+          "wind_kmh": 12,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 19
+        },
+        "other_options": [
+          {
+            "label": "Alternative",
+            "distance_km": 91.6
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 89.8
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 3,
+      "input_tokens": 8703,
+      "output_tokens": 224,
+      "latency_ms": 18280
+    },
+    "loop-09": {
+      "message": "Loop from Sainte-Anne-de-Bellevue along the lake, 45 kilometres",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is a 56.9 km loop from Sainte-Anne-de-Bellevue, taking about 3 h 11 min with 321 m of climbing. This was the closest loop we could find to your requested distance. It features lovely sections along the water, including along Route de Lotbinière, Piste cyclable Soulanges, and Chemin du Canal. It will be windy with 24 km/h winds from the west, heading into the wind for 30% of the route. Vibe preferences are not supported yet.",
+      "reply": "Here is a 56.9 km loop from Sainte-Anne-de-Bellevue, taking about 3 h 11 min with 321 m of climbing. This was the closest loop we could find to your requested distance. It features lovely sections along the water, including along Route de Lotbinière, Piste cyclable Soulanges, and Chemin du Canal. It will be windy with 24 km/h winds from the west, heading into the wind for 30% of the route. Vibe preferences are not supported yet.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Sainte-Anne-de-Bellevue",
+        "end": "Sainte-Anne-de-Bellevue",
+        "distance_km": 56.9,
+        "riding_time": "3 h 11 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "requested_distance_km": 45.0,
+        "distance_on_target": false,
+        "climb_m": 321,
+        "scenery": {
+          "scenic_share": 0.33,
+          "highlights": [
+            {
+              "name": "Route de Lotbinière",
+              "why": "along the water",
+              "from_km": 8.3,
+              "to_km": 10.2
+            },
+            {
+              "name": "Piste cyclable Soulanges",
+              "why": "along the water",
+              "from_km": 14.0,
+              "to_km": 23.4
+            },
+            {
+              "name": "Chemin du Canal",
+              "why": "along the water",
+              "from_km": 38.5,
+              "to_km": 40.3
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 24,
+          "wind_from": "west",
+          "notes": [
+            "windy: 24 km/h from the west, into the wind for 30% of the route"
+          ],
+          "headwind_pct": 30
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5496,
+      "output_tokens": 169,
+      "latency_ms": 23782
+    },
+    "loop-10": {
+      "message": "12 mile loop from Westmount with a bakery stop",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is a 20 km loop starting in Westmount that takes about 1 h 11 min with around 234 m of climbing. The route passes Starbucks at 13.6 km for your bakery stop. The route features nice stretches along the water near Lien vers l'Ile-des-Soeurs. It will be windy with 20 km/h winds from the west and temperatures around 6 to 7 degrees. You can pick another route or café on the map if you prefer.",
+      "reply": "Here is a 20 km loop starting in Westmount that takes about 1 h 11 min with around 234 m of climbing. The route passes Starbucks at 13.6 km for your bakery stop. The route features nice stretches along the water near Lien vers l'Ile-des-Soeurs. It will be windy with 20 km/h winds from the west and temperatures around 6 to 7 degrees. You can pick another route or café on the map if you prefer.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Westmount",
+        "end": "Westmount",
+        "distance_km": 20.0,
+        "riding_time": "1 h 11 min",
+        "not_applied": [],
+        "requested_distance_km": 19.308,
+        "distance_on_target": true,
+        "climb_m": 234,
+        "stop": {
+          "name": "Starbucks",
+          "at_km": 13.6
+        },
+        "scenery": {
+          "scenic_share": 0.5,
+          "highlights": [
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "on quiet streets",
+              "from_km": 2.5,
+              "to_km": 3.9
+            },
+            {
+              "name": "Lien vers l'Ile-des-Soeurs",
+              "why": "along the water",
+              "from_km": 5.5,
+              "to_km": 6.8
+            },
+            {
+              "name": "Lien vers l'Ile-des-Soeurs",
+              "why": "along the water",
+              "from_km": 14.4,
+              "to_km": 15.5
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 20,
+          "wind_from": "west",
+          "notes": [
+            "windy: 20 km/h from the west"
+          ],
+          "headwind_pct": 22
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 17.2
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 21.4
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5505,
+      "output_tokens": 153,
+      "latency_ms": 5878
+    },
+    "loop-11": {
+      "message": "Quiet gravel 15 km by the river from Boucherville",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "I planned a 15.7 km loop starting and ending in Boucherville, taking about 1 h 4 min of riding time with 137 m of climbing. The route passes along Boulevard Marie-Victorin through green space. (Note: Surface and vibe preferences are not supported yet.) You can also pick another route or café on the map.",
+      "reply": "I planned a 15.7 km loop starting and ending in Boucherville, taking about 1 h 4 min of riding time with 137 m of climbing. The route passes along Boulevard Marie-Victorin through green space. (Note: Surface and vibe preferences are not supported yet.) You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Boucherville",
+        "end": "Boucherville",
+        "distance_km": 15.7,
+        "riding_time": "1 h 4 min",
+        "not_applied": [
+          "surface preference",
+          "vibe preferences"
+        ],
+        "requested_distance_km": 15.0,
+        "distance_on_target": true,
+        "climb_m": 137,
+        "scenery": {
+          "scenic_share": 0.24,
+          "highlights": [
+            {
+              "name": "Boulevard Marie-Victorin",
+              "why": "through green space",
+              "from_km": 3.6,
+              "to_km": 4.4
+            },
+            {
+              "name": "Route verte 1",
+              "why": "on quiet streets",
+              "from_km": 8.0,
+              "to_km": 8.9
+            },
+            {
+              "name": "La Riveraine",
+              "why": "through green space",
+              "from_km": 9.3,
+              "to_km": 10.4
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "5 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 11,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 34
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 13.1
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 13.7
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5493,
+      "output_tokens": 147,
+      "latency_ms": 5242
+    },
+    "loop-12": {
+      "message": "Historic streets and good views, 18 km loop from Old Montreal",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This 17.9 km loop starts and ends in Vieux-Montréal, taking about 1 h 5 min with approximately 251 m of climbing. The route passes along Chemin Glen on quiet streets. Please note that vibe preferences are not supported yet. You can also pick another route or café on the map.",
+      "reply": "This 17.9 km loop starts and ends in Vieux-Montréal, taking about 1 h 5 min with approximately 251 m of climbing. The route passes along Chemin Glen on quiet streets. Please note that vibe preferences are not supported yet. You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Vieux-Montréal",
+        "end": "Vieux-Montréal",
+        "distance_km": 17.9,
+        "riding_time": "1 h 5 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "requested_distance_km": 18.0,
+        "distance_on_target": true,
+        "climb_m": 251,
+        "scenery": {
+          "scenic_share": 0.6,
+          "highlights": [
+            {
+              "name": "Chemin Glen",
+              "why": "on quiet streets",
+              "from_km": 6.3,
+              "to_km": 6.8
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 15,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 27
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 17.1
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 16.0
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5424,
+      "output_tokens": 137,
+      "latency_ms": 2920
+    },
+    "fr-01": {
+      "message": "Une boucle tranquille de 25 km au départ de Verdun",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Voici une boucle de 23 km au départ de Verdun qui prend environ 1 h 18 min. La route longe l'eau sur la Piste Cyclable du Canal de Lachine. Vos préférences de style ne sont pas prises en charge pour l'instant. Vous pouvez choisir un autre itinéraire ou un autre café sur la carte.",
+      "reply": "Voici une boucle de 23 km au départ de Verdun qui prend environ 1 h 18 min. La route longe l'eau sur la Piste Cyclable du Canal de Lachine. Vos préférences de style ne sont pas prises en charge pour l'instant. Vous pouvez choisir un autre itinéraire ou un autre café sur la carte.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Verdun",
+        "end": "Verdun",
+        "distance_km": 23.0,
+        "riding_time": "1 h 18 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "requested_distance_km": 25.0,
+        "distance_on_target": true,
+        "climb_m": 202,
+        "scenery": {
+          "scenic_share": 0.28,
+          "highlights": [
+            {
+              "name": "Rue Willibrord",
+              "why": "on quiet streets",
+              "from_km": 0.0,
+              "to_km": 0.6
+            },
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.6,
+              "to_km": 5.7
+            },
+            {
+              "name": "Boulevard Champlain",
+              "why": "along the water",
+              "from_km": 21.8,
+              "to_km": 22.4
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 38
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 21.4
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 27.6
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5466,
+      "output_tokens": 120,
+      "latency_ms": 4195
+    },
+    "fr-02": {
+      "message": "De Longueuil au Vieux-Port en vélo, s'il vous plaît",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Voici un itinéraire de Longueuil au Vieux-Port d'une distance de 11,7 km, avec un temps de parcours estimé à 41 min et un dénivelé d'environ 81 m. Vous emprunterez notamment le pont Jacques-Cartier.",
+      "reply": "Voici un itinéraire de Longueuil au Vieux-Port d'une distance de 11,7 km, avec un temps de parcours estimé à 41 min et un dénivelé d'environ 81 m. Vous emprunterez notamment le pont Jacques-Cartier.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Longueuil",
+        "end": "Vieux-Port",
+        "distance_km": 11.7,
+        "riding_time": "41 min",
+        "not_applied": [],
+        "climb_m": 81,
+        "scenery": {
+          "scenic_share": 0.1,
+          "highlights": [
+            {
+              "name": "Boulevard Perron",
+              "why": "on quiet streets",
+              "from_km": 0.9,
+              "to_km": 1.3
+            },
+            {
+              "name": "Pont Jacques-Cartier",
+              "why": "on quiet streets",
+              "from_km": 6.7,
+              "to_km": 7.2
+            },
+            {
+              "name": "Pont Jacques-Cartier",
+              "why": "on quiet streets",
+              "from_km": 7.2,
+              "to_km": 8.6
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 13,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 54
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5416,
+      "output_tokens": 104,
+      "latency_ms": 2605
+    },
+    "fr-03": {
+      "message": "Trouve-moi un trajet de Laval à Montréal-Nord sur piste cyclable asphaltée",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Voici un trajet de Laval (région administrative) à Montréal-Nord de 14 km, pour un temps de roulement d'environ 47 min. La surface asphaltée n'est pas prise en charge pour le moment. Vous pouvez aussi choisir une autre option de parcours sur la carte.",
+      "reply": "Voici un trajet de Laval (région administrative) à Montréal-Nord de 14 km, pour un temps de roulement d'environ 47 min. La surface asphaltée n'est pas prise en charge pour le moment. Vous pouvez aussi choisir une autre option de parcours sur la carte.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Laval (région administrative)",
+        "end": "Montréal-Nord",
+        "distance_km": 14.0,
+        "riding_time": "47 min",
+        "not_applied": [
+          "surface preference"
+        ],
+        "climb_m": 163,
+        "scenery": {
+          "scenic_share": 0.31,
+          "highlights": [
+            {
+              "name": "Route Verte 1",
+              "why": "through green space",
+              "from_km": 1.7,
+              "to_km": 2.8
+            },
+            {
+              "name": "Avenue du Parc",
+              "why": "through green space",
+              "from_km": 9.8,
+              "to_km": 10.5
+            },
+            {
+              "name": "Avenue du Parc",
+              "why": "through green space",
+              "from_km": 10.5,
+              "to_km": 11.0
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 14,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 6
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 18.4
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5448,
+      "output_tokens": 111,
+      "latency_ms": 2373
+    },
+    "fr-04": {
+      "message": "Balade de 30 km en forêt, départ Pointe-aux-Prairies",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Cette boucle de 30 km au départ du Parc-nature de la Pointe-aux-Prairies prend environ 1 h 45 min avec un dénivelé d'environ 175 m. Notez que les préférences de type « forêt » ne sont pas prises en charge pour le moment. Vous pouvez également choisir un autre parcours ou café sur la carte.",
+      "reply": "Cette boucle de 30 km au départ du Parc-nature de la Pointe-aux-Prairies prend environ 1 h 45 min avec un dénivelé d'environ 175 m. Notez que les préférences de type « forêt » ne sont pas prises en charge pour le moment. Vous pouvez également choisir un autre parcours ou café sur la carte.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Parc-nature de la Pointe-aux-Prairies",
+        "end": "Parc-nature de la Pointe-aux-Prairies",
+        "distance_km": 30.0,
+        "riding_time": "1 h 45 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "requested_distance_km": 30.0,
+        "distance_on_target": true,
+        "climb_m": 175,
+        "scenery": {
+          "scenic_share": 0.34,
+          "highlights": [
+            {
+              "name": "Parc de la Traversée",
+              "why": "on quiet streets",
+              "from_km": 1.8,
+              "to_km": 6.2
+            },
+            {
+              "name": "Rue Victoria",
+              "why": "through green space",
+              "from_km": 22.6,
+              "to_km": 23.4
+            },
+            {
+              "name": "31e Avenue",
+              "why": "on quiet streets",
+              "from_km": 24.8,
+              "to_km": 25.6
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "5 to 5",
+          "rain_chance_pct": 0,
+          "wind_kmh": 11,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 21
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 25.2
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5506,
+      "output_tokens": 152,
+      "latency_ms": 8410
+    },
+    "p2p-01": {
+      "message": "Take me from Lachine to Parc Jean-Drapeau",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is your 18.5 km point-to-point ride from Lachine to Parc Jean-Drapeau, taking about 1 h 6 min. The route follows the Piste Cyclable du Canal de Lachine along the water and the Chemin du Haut-contour through green space. It's windy today, with winds of 22 km/h from the west and temperatures around 7 to 8 °C.",
+      "reply": "Here is your 18.5 km point-to-point ride from Lachine to Parc Jean-Drapeau, taking about 1 h 6 min. The route follows the Piste Cyclable du Canal de Lachine along the water and the Chemin du Haut-contour through green space. It's windy today, with winds of 22 km/h from the west and temperatures around 7 to 8 °C.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Lachine",
+        "end": "Parc Jean-Drapeau",
+        "distance_km": 18.5,
+        "riding_time": "1 h 6 min",
+        "not_applied": [],
+        "climb_m": 140,
+        "scenery": {
+          "scenic_share": 0.91,
+          "highlights": [
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.0,
+              "to_km": 13.9
+            },
+            {
+              "name": "Chemin du Haut-contour",
+              "why": "through green space",
+              "from_km": 17.8,
+              "to_km": 18.5
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 22,
+          "wind_from": "west",
+          "notes": [
+            "windy: 22 km/h from the west"
+          ],
+          "headwind_pct": 2
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5401,
+      "output_tokens": 136,
+      "latency_ms": 3851
+    },
+    "p2p-02": {
+      "message": "Bike route from Mile End to Atwater Market, avoiding gravel",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "I've planned a route from Mile End to Marché Atwater. The distance is 8.3 km and will take about 29 min of riding. Note that your surface preference could not be applied. You can pick another route or café on the map.",
+      "reply": "I've planned a route from Mile End to Marché Atwater. The distance is 8.3 km and will take about 29 min of riding. Note that your surface preference could not be applied. You can pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Mile End",
+        "end": "Marché Atwater",
+        "distance_km": 8.3,
+        "riding_time": "29 min",
+        "not_applied": [
+          "surface preference"
+        ],
+        "climb_m": 100,
+        "scenery": {
+          "scenic_share": 0.5,
+          "highlights": []
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 19,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 29
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 8.1
+          },
+          {
+            "label": "Flattest",
+            "distance_km": 8.2
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5345,
+      "output_tokens": 103,
+      "latency_ms": 3719
+    },
+    "p2p-03": {
+      "message": "Ride to Mount Royal from McGill, I want nice views",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is your route from McGill to Mont-Royal! It is 4.4 km long and takes about 16 min, with 218 m of climbing. You can pick another route or café on the map.",
+      "reply": "Here is your route from McGill to Mont-Royal! It is 4.4 km long and takes about 16 min, with 218 m of climbing. You can pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "McGill",
+        "end": "Mont-Royal",
+        "distance_km": 4.4,
+        "riding_time": "16 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "climb_m": 218,
+        "scenery": {
+          "scenic_share": 0.11,
+          "highlights": [
+            {
+              "name": "Voie Camillien-Houde",
+              "why": "through green space",
+              "from_km": 1.4,
+              "to_km": 3.4
+            },
+            {
+              "name": "Voie Camillien-Houde",
+              "why": "through green space",
+              "from_km": 3.4,
+              "to_km": 3.9
+            },
+            {
+              "name": "Voie Camillien-Houde",
+              "why": "through green space",
+              "from_km": 3.9,
+              "to_km": 4.3
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 16,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 22
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 4.7
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5439,
+      "output_tokens": 95,
+      "latency_ms": 3618
+    },
+    "p2p-04": {
+      "message": "Scenic historic ride from the Old Port to Lachine along the canal",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your route from Vieux-Port to Lachine is 15.4 km and takes about 54 min. It follows the Piste Cyclable du Canal de Lachine along the water, and you can pick another route or café on the map.",
+      "reply": "Your route from Vieux-Port to Lachine is 15.4 km and takes about 54 min. It follows the Piste Cyclable du Canal de Lachine along the water, and you can pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Vieux-Port",
+        "end": "Lachine",
+        "distance_km": 15.4,
+        "riding_time": "54 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "climb_m": 112,
+        "scenery": {
+          "scenic_share": 1.0,
+          "highlights": [
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.0,
+              "to_km": 15.4
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 16,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 81
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5356,
+      "output_tokens": 103,
+      "latency_ms": 1889
+    },
+    "p2p-05": {
+      "message": "I'd like a park-heavy ride from Outremont to Verdun",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This route from Outremont to Verdun is 11.1 km and takes about 38 min. It passes through Piste du parc and along the water on Piste multifonctionnelle. Vibe preferences are not supported yet. You can also pick another route or café on the map.",
+      "reply": "This route from Outremont to Verdun is 11.1 km and takes about 38 min. It passes through Piste du parc and along the water on Piste multifonctionnelle. Vibe preferences are not supported yet. You can also pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Outremont",
+        "end": "Verdun",
+        "distance_km": 11.1,
+        "riding_time": "38 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "climb_m": 172,
+        "scenery": {
+          "scenic_share": 0.56,
+          "highlights": [
+            {
+              "name": "Piste du parc",
+              "why": "through green space",
+              "from_km": 1.6,
+              "to_km": 2.8
+            },
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "along the water",
+              "from_km": 6.3,
+              "to_km": 10.6
+            },
+            {
+              "name": "1re Avenue",
+              "why": "on quiet streets",
+              "from_km": 10.6,
+              "to_km": 11.1
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 19,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 35
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 12.5
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 12.1
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5458,
+      "output_tokens": 110,
+      "latency_ms": 3082
+    },
+    "p2p-06": {
+      "message": "From the Olympic Stadium to the Old Port, flat as possible, under 50 m of climbing",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This point-to-point ride from Stade olympique to Vieux-Port is 8.3 km and takes about 31 min. The climbing limit of 50 m could not be met, with approximately 75 m of climbing. The route passes along the water on Rue de la Commune Est.",
+      "reply": "This point-to-point ride from Stade olympique to Vieux-Port is 8.3 km and takes about 31 min. The climbing limit of 50 m could not be met, with approximately 75 m of climbing. The route passes along the water on Rue de la Commune Est.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Stade olympique",
+        "end": "Vieux-Port",
+        "distance_km": 8.3,
+        "riding_time": "31 min",
+        "not_applied": [],
+        "climb_m": 75,
+        "climb_on_target": false,
+        "scenery": {
+          "scenic_share": 0.36,
+          "highlights": [
+            {
+              "name": "Avenue Pierre-De Coubertin",
+              "why": "through green space",
+              "from_km": 0.0,
+              "to_km": 0.7
+            },
+            {
+              "name": "Rue de la Commune Est",
+              "why": "along the water",
+              "from_km": 7.6,
+              "to_km": 7.9
+            },
+            {
+              "name": "Rue de la Commune Est",
+              "why": "through green space",
+              "from_km": 7.9,
+              "to_km": 8.3
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "5 to 5",
+          "rain_chance_pct": 0,
+          "wind_kmh": 9,
+          "wind_from": "southwest",
+          "notes": [],
+          "headwind_pct": 58
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5455,
+      "output_tokens": 127,
+      "latency_ms": 2704
+    },
+    "missing-01": {
+      "message": "Plan me a ride",
+      "planned": false,
+      "plan_status": "needs_input",
+      "rewritten": false,
+      "draft_reply": "Please let me know where you'd like to start your ride and how far you want to go.",
+      "reply": "Please let me know where you'd like to start your ride and how far you want to go.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5148,
+      "output_tokens": 39,
+      "latency_ms": 2004
+    },
+    "missing-02": {
+      "message": "I want to cycle to Parc Jean-Drapeau",
+      "planned": false,
+      "plan_status": "needs_input",
+      "rewritten": false,
+      "draft_reply": "Where would you like to start your ride to Parc Jean-Drapeau? You can also click your starting point on the map.",
+      "reply": "Where would you like to start your ride to Parc Jean-Drapeau? You can also click your starting point on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5176,
+      "output_tokens": 69,
+      "latency_ms": 1734
+    },
+    "missing-03": {
+      "message": "A loop from Saint-Lambert",
+      "planned": false,
+      "plan_status": "needs_input",
+      "rewritten": false,
+      "draft_reply": "Please let me know how far you would like to ride, or if you have a specific destination in mind.",
+      "reply": "Please let me know how far you would like to ride, or if you have a specific destination in mind.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5158,
+      "output_tokens": 50,
+      "latency_ms": 1873
+    },
+    "none-01": {
+      "message": "What's the best bike to buy for commuting?",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "I plan bike routes. What ride would you like?",
+      "reply": "I plan bike routes. What ride would you like?",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 1,
+      "input_tokens": 2559,
+      "output_tokens": 11,
+      "latency_ms": 761
+    },
+    "none-02": {
+      "message": "Hello!",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "I plan bike routes. What ride would you like?",
+      "reply": "I plan bike routes. What ride would you like?",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 1,
+      "input_tokens": 2550,
+      "output_tokens": 11,
+      "latency_ms": 1467
+    },
+    "none-03": {
+      "message": "What's the weather tomorrow?",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "I plan bike routes. What ride would you like?",
+      "reply": "I plan bike routes. What ride would you like?",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 1,
+      "input_tokens": 2555,
+      "output_tokens": 11,
+      "latency_ms": 833
+    },
+    "none-04": {
+      "message": "Recommend a good restaurant in Mile End",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "I plan bike routes. What ride would you like?",
+      "reply": "I plan bike routes. What ride would you like?",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5157,
+      "output_tokens": 36,
+      "latency_ms": 1455
+    },
+    "none-05": {
+      "message": "Is the Lachine Canal path open in winter?",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "I plan bike routes. What ride would you like?",
+      "reply": "I plan bike routes. What ride would you like?",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 1,
+      "input_tokens": 2558,
+      "output_tokens": 11,
+      "latency_ms": 1088
+    },
+    "stop-01": {
+      "message": "I want to go to a cafe and have a good elevation training, 40 km from Outremont",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is a 43 km loop starting and ending in Outremont with about 425 m of climbing, taking 2 h 36 min. The route stops at La Mandala Céramique at 24.3 km. You can pick another route or café on the map if you like.",
+      "reply": "Here is a 43 km loop starting and ending in Outremont with about 425 m of climbing, taking 2 h 36 min. The route stops at La Mandala Céramique at 24.3 km. You can pick another route or café on the map if you like.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Outremont",
+        "end": "Outremont",
+        "distance_km": 43.0,
+        "riding_time": "2 h 36 min",
+        "not_applied": [],
+        "requested_distance_km": 40.0,
+        "distance_on_target": true,
+        "climb_m": 425,
+        "stop": {
+          "name": "La Mandala Céramique",
+          "at_km": 24.3
+        },
+        "scenery": {
+          "scenic_share": 0.2,
+          "highlights": [
+            {
+              "name": "Boulevard Pie-IX",
+              "why": "along the water",
+              "from_km": 13.8,
+              "to_km": 15.7
+            },
+            {
+              "name": "Boulevard Lévesque Est",
+              "why": "along the water",
+              "from_km": 29.9,
+              "to_km": 31.1
+            },
+            {
+              "name": "Avenue Saint-Viateur",
+              "why": "on quiet streets",
+              "from_km": 42.5,
+              "to_km": 43.0
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 18,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 18
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 47.6
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 38.3
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 3,
+      "input_tokens": 8346,
+      "output_tokens": 171,
+      "latency_ms": 7519
+    },
+    "climb-01": {
+      "message": "Hilly 25 km loop from Parc La Fontaine, I want to work on my climbing",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This hilly 25.8 km loop starts and ends at Parc La Fontaine, taking about 1 h 33 min with approximately 334 m of climbing to help you work on your climbs. The route runs along the water on Avenue du Parc-La Fontaine and through green space on Avenue Émile-Duployé. You can also pick the hilliest or most scenic route option on the map.",
+      "reply": "This hilly 25.8 km loop starts and ends at Parc La Fontaine, taking about 1 h 33 min with approximately 334 m of climbing to help you work on your climbs. The route runs along the water on Avenue du Parc-La Fontaine and through green space on Avenue Émile-Duployé. You can also pick the hilliest or most scenic route option on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Parc La Fontaine",
+        "end": "Parc La Fontaine",
+        "distance_km": 25.8,
+        "riding_time": "1 h 33 min",
+        "not_applied": [],
+        "requested_distance_km": 25.0,
+        "distance_on_target": true,
+        "climb_m": 334,
+        "scenery": {
+          "scenic_share": 0.63,
+          "highlights": [
+            {
+              "name": "Avenue du Parc-La Fontaine",
+              "why": "along the water",
+              "from_km": 0.0,
+              "to_km": 0.9
+            },
+            {
+              "name": "Avenue Émile-Duployé",
+              "why": "through green space",
+              "from_km": 25.2,
+              "to_km": 25.7
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 18,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 24
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 25.9
+          },
+          {
+            "label": "Hilliest",
+            "distance_km": 21.8
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5447,
+      "output_tokens": 131,
+      "latency_ms": 3686
+    },
+    "climb-02": {
+      "message": "Une boucle de 30 km avec beaucoup de côtes depuis Côte-des-Neiges",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Voici une boucle de 28.8 km au départ de Côte-des-Neiges, réalisable en 1 h 36 min avec environ 390 m de dénivelé positif. Le parcours passe notamment par la Voie Camillien-Houde et le chemin Remembrance à travers les espaces verts. Vous pouvez également choisir un autre tracé sur la carte si vous le souhaitez.",
+      "reply": "Voici une boucle de 28.8 km au départ de Côte-des-Neiges, réalisable en 1 h 36 min avec environ 390 m de dénivelé positif. Le parcours passe notamment par la Voie Camillien-Houde et le chemin Remembrance à travers les espaces verts. Vous pouvez également choisir un autre tracé sur la carte si vous le souhaitez.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Côte-des-Neiges",
+        "end": "Côte-des-Neiges",
+        "distance_km": 28.8,
+        "riding_time": "1 h 36 min",
+        "not_applied": [],
+        "requested_distance_km": 30.0,
+        "distance_on_target": true,
+        "climb_m": 390,
+        "scenery": {
+          "scenic_share": 0.1,
+          "highlights": [
+            {
+              "name": "Boulevard Édouard-Montpetit",
+              "why": "through green space",
+              "from_km": 0.4,
+              "to_km": 1.4
+            },
+            {
+              "name": "Voie Camillien-Houde",
+              "why": "through green space",
+              "from_km": 23.4,
+              "to_km": 24.6
+            },
+            {
+              "name": "Chemin Remembrance",
+              "why": "through green space",
+              "from_km": 25.6,
+              "to_km": 27.1
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 18,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 30
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 35.6
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 33.0
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5486,
+      "output_tokens": 131,
+      "latency_ms": 6304
+    },
+    "climb-03": {
+      "message": "Easy flat ride from Verdun to Lachine, my knees hate hills",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This point-to-point ride from Verdun to Lachine is 11.7 km and takes 40 min with about 64 m of climbing. The route takes you along the water on the Piste Cyclable du Canal de Lachine.",
+      "reply": "This point-to-point ride from Verdun to Lachine is 11.7 km and takes 40 min with about 64 m of climbing. The route takes you along the water on the Piste Cyclable du Canal de Lachine.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Verdun",
+        "end": "Lachine",
+        "distance_km": 11.7,
+        "riding_time": "40 min",
+        "not_applied": [],
+        "climb_m": 64,
+        "scenery": {
+          "scenic_share": 0.95,
+          "highlights": [
+            {
+              "name": "Rue Willibrord",
+              "why": "on quiet streets",
+              "from_km": 0.0,
+              "to_km": 0.6
+            },
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.6,
+              "to_km": 11.7
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "8 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 82
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5380,
+      "output_tokens": 100,
+      "latency_ms": 1704
+    },
+    "stop-02": {
+      "message": "Ride from McGill to Parc Jarry with a coffee break on the way",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "This ride from McGill to Parc Jarry is 7 km and takes about 24 min. You'll pass FAMÉ CAFÉ at 3.5 km for your coffee break.",
+      "reply": "This ride from McGill to Parc Jarry is 7 km and takes about 24 min. You'll pass FAMÉ CAFÉ at 3.5 km for your coffee break.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "McGill",
+        "end": "Parc Jarry",
+        "distance_km": 7.0,
+        "riding_time": "24 min",
+        "not_applied": [],
+        "climb_m": 66,
+        "stop": {
+          "name": "FAMÉ CAFÉ",
+          "at_km": 3.5
+        },
+        "scenery": {
+          "scenic_share": 0.19,
+          "highlights": [
+            {
+              "name": "Avenue du Parc",
+              "why": "through green space",
+              "from_km": 1.4,
+              "to_km": 1.9
+            },
+            {
+              "name": "Piste du parc",
+              "why": "through green space",
+              "from_km": 1.9,
+              "to_km": 2.5
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 6",
+          "rain_chance_pct": 0,
+          "wind_kmh": 16,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 7
+        },
+        "other_options": [
+          {
+            "label": "Hilliest",
+            "distance_km": 7.5
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 7.6
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5426,
+      "output_tokens": 87,
+      "latency_ms": 2546
+    },
+    "stop-03": {
+      "message": "15 km loop from the Old Port, stop for coffee halfway, along the water",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Here is a 14.7 km loop starting from Vieux-Port, taking about 53 min. The route stops for coffee at Moutton Noir at 7.1 km into the ride.",
+      "reply": "Here is a 14.7 km loop starting from Vieux-Port, taking about 53 min. The route stops for coffee at Moutton Noir at 7.1 km into the ride.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Vieux-Port",
+        "end": "Vieux-Port",
+        "distance_km": 14.7,
+        "riding_time": "53 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "requested_distance_km": 15.0,
+        "distance_on_target": true,
+        "climb_m": 170,
+        "stop": {
+          "name": "Moutton Noir",
+          "at_km": 7.1
+        },
+        "scenery": {
+          "scenic_share": 0.85,
+          "highlights": [
+            {
+              "name": "Rue Sainte-Catherine Ouest",
+              "why": "through green space",
+              "from_km": 6.8,
+              "to_km": 7.1
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 16,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 25
+        },
+        "other_options": [
+          {
+            "label": "Hilliest",
+            "distance_km": 13.5
+          },
+          {
+            "label": "Flattest",
+            "distance_km": 14.4
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5431,
+      "output_tokens": 91,
+      "latency_ms": 2162
+    },
+    "search-01": {
+      "message": "25 km loop from the Old Port past a lookout with a view",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your 23.8 km loop will take about 1 h 27 min, starting and ending at Vieux-Port. The route passes by Belvédère de Westmount, with about 485 m of climbing. It also takes you along Avenue Lansdowne on quiet streets.",
+      "reply": "Your 23.8 km loop will take about 1 h 27 min, starting and ending at Vieux-Port. The route passes by Belvédère de Westmount, with about 485 m of climbing. It also takes you along Avenue Lansdowne on quiet streets.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Vieux-Port",
+        "end": "Vieux-Port",
+        "distance_km": 23.8,
+        "riding_time": "1 h 27 min",
+        "not_applied": [
+          "vibe preferences"
+        ],
+        "via": [
+          "Belvédère de Westmount"
+        ],
+        "requested_distance_km": 25.0,
+        "distance_on_target": true,
+        "climb_m": 485,
+        "scenery": {
+          "scenic_share": 0.42,
+          "highlights": [
+            {
+              "name": "Avenue Lansdowne",
+              "why": "on quiet streets",
+              "from_km": 12.4,
+              "to_km": 13.1
+            },
+            {
+              "name": "Summit Circle",
+              "why": "through green space",
+              "from_km": 15.4,
+              "to_km": 15.8
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 15,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 27
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 3,
+      "input_tokens": 8720,
+      "output_tokens": 160,
+      "latency_ms": 5322
+    },
+    "search-02": {
+      "message": "Je veux une boucle de 20 km depuis Verdun qui passe par une plage",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Voici une boucle de 26 km au départ de Verdun, d'une durée d'environ 1 h 38 min. Elle passe par la Plage Jean-Doré et longe l'eau sur une bonne partie du parcours. C'est la boucle la plus proche possible de la distance demandée.",
+      "reply": "Voici une boucle de 26 km au départ de Verdun, d'une durée d'environ 1 h 38 min. Elle passe par la Plage Jean-Doré et longe l'eau sur une bonne partie du parcours. C'est la boucle la plus proche possible de la distance demandée.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Verdun",
+        "end": "Verdun",
+        "distance_km": 26.0,
+        "riding_time": "1 h 38 min",
+        "not_applied": [],
+        "via": [
+          "Plage Jean-Doré"
+        ],
+        "requested_distance_km": 20.0,
+        "distance_on_target": false,
+        "climb_m": 238,
+        "scenery": {
+          "scenic_share": 0.74,
+          "highlights": [
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "along the water",
+              "from_km": 0.6,
+              "to_km": 5.8
+            },
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "along the water",
+              "from_km": 17.7,
+              "to_km": 20.8
+            },
+            {
+              "name": "Piste cyclable des Berges",
+              "why": "on quiet streets",
+              "from_km": 22.3,
+              "to_km": 24.9
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 30
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 3,
+      "input_tokens": 8450,
+      "output_tokens": 152,
+      "latency_ms": 3232
+    },
+    "search-03": {
+      "message": "Ride from Verdun to the Old Port, and I'd like to see a lighthouse on the way",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your ride from Verdun to Vieux-Port is 15.7 km and takes 57 min. The route passes Phare de l'Île Notre-Dame. Enjoy riding along the water on Piste multifonctionnelle!",
+      "reply": "Your ride from Verdun to Vieux-Port is 15.7 km and takes 57 min. The route passes Phare de l'Île Notre-Dame. Enjoy riding along the water on Piste multifonctionnelle!",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "point_to_point",
+        "start": "Verdun",
+        "end": "Vieux-Port",
+        "distance_km": 15.7,
+        "riding_time": "57 min",
+        "not_applied": [],
+        "via": [
+          "Phare de l'Île Notre-Dame"
+        ],
+        "climb_m": 133,
+        "scenery": {
+          "scenic_share": 0.83,
+          "highlights": [
+            {
+              "name": "Piste multifonctionnelle",
+              "why": "along the water",
+              "from_km": 0.6,
+              "to_km": 5.8
+            },
+            {
+              "name": "Pont de la Concorde",
+              "why": "on quiet streets",
+              "from_km": 6.8,
+              "to_km": 12.6
+            },
+            {
+              "name": "Rue de la Commune Ouest",
+              "why": "along the water",
+              "from_km": 13.7,
+              "to_km": 15.7
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "8 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 18
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 3,
+      "input_tokens": 8733,
+      "output_tokens": 137,
+      "latency_ms": 2206
+    },
+    "via-01": {
+      "message": "40 km loop from Lachine that goes over the Jacques-Cartier Bridge",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your 39.5 km loop from Lachine takes about 2 h 16 min and passes Pont Jacques Cartier. It features a nice stretch along the water on Piste Cyclable du Canal de Lachine. Expect a bit of wind with 22 km/h from the west, into the wind for 39% of the route.",
+      "reply": "Your 39.5 km loop from Lachine takes about 2 h 16 min and passes Pont Jacques Cartier. It features a nice stretch along the water on Piste Cyclable du Canal de Lachine. Expect a bit of wind with 22 km/h from the west, into the wind for 39% of the route.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Lachine",
+        "end": "Lachine",
+        "distance_km": 39.5,
+        "riding_time": "2 h 16 min",
+        "not_applied": [],
+        "via": [
+          "Pont Jacques Cartier"
+        ],
+        "requested_distance_km": 40.0,
+        "distance_on_target": true,
+        "climb_m": 348,
+        "scenery": {
+          "scenic_share": 0.93,
+          "highlights": [
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.0,
+              "to_km": 14.8
+            },
+            {
+              "name": "Pont de la Concorde",
+              "why": "on quiet streets",
+              "from_km": 15.8,
+              "to_km": 18.2
+            },
+            {
+              "name": "Pont de la Concorde",
+              "why": "on quiet streets",
+              "from_km": 22.1,
+              "to_km": 24.4
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 22,
+          "wind_from": "west",
+          "notes": [
+            "windy: 22 km/h from the west, into the wind for 39% of the route"
+          ],
+          "headwind_pct": 39
+        },
+        "other_options": []
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5477,
+      "output_tokens": 121,
+      "latency_ms": 48478
+    },
+    "train-01": {
+      "message": "How is my training going?",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "Your form is currently tired (-12), driven by a fitness of 26 and fatigue of 33. Your last ride was 2 days ago, covering 25 km in 1 h 8 min with 90 m of climbing. \n\nBased on your current fatigue, today's suggested ride is a 25 km recovery spin avoiding climbs, taking about 1 h 15 min.",
+      "reply": "Your form is currently tired (-12), driven by a fitness of 26 and fatigue of 33. Your last ride was 2 days ago, covering 25 km in 1 h 8 min with 90 m of climbing. \n\nBased on your current fatigue, today's suggested ride is a 25 km recovery spin avoiding climbs, taking about 1 h 15 min.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": true,
+      "training_result": {
+        "status": "ok",
+        "rides": 31,
+        "form": {
+          "label": "tired",
+          "fitness": 26,
+          "fatigue": 33,
+          "form": -12
+        },
+        "last_ride": {
+          "days_ago": 2,
+          "distance_km": 25.0,
+          "moving_time": "1 h 8 min",
+          "climb_m": 90,
+          "avg_speed_kmh": 22.0,
+          "load": 37
+        },
+        "this_week": {
+          "rides": 0,
+          "distance_km": 0.0,
+          "moving_time": "0 min",
+          "climb_m": 0,
+          "load": 0
+        },
+        "weekly_average": {
+          "rides": 4,
+          "distance_km": 128.1,
+          "moving_time": "5 h 24 min",
+          "climb_m": 708,
+          "load": 273
+        },
+        "load_from": {
+          "heart_rate": 11,
+          "power": 20
+        },
+        "suggestion": {
+          "kind": "recovery",
+          "reason": "you are carrying some fatigue",
+          "target_distance_km": 25.0,
+          "climbing": "avoid",
+          "duration": "1 h 15 min"
+        }
+      },
+      "llm_calls": 2,
+      "input_tokens": 5358,
+      "output_tokens": 99,
+      "latency_ms": 1655
+    },
+    "train-02": {
+      "message": "Plan today's ride based on my training, from Verdun",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your form is tired, so I've planned an easy recovery loop that suits your training. This 24.4 km ride takes about 1 h 23 min, starting and ending in Verdun. It features about 213 m of climbing and runs along the water on the Piste Cyclable du Canal de Lachine. You can pick another route or café on the map if you prefer.",
+      "reply": "Your form is tired, so I've planned an easy recovery loop that suits your training. This 24.4 km ride takes about 1 h 23 min, starting and ending in Verdun. It features about 213 m of climbing and runs along the water on the Piste Cyclable du Canal de Lachine. You can pick another route or café on the map if you prefer.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Verdun",
+        "end": "Verdun",
+        "distance_km": 24.4,
+        "riding_time": "1 h 23 min",
+        "not_applied": [],
+        "requested_distance_km": 25.0,
+        "distance_on_target": true,
+        "climb_m": 213,
+        "scenery": {
+          "scenic_share": 0.29,
+          "highlights": [
+            {
+              "name": "Rue Willibrord",
+              "why": "on quiet streets",
+              "from_km": 0.0,
+              "to_km": 0.6
+            },
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.6,
+              "to_km": 5.7
+            },
+            {
+              "name": "Avenue Kellert",
+              "why": "on quiet streets",
+              "from_km": 13.6,
+              "to_km": 14.3
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 17,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 37
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 21.4
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 23.3
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": {
+        "status": "ok",
+        "rides": 31,
+        "form": {
+          "label": "tired",
+          "fitness": 26,
+          "fatigue": 33,
+          "form": -12
+        },
+        "last_ride": {
+          "days_ago": 2,
+          "distance_km": 25.0,
+          "moving_time": "1 h 8 min",
+          "climb_m": 90,
+          "avg_speed_kmh": 22.0,
+          "load": 37
+        },
+        "this_week": {
+          "rides": 0,
+          "distance_km": 0.0,
+          "moving_time": "0 min",
+          "climb_m": 0,
+          "load": 0
+        },
+        "weekly_average": {
+          "rides": 4,
+          "distance_km": 128.1,
+          "moving_time": "5 h 24 min",
+          "climb_m": 708,
+          "load": 273
+        },
+        "load_from": {
+          "heart_rate": 11,
+          "power": 20
+        },
+        "suggestion": {
+          "kind": "recovery",
+          "reason": "you are carrying some fatigue",
+          "target_distance_km": 25.0,
+          "climbing": "avoid",
+          "duration": "1 h 15 min"
+        }
+      },
+      "llm_calls": 3,
+      "input_tokens": 8516,
+      "output_tokens": 139,
+      "latency_ms": 5654
+    },
+    "train-03": {
+      "message": "Am I too tired for a hard ride today?",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "You are currently sitting at a tired form with a fatigue score of 33 and fitness at 26. Because you are carrying some fatigue, a hard ride might be a bit much today. \n\nYour suggested ride is an easy 25 km recovery loop aiming to avoid heavy climbing and taking about 1 h 15 min. Let me know if you would like me to plan that route for you!",
+      "reply": "You are currently sitting at a tired form with a fatigue score of 33 and fitness at 26. Because you are carrying some fatigue, a hard ride might be a bit much today. \n\nYour suggested ride is an easy 25 km recovery loop aiming to avoid heavy climbing and taking about 1 h 15 min. Let me know if you would like me to plan that route for you!",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": true,
+      "training_result": {
+        "status": "ok",
+        "rides": 31,
+        "form": {
+          "label": "tired",
+          "fitness": 26,
+          "fatigue": 33,
+          "form": -12
+        },
+        "last_ride": {
+          "days_ago": 2,
+          "distance_km": 25.0,
+          "moving_time": "1 h 8 min",
+          "climb_m": 90,
+          "avg_speed_kmh": 22.0,
+          "load": 37
+        },
+        "this_week": {
+          "rides": 0,
+          "distance_km": 0.0,
+          "moving_time": "0 min",
+          "climb_m": 0,
+          "load": 0
+        },
+        "weekly_average": {
+          "rides": 4,
+          "distance_km": 128.1,
+          "moving_time": "5 h 24 min",
+          "climb_m": 708,
+          "load": 273
+        },
+        "load_from": {
+          "heart_rate": 11,
+          "power": 20
+        },
+        "suggestion": {
+          "kind": "recovery",
+          "reason": "you are carrying some fatigue",
+          "target_distance_km": 25.0,
+          "climbing": "avoid",
+          "duration": "1 h 15 min"
+        }
+      },
+      "llm_calls": 2,
+      "input_tokens": 5366,
+      "output_tokens": 97,
+      "latency_ms": 1563
+    },
+    "train-04": {
+      "message": "What should I ride today? I'm starting from the Old Port",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your form is currently tired with a form score of -12 because you are carrying some fatigue. A recovery ride of 25 km avoiding climbs suits your training well today. \n\nHere is a 25 km loop starting from Vieux-Port with a riding time of 1 h 28 min and approximately 233 m of climbing. The route passes through green space along Avenue du Parc-La Fontaine.",
+      "reply": "Your form is currently tired with a form score of -12 because you are carrying some fatigue. A recovery ride of 25 km avoiding climbs suits your training well today. \n\nHere is a 25 km loop starting from Vieux-Port with a riding time of 1 h 28 min and approximately 233 m of climbing. The route passes through green space along Avenue du Parc-La Fontaine.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Vieux-Port",
+        "end": "Vieux-Port",
+        "distance_km": 25.0,
+        "riding_time": "1 h 28 min",
+        "not_applied": [],
+        "requested_distance_km": 25.0,
+        "distance_on_target": true,
+        "climb_m": 233,
+        "scenery": {
+          "scenic_share": 0.19,
+          "highlights": [
+            {
+              "name": "Avenue du Parc-La Fontaine",
+              "why": "through green space",
+              "from_km": 3.0,
+              "to_km": 4.4
+            },
+            {
+              "name": "Rue de Brébeuf",
+              "why": "through green space",
+              "from_km": 18.9,
+              "to_km": 19.5
+            },
+            {
+              "name": "Avenue du Parc-La Fontaine",
+              "why": "through green space",
+              "from_km": 20.6,
+              "to_km": 21.6
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "6 to 7",
+          "rain_chance_pct": 0,
+          "wind_kmh": 15,
+          "wind_from": "west",
+          "notes": [],
+          "headwind_pct": 26
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 21.6
+          },
+          {
+            "label": "Flattest",
+            "distance_km": 29.9
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": {
+        "status": "ok",
+        "rides": 31,
+        "form": {
+          "label": "tired",
+          "fitness": 26,
+          "fatigue": 33,
+          "form": -12
+        },
+        "last_ride": {
+          "days_ago": 2,
+          "distance_km": 25.0,
+          "moving_time": "1 h 8 min",
+          "climb_m": 90,
+          "avg_speed_kmh": 22.0,
+          "load": 37
+        },
+        "this_week": {
+          "rides": 0,
+          "distance_km": 0.0,
+          "moving_time": "0 min",
+          "climb_m": 0,
+          "load": 0
+        },
+        "weekly_average": {
+          "rides": 4,
+          "distance_km": 128.1,
+          "moving_time": "5 h 24 min",
+          "climb_m": 708,
+          "load": 273
+        },
+        "load_from": {
+          "heart_rate": 11,
+          "power": 20
+        },
+        "suggestion": {
+          "kind": "recovery",
+          "reason": "you are carrying some fatigue",
+          "target_distance_km": 25.0,
+          "climbing": "avoid",
+          "duration": "1 h 15 min"
+        }
+      },
+      "llm_calls": 3,
+      "input_tokens": 8531,
+      "output_tokens": 142,
+      "latency_ms": 4421
+    },
+    "train-05": {
+      "message": "Quelle sortie me conseilles-tu aujourd'hui selon mon entraînement ?",
+      "planned": false,
+      "plan_status": null,
+      "rewritten": false,
+      "draft_reply": "Tu es actuellement en période de fatigue (forme à -12), avec 26 de fitness et 33 de fatigue. Vu ton dernier trajet il y a 2 jours (25 km en 1 h 8 min), je te conseille une sortie de récupération d'environ 25 km en 1 h 15 min, en évitant les montées, car tu accumules de la fatigue. \n\nSi tu souhaites que je te planifie cette boucle de récupération sans relief, indique-moi ton point de départ !",
+      "reply": "Tu es actuellement en période de fatigue (forme à -12), avec 26 de fitness et 33 de fatigue. Vu ton dernier trajet il y a 2 jours (25 km en 1 h 8 min), je te conseille une sortie de récupération d'environ 25 km en 1 h 15 min, en évitant les montées, car tu accumules de la fatigue. \n\nSi tu souhaites que je te planifie cette boucle de récupération sans relief, indique-moi ton point de départ !",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": null,
+      "training_answer": true,
+      "training_result": {
+        "status": "ok",
+        "rides": 31,
+        "form": {
+          "label": "tired",
+          "fitness": 26,
+          "fatigue": 33,
+          "form": -12
+        },
+        "last_ride": {
+          "days_ago": 2,
+          "distance_km": 25.0,
+          "moving_time": "1 h 8 min",
+          "climb_m": 90,
+          "avg_speed_kmh": 22.0,
+          "load": 37
+        },
+        "this_week": {
+          "rides": 0,
+          "distance_km": 0.0,
+          "moving_time": "0 min",
+          "climb_m": 0,
+          "load": 0
+        },
+        "weekly_average": {
+          "rides": 4,
+          "distance_km": 128.1,
+          "moving_time": "5 h 24 min",
+          "climb_m": 708,
+          "load": 273
+        },
+        "load_from": {
+          "heart_rate": 11,
+          "power": 20
+        },
+        "suggestion": {
+          "kind": "recovery",
+          "reason": "you are carrying some fatigue",
+          "target_distance_km": 25.0,
+          "climbing": "avoid",
+          "duration": "1 h 15 min"
+        }
+      },
+      "llm_calls": 2,
+      "input_tokens": 5376,
+      "output_tokens": 126,
+      "latency_ms": 2921
+    },
+    "train-06": {
+      "message": "A 40 km training ride from Lachine with some climbing",
+      "planned": true,
+      "plan_status": "ok",
+      "rewritten": false,
+      "draft_reply": "Your 44.4 km loop from Lachine takes about 2 h 32 min with approximately 627 m of climbing. This was the closest loop we could find to your requested distance. It passes along the water on the Piste Cyclable du Canal de Lachine and through green space on Voie Camillien-Houde. It's windy: 22 km/h from the west, into the wind for 33% of the route. You can pick another route or café on the map.",
+      "reply": "Your 44.4 km loop from Lachine takes about 2 h 32 min with approximately 627 m of climbing. This was the closest loop we could find to your requested distance. It passes along the water on the Piste Cyclable du Canal de Lachine and through green space on Voie Camillien-Houde. It's windy: 22 km/h from the west, into the wind for 33% of the route. You can pick another route or café on the map.",
+      "draft_problems": [],
+      "final_problems": [],
+      "plan_result": {
+        "status": "ok",
+        "route_type": "loop",
+        "start": "Lachine",
+        "end": "Lachine",
+        "distance_km": 44.4,
+        "riding_time": "2 h 32 min",
+        "not_applied": [],
+        "requested_distance_km": 40.0,
+        "distance_on_target": false,
+        "climb_m": 627,
+        "scenery": {
+          "scenic_share": 0.3,
+          "highlights": [
+            {
+              "name": "Piste Cyclable du Canal de Lachine",
+              "why": "along the water",
+              "from_km": 0.0,
+              "to_km": 9.9
+            },
+            {
+              "name": "Voie Camillien-Houde",
+              "why": "through green space",
+              "from_km": 16.0,
+              "to_km": 17.7
+            },
+            {
+              "name": "Chemin Broughton",
+              "why": "on quiet streets",
+              "from_km": 38.9,
+              "to_km": 40.0
+            }
+          ]
+        },
+        "weather": {
+          "temperature_c": "7 to 8",
+          "rain_chance_pct": 0,
+          "wind_kmh": 22,
+          "wind_from": "west",
+          "notes": [
+            "windy: 22 km/h from the west, into the wind for 33% of the route"
+          ],
+          "headwind_pct": 33
+        },
+        "other_options": [
+          {
+            "label": "Most scenic",
+            "distance_km": 34.6
+          },
+          {
+            "label": "Alternative",
+            "distance_km": 34.7
+          }
+        ]
+      },
+      "training_answer": false,
+      "training_result": null,
+      "llm_calls": 2,
+      "input_tokens": 5484,
+      "output_tokens": 154,
+      "latency_ms": 7084
+    }
+  }
+}

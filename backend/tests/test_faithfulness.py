@@ -322,3 +322,58 @@ def test_french_weather_note_passes() -> None:
     )
     message = "Une boucle de 30 km depuis le Vieux-Port"
     assert kinds(reply, plan(weather=WEATHER), message) == []
+
+
+TRAINING = {
+    "status": "ok",
+    "rides": 24,
+    "form": {"label": "tired", "fitness": 48, "fatigue": 62, "form": -14},
+    "last_ride": {"days_ago": 1, "distance_km": 52.3, "moving_time": "2 h 4 min", "climb_m": 410, "avg_speed_kmh": 25.3, "load": 96},
+    "this_week": {"rides": 3, "distance_km": 118.0, "moving_time": "4 h 40 min", "climb_m": 900, "load": 230},
+    "weekly_average": {"rides": 3, "distance_km": 95.5, "moving_time": "3 h 50 min", "climb_m": 700, "load": 190},
+    "load_from": {"power": 24},
+    "suggestion": {"kind": "recovery", "reason": "you are carrying some fatigue", "target_distance_km": 25.0, "climbing": "avoid", "duration": "1 h 15 min"},
+}
+
+
+def training_results(training=TRAINING, plan_content=None) -> list[ToolResultMessage]:
+    tool_results = [ToolResultMessage(call_id="t", name="get_training_status", content=training)]
+    if plan_content is not None:
+        tool_results.append(ToolResultMessage(call_id="p", name="plan_route", content=plan_content))
+    return tool_results
+
+
+def training_kinds(reply: str, **kwargs) -> list[str]:
+    return [p.kind.value for p in check_reply(reply, "How is my training going?", training_results(**kwargs))]
+
+
+def test_a_faithful_training_answer_passes() -> None:
+    reply = (
+        "You are tired: fatigue 62 against fitness 48. Your last ride was 52.3 km in 2 h 4 min. "
+        "This week you rode 118 km. An easy 25 km flat ride, about 1 h 15 min, would suit you."
+    )
+    assert training_kinds(reply) == []
+
+
+def test_flags_an_invented_training_number() -> None:
+    assert training_kinds("This week you rode 150 km.") == ["wrong_number"]
+    assert training_kinds("Your last ride took 3 h 10 min.") == ["wrong_number"]
+
+
+def test_a_training_answer_needs_no_route_distance_or_time() -> None:
+    assert training_kinds("You are tired, so take it easy today.") == []
+
+
+def test_a_plan_from_the_suggestion_may_cite_training_figures() -> None:
+    plan_content = plan(distance_km=24.6, riding_time="1 h 2 min", requested_distance_km=25)
+    reply = (
+        "Here is a 24.6 km loop from Old Port, about 1 h 2 min. "
+        "You rode 118 km this week, so it is kept flat and easy."
+    )
+    assert training_kinds(reply, plan_content=plan_content) == []
+
+
+def test_no_rides_reply_is_not_checked() -> None:
+    no_rides = {"status": "no_rides", "reason": "no recorded rides yet"}
+    assert training_kinds("You have no rides yet; you rode 500 km.", training=no_rides) == []
+

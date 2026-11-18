@@ -1,5 +1,5 @@
 {
-  "_about": "Hand verdicts on first drafts the checker flagged, by run and request id: 'real' or 'false_alarm'. Each was checked against the plan_route result stored in that run's results file. Every reply in v1 to v4 was also read by hand to look for errors the checker missed; those are listed as 'missed'.",
+  "_about": "Hand verdicts on first drafts the checker flagged, by run and request id: 'real' or 'false_alarm'. Each was checked against the plan_route result stored in that run's results file. Every reply in v1 to v5 was also read by hand to look for errors the checker missed; those are listed as 'missed'.",
   "v1": {
     "loop-05": {
       "verdict": "false_alarm",
@@ -40,6 +40,12 @@
     "loop-04": {
       "verdict": "missed",
       "note": "Says 'this route is paved' (the app has no surface data) and 'the closest loop I could find' although distance_on_target is true. Neither was checked in v3; both rules were added after this."
+    }
+  },
+  "v5": {
+    "loop-08": {
+      "verdict": "real",
+      "note": "Said 'the closest loop I could find to the requested distance', but 90.1 km for 100 km requested is within the 10% tolerance and distance_on_target is true. The rewrite removed the sentence."
     }
   }
 }

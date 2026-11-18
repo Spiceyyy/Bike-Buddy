@@ -2,7 +2,7 @@
 
 Turns a plain-language cycling request into a real, rideable route chosen for scenery and riding feel. The design rule throughout: **the LLM plans; the routing engine routes.**
 
-**Status: Phase 4 of 5 complete, ready for review.** Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app. Each plan carries the forecast for the ride and how much of each route rides into the wind. Riders can rate a route with a thumbs up or down, stored with the route's line for later analysis, and a production setup (HTTPS reverse proxy, rate limits) is ready for when it is hosted.
+**Status: all five phases built; Phase 5 (trainer mode) ready for review.** Type a request such as "a 30 km loop from the Old Port" and get a real cycling route. Routes now lean toward scenic areas (water, green space, quiet roads) using scores from an offline pipeline, show their scenery stretch by stretch, can stop at a café, and can seek or avoid climbs. Each plan offers up to three labelled routes and a choice of cafés, switchable without another LLM call. Riders can ask to pass a kind of place ("past a lookout"), found by hybrid search over an embedded index of about 3,400 places (73.9% of labelled queries get the right place first, 100% within the top 5). In a constraint eval of 34 fixed requests, 97.1% of planned routes met everything asked for. Every reply is checked against the route it describes before it is shown, and sent back once to be fixed if it names a place, number or kind of scenery that the route does not have. Any route on screen can be downloaded as a GPX file for a bike computer or phone app. Each plan carries the forecast for the ride and how much of each route rides into the wind. Riders can rate a route with a thumbs up or down, stored with the route's line for later analysis, and a production setup (HTTPS reverse proxy, rate limits) is ready for when it is hosted. In trainer mode, riders upload their own GPX or FIT rides; fitness, fatigue, form and a suggested ride for today are computed in code, and the planner explains them and plans that ride.
 
 ![A 20 km loop from the Old Port with a café stop: three route options, the route coloured by scenery, and the cafés along it](docs/images/plan-cafe-loop.jpg)
 
@@ -25,6 +25,9 @@ FastAPI backend
    │      │
    │      ├─▶ search_places tool ──▶ Gemini embedding of the query
    │      │                          + hybrid search over places (pgvector + name match)
+   │      │
+   │      ├─▶ get_training_status tool ──▶ rides and profile (PostGIS)
+   │      │                                fitness, fatigue, form, suggested ride
    │      │
    │      ├─▶ plan_route tool (RouteSpec)
    │      │      ├─▶ Nominatim   (place name → coordinates)
@@ -52,6 +55,8 @@ The LLM only ever sees place names, short place descriptions and route summaries
 | [backend/app/tools/plan_route.py](backend/app/tools/plan_route.py) | Turns a `RouteSpec` into up to three route options |
 | [backend/app/tools/search_places.py](backend/app/tools/search_places.py) | Finds real places matching a kind of place ("a lookout") |
 | [backend/app/retrieval/](backend/app/retrieval/) | Embedding client and hybrid place search |
+| [backend/app/training/](backend/app/training/) | Trainer mode: GPX/FIT parsing, ride metrics, training load, fitness and today's suggestion |
+| [backend/app/tools/training_status.py](backend/app/tools/training_status.py) | The `get_training_status` tool |
 | [backend/app/enrichment/](backend/app/enrichment/) | Weather for the ride window and wind exposure per route |
 | [backend/app/scoring/](backend/app/scoring/) | Scenery along a route, and choosing distinct route options |
 | [backend/pipeline/](backend/pipeline/) | Offline OSM pipeline: segment scores, scenic zones, places and embeddings |
@@ -125,6 +130,14 @@ Open <http://localhost:3000> and describe a ride, for example:
 - "25 km loop from the Old Port past a lookout with a view"
 
 You can also click two points on the map. If you click one point and then describe a ride with no start, the clicked point becomes the start.
+
+To try trainer mode without your own rides, generate ten weeks of sample rides and upload them:
+
+```sh
+docker compose exec backend python -m scripts.make_sample_rides --upload
+```
+
+Then open the **Training** tab and press **Plan this ride**, or ask "How is my training going?".
 
 To stop everything, press Ctrl+C in the first terminal or run `docker compose down`. Your data stays in Docker volumes for next time.
 
@@ -340,6 +353,54 @@ docker compose exec backend python /evals/feedback_report.py          # or --jso
 
 The report gives the share of thumbs up by route option and by ride type, compares liked and disliked routes (distance, climbing, scenic share), and averages the segment features along each group (water, green space, quietness, calmness, surface), weighted by length. A segment counts when its midpoint lies within 15 m of the route, so a road running beside a bike path is counted too. The differences mean little until there are many ratings, so the report prints counts next to every figure.
 
+### Trainer mode
+
+The **Training** tab works from the rider's own recorded rides. CLAUDE.md's rule for this phase is the same as for routes: compute every metric in code; the LLM only explains and plans.
+
+![The Training tab: form -12 (tired), a suggested 25 km flat recovery ride, fitness and fatigue over two months, and a recorded long ride drawn on the map](docs/images/training.jpg)
+
+*Trainer mode with the generated sample history: form and today's suggestion, fitness and fatigue with direct labels, the profile that sets how load is computed, and a recorded ride shown on the map.*
+
+**Rides in.** GPX and FIT files, as exported by Garmin Connect, Strava, Wahoo and most bike computers, are dropped on the panel ([parsing.py](backend/app/training/parsing.py)). Heart rate and power are read from GPX extensions by element name, whatever the vendor's namespace. Files come from riders, so GPX is parsed with `defusedxml`, uploads are limited to 50 files of 25 MB each, and the same file uploaded twice is recognised by its hash. A GPX without timestamps, such as the one this app exports, is refused as a planned route, not a ride.
+
+**Metrics** ([metrics.py](backend/app/training/metrics.py)), all unit-tested on synthetic rides with known answers:
+
+| Figure | How |
+| --- | --- |
+| Moving time | Time between samples moving at 1 m/s or more; gaps over 60 s (auto-pause, a café) are not riding |
+| Distance, speed | Great-circle distance between samples; max speed held over at least 5 s, so one GPS jump does not count |
+| Climbing | A rise counts only once it passes 3 m above the last low point, so noise on the flat adds nothing |
+| Normalized power | 1-second power series, 30-second rolling average, fourth-power mean |
+| Training load | moving hours × intensity² × 100, so an hour at threshold is 100 |
+
+Intensity comes from the best data available, and each ride records which was used:
+
+| Method | Intensity | Needs |
+| --- | --- | --- |
+| Power | normalized power ÷ FTP | Power data and the rider's FTP |
+| Heart rate | heart-rate reserve used ÷ 90% of the reserve (taken as threshold) | Heart rate, max and resting HR |
+| Estimate | 0.65, plus up to 0.15 for climbing | Nothing |
+
+Each ride keeps the inputs of its load, so changing the profile recomputes every ride.
+
+**Fitness and form** ([fitness.py](backend/app/training/fitness.py)). Daily load feeds the standard performance model: fitness is a 42-day weighted average of daily load, fatigue a 7-day one, and form is fitness minus fatigue at the start of the day. Days are the rider's local days, not UTC. The panel charts both over the last 90 days, with a crosshair readout and a weekly table.
+
+**Today's ride** is chosen in code from form and the rider's last ten rides:
+
+| Form | Suggestion |
+| --- | --- |
+| Very tired (below −25) | Rest if they already rode today, otherwise a 45-minute flat recovery ride |
+| Tired (−25 to −10) | 75 minutes, flat, at 90% of their usual speed |
+| Neutral (−10 to +5) | Their typical distance (median of recent rides) |
+| Fresh (above +5) | 1.3 × typical, with climbs, capped at 1.1 × their longest recent ride |
+| 5 or more days off | 80% of typical, to ease back in |
+
+**The planner** gets a `get_training_status` tool returning those figures, pre-formatted like `riding_time`. Asked "how is my training going?", it explains them. Asked to plan today's ride, it calls `plan_route` with the suggestion's distance and climbing and adds why the ride suits the rider's form. With the sample history ("tired", form −12), "Plan today's ride based on my training, from Verdun" made two tool calls (`get_training_status`, then `plan_route` with a 25 km loop, `climbing: avoid`) and replied that a recovery ride suits the rider's form. The faithfulness check also covers training answers: every distance and time in them must come from the tool.
+
+**Sample rides.** [make_sample_rides.py](backend/scripts/make_sample_rides.py) generates ten weeks of riding (weekday rides, a long weekend ride, an easier fourth week) on real loops from the routing engine. Each ride is simulated from the route's gradient: speed slows uphill, power follows from rolling resistance, air drag and climbing, and heart rate follows power with a lag. The first three weeks have heart rate only, so the history mixes load methods, and long rides pause for coffee. A first version gave the simulated rider far too little power for their speed, which made heart-rate weeks look harder than power weeks; realistic drag and drivetrain losses fixed it. None of it is real data.
+
+**One rider.** There are no accounts, so the history belongs to whoever runs the app. Rides stay in the local database, and the production setup turns trainer mode off unless `TRAINING_ENABLED=true`.
+
 ### Faithful replies
 
 The model writes the reply, so it is the one part of a plan that could say something untrue: a place the route does not pass, a wrong distance, or water views on a street through a park. Every reply is now checked in code against the `plan_route` result before it is shown ([faithfulness.py](backend/app/evaluation/faithfulness.py)):
@@ -368,6 +429,7 @@ Not hosted yet. [docker-compose.prod.yml](docker-compose.prod.yml) runs the same
 | API calls | Cross-origin, allowed by CORS | Same origin (`/api` proxied), no CORS |
 | Postgres, GraphHopper | Bound to 127.0.0.1 | Internal network only |
 | Rate limits | Off | 5 plans a minute and 50 a day, 10 ratings a minute, per client address |
+| Trainer mode | On | Off (`TRAINING_ENABLED=false`): it has no accounts, so visitors would share one history |
 | Restarts | Manual | `restart: unless-stopped`, health checks |
 
 To run it on a server (Linux, Docker, 4 GB of memory or more, ports 80 and 443 open, a domain whose DNS points at it):
@@ -398,6 +460,8 @@ Before opening it to the public:
 - **Climbing figures are approximate.** SRTM elevation partly measures buildings and trees, so city routes show extra climbing: the flat Lachine Canal path reads 113 m over 14 km. Comparisons between routes are still meaningful.
 - **Climbing limits on point-to-point rides** choose among at most three GraphHopper alternatives, so a limit may be reported as missed.
 - **The faithfulness check is rule-based.** It finds names as runs of capitalised words and scenery claims by phrase, in English and French. A claim phrased in a way it does not know ("hugging the river") passes. Its rules were written after reading the first three eval runs; on the one run since (32 new replies), it raised no false alarms and missed nothing, but that run had no real errors to catch.
+- **Trainer mode is for one rider.** No accounts; hosting it publicly would share one ride history with every visitor.
+- **Training load is a model.** Threshold heart rate is taken as 90% of the heart-rate reserve, and rides without power or heart rate get an estimate. Only power with a measured FTP is precise. The suggestion rules are fixed thresholds, not coaching.
 - **Ratings are anonymous and unauthenticated.** Anyone can post one; the per-address limit slows spam but does not stop it.
 - **The forecast is for riding now.** Requests don't carry a start time yet, so "tomorrow morning" still gets the forecast for the next hours, at the start point only.
 - **The reply describes the best match.** Switching to another option or café updates the map and panel, but not the written reply.
@@ -482,6 +546,19 @@ Stores a rating of the route on screen. No LLM or routing engine is involved.
 
 `rating` is `up` or `down`; `comment` (up to 1,000 characters), `message`, `spec`, `option_label` and the route's figures other than `distance_m` are optional; a route between two map clicks has no `message` or `spec`. Returns 201 with `{ "id": 1 }`, 422 for invalid input, 503 if the database is unavailable.
 
+### Trainer mode: `/api/rides`, `/api/training`, `/api/profile`
+
+Available when `TRAINING_ENABLED` is true (the default locally); otherwise they return 404. No LLM is involved.
+
+| Endpoint | Does |
+| --- | --- |
+| `POST /api/rides` | Multipart upload of GPX or FIT files (field `files`, up to 50, 25 MB each). Returns one result per file: `added` with the ride's figures, `duplicate`, or `error` with a reason |
+| `GET /api/rides` | All rides, newest first: distance, moving time, climbing, speeds, heart rate, power, load and its method |
+| `GET /api/rides/{id}` | One ride with its line (`geometry`, thinned to at most 2,000 points) |
+| `DELETE /api/rides/{id}` | Deletes a ride (204) |
+| `GET /api/training` | `status` (fitness, fatigue, form and its label, this week, the four-week average, the suggestion), `fitness` (daily series, last 90 days) and `weeks` (last 12) |
+| `GET /api/profile`, `PUT /api/profile` | FTP, max and resting heart rate. Saving recomputes every ride's load and returns how many changed |
+
 ### `POST /api/route`
 
 ```json
@@ -524,11 +601,11 @@ Five evals, each with its own runner and one results file per version in [evals/
 
 | Eval | What it measures | Result |
 | --- | --- | --- |
-| [Intent parsing](#intent-parsing-does-the-llm-understand-the-request) | The LLM's `RouteSpec` (or search) against hand labels, 40 requests in English and French | 95.0% exact (38 of 40) |
+| [Intent parsing](#intent-parsing-does-the-llm-understand-the-request) | The LLM's first move and `RouteSpec` against hand labels, 46 requests in English and French | 95.7% exact (44 of 46) |
 | [Retrieval](#retrieval-does-search_places-find-the-right-places) | `search_places` finds the labelled places, 23 queries | Recall@1 73.9%, recall@5 100%, MRR 0.824 (names alone: 43.5%, 56.5%) |
 | [Constraints](#constraints-do-planned-routes-meet-the-request) | Planned routes meet distance, climbing, café and place requests, 34 fixed specs | 97.1% meet everything (33 of 34) |
 | [Route quality](#route-quality-scenic-profile-against-the-plain-bike-profile) | Scenic score of the scenic profile against the plain bike profile, 20 trips | Loops 0.476 → 0.552 (+16%), median +4.6% distance |
-| [Faithfulness](#faithfulness-do-replies-match-the-route) | Replies match the route they describe, 124 routes read by hand | 98.4% of first drafts faithful; checker flags only real errors |
+| [Faithfulness](#faithfulness-do-replies-match-the-route) | Replies match the route (and training figures) they describe, 158 routes read by hand | 98.1% of first drafts faithful; checker flags only real errors |
 
 All five sets were written by one person, who also built what they test, and several thresholds were tuned on them. Held-out sets would give more reliable figures.
 
@@ -538,18 +615,22 @@ All five sets were written by one person, who also built what they test, and sev
 docker compose exec backend python /evals/run_evals.py --version my-version
 ```
 
-The eval sends 40 hand-labelled requests from [evals/requests.jsonl](evals/requests.jsonl) to the live LLM and scores its first response. They cover loops, point-to-point rides, café stops, climbing goals, places to pass, French requests, missing details, and messages that are not ride requests. The model is offered the same two tools as in the app, `plan_route` and `search_places`. For a request naming a kind of place ("past a lookout"), the right first move is `search_places`; searching when it was not needed counts as a wrong decision. Results are saved after every request, so a run stopped by a quota continues when the same command is re-run.
+The eval sends 46 hand-labelled requests from [evals/requests.jsonl](evals/requests.jsonl) to the live LLM and scores its first response. They cover loops, point-to-point rides, café stops, climbing goals, places to pass, training questions, French requests, missing details, and messages that are not ride requests. The model is offered the same three tools as in the app, `plan_route`, `search_places` and `get_training_status`. For a request naming a kind of place ("past a lookout"), the right first move is `search_places`; for a question about the rider's training, or a ride to suit it, it is `get_training_status`. Calling either when it was not needed counts as a wrong decision. Results are saved after every request, so a run stopped by a quota continues when the same command is re-run.
 
-Current result, `gemini-3.5-flash-lite` ([v7](evals/results/v7-gemini-3.5-flash-lite.json)), on all 40 requests:
+Current result, `gemini-3.5-flash-lite` ([v9](evals/results/v9-gemini-3.5-flash-lite.json)), on all 46 requests:
 
 | Metric | Result |
 | --- | --- |
-| Exact match (every field correct, or the right search) | 95.0% (38 of 40) |
-| Correct first move (plan, search, or neither) | 95.0% (38 of 40) |
-| Median latency per response | 1,002 ms |
-| Tokens across all 40 | 83,759 in, 1,637 out |
+| Exact match (every field correct, or the right first tool) | 95.7% (44 of 46) |
+| Correct first move (plan, search, training status, or none) | 95.7% (44 of 46) |
+| Median latency per response | 872 ms |
+| Tokens across all 46 | 117,837 in, 1,913 out |
 
-All four new requests passed: three searched first (for "lookout with a view", "plage" and "lighthouse"), and "40 km loop from Lachine that goes over the Jacques-Cartier Bridge" put the bridge straight into `via_places`. The two misses:
+Trainer mode added six requests: five ask about training or for a ride to suit it ("What should I ride today? I'm starting from the Old Port", and one in French), and one, "A 40 km training ride from Lachine with some climbing", is fully specified and should be planned directly. All six passed in both runs. The misses are the two oldest: "A quiet 50 km loop along the water with a café halfway" searched for "water", and "I want to go to a cafe and have a good elevation training, 40 km from Outremont" sent arguments the validator rejects (in the app the model then corrects itself; this eval scores only the first call).
+
+[v8](evals/results/v8-gemini-3.5-flash-lite.json), the first run with the third tool, scored 89.1% (41 of 46). Three requests with water in them ("along the lake", "by the river", "along the canal") were treated as places to search for or pass instead of vibes, and a loop came back with its start as `end_place`. `RouteSpec` now drops `end_place` on a loop, and the prompt names those phrases as vibes explicitly. That prompt change was made after seeing these failures, on the same requests, so v9's figure is optimistic.
+
+In v7 (40 requests, two tools), all four new requests passed: three searched first (for "lookout with a view", "plage" and "lighthouse"), and "40 km loop from Lachine that goes over the Jacques-Cartier Bridge" put the bridge straight into `via_places`. The two misses:
 
 - "A quiet 50 km loop along the water with a café halfway" searched for "water" instead of treating it as a vibe. With `search_places` available, the model reads "along the water" as a place to pass. The prompt says otherwise, but this is a fair ambiguity.
 - "Plan me a ride" got a request for details instead of a tool call, as in v3 to v5.
@@ -673,7 +754,7 @@ docker compose exec backend python /evals/run_faithfulness.py --version my-versi
 
 Runs the 40 requests from [requests.jsonl](evals/requests.jsonl) end to end, exactly as `/api/plan` does (live LLM, geocoder, routing engine, scenery and café index), and checks every reply that describes a route. Each reply is scored twice: the model's first draft, and the final reply after the one rewrite the app allows. Because the checker is a heuristic, every reply was also read by hand against its `plan_route` result. Hand verdicts are in [faithfulness_review.json](evals/faithfulness_review.json).
 
-Four runs, 124 routes in all, every reply read by hand:
+Five runs, 158 routes in all, every reply read by hand:
 
 | Run | Routes | First drafts with a real error | Checker flags | False alarms | Real errors missed |
 | --- | --- | --- | --- | --- | --- |
@@ -681,7 +762,8 @@ Four runs, 124 routes in all, every reply read by hand:
 | [v2](evals/results/faithfulness-v2.json) | 30 | 1 | 0 | 0 | 1 |
 | [v3](evals/results/faithfulness-v3.json) | 31 | 1 | 2 | 2 | 1 |
 | [v4](evals/results/faithfulness-v4.json), with weather | 32 | 0 | 0 | 0 | 0 |
-| **All, re-scored with the final checker** | **124** | **2 (98.4% faithful)** | **2** | **0** | **0** |
+| [v5](evals/results/faithfulness-v5.json), with trainer mode | 34 | 1 | 1 | 0 | 0 |
+| **All, re-scored with the final checker** | **158** | **3 (98.1% faithful)** | **3** | **0** | **0** |
 
 The model is already faithful almost every time: copying names and pre-formatted numbers from tool results works. The two real errors were both invented scenery, not wrong facts:
 
@@ -697,6 +779,7 @@ Most of the work went into the checker:
 Re-scored with the final checker, the stored first drafts of the first three runs give exactly the two real errors and no false alarms. That figure is optimistic, because the rules were written while reading those same 92 replies.
 
 - **v4: the first run on new replies, now with weather.** Every plan carried a cold note (it was about 0 °C), and all 32 replies passed it on with the right numbers, in English and French. Wind mentions matched the data: "a 9 km/h headwind from the southwest" was on a route that rides 82% into the wind. The checker raised no false alarms and missed nothing, but with no real errors in the run, it was not tested on catching one.
+- **v5: trainer mode, 46 requests.** The one real error was caught live: for a 100 km request the reply called a 90.1 km loop "the closest loop I could find", although it was within tolerance, and the rewrite removed that sentence. Three training questions got answers with no route, and two "plan today's ride" requests planned the suggested 25 km flat loop; all five quoted only figures from `get_training_status` (form −12, fitness 26, fatigue 33, the last ride's 25 km in 1 h 8 min), in English and French, and the checker found nothing wrong with them, which a reading confirmed.
 
 ## Roadmap
 
@@ -704,6 +787,6 @@ Re-scored with the final checker, the stored first drafts of the first three run
 2. **LLM planner** (done): intent parsing into `RouteSpec`, `plan_route` tool, first evals
 3. Scenic layer and RAG: scoring pipeline, vector index, `search_places`, multiple candidates and re-ranking, retrieval and constraint evals (done)
 4. **Polish and proof** (done): faithful explanations, GPX export, weather, feedback, deployment config, eval summary
-5. Trainer mode
+5. **Trainer mode** (done): GPX/FIT upload, ride metrics, training load, fitness and form, a suggested ride, `get_training_status`, Training panel
 
 Map data © [OpenStreetMap](https://www.openstreetmap.org/copyright) contributors. Geocoding by [Nominatim](https://nominatim.org/). Basemap by [OpenFreeMap](https://openfreemap.org/).

@@ -196,7 +196,7 @@ async function postJson<T>(path: string, body: unknown, signal: AbortSignal): Pr
   return response.json();
 }
 
-async function readErrorMessage(response: Response): Promise<string> {
+export async function readErrorMessage(response: Response): Promise<string> {
   const fallback = "Something went wrong. Please try again.";
   try {
     const body = await response.json();

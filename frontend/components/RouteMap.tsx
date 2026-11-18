@@ -26,16 +26,21 @@ import {
 import { MAP_CENTER, MAP_STYLE_URL } from "@/lib/config";
 import { gpxRequest } from "@/lib/gpx";
 import { BAND_COLOR_EXPRESSION, stretchFeatures } from "@/lib/scenery";
+import type { LineString } from "geojson";
+
 import CafeChoices, { sameStop } from "./CafeChoices";
 import RouteFeedback from "./RouteFeedback";
 import RouteOptions from "./RouteOptions";
 import ScenerySummary from "./ScenerySummary";
+import TrainingPanel from "./TrainingPanel";
 import WeatherSummary from "./WeatherSummary";
 
 const ROUTE_SOURCE = "route";
 const STRETCH_SOURCE = "scenic-stretches";
 const OTHER_ROUTES_SOURCE = "other-routes";
 const CAFE_SOURCE = "cafe-choices";
+const RIDE_SOURCE = "recorded-ride";
+const RIDE_COLOR = "#6250d6";
 const NO_SELECTION = -1;
 const EMPTY: GeoJSON.FeatureCollection = { type: "FeatureCollection", features: [] };
 const MARKER_COLORS = ["#1f6f54", "#a93226"];
@@ -111,6 +116,10 @@ function hitIndex(map: MapLibreMap, event: MapMouseEvent, layer: string): number
 export default function RouteMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<MapLibreMap | null>(null);
+  const messageInputRef = useRef<HTMLInputElement>(null);
+  const [tab, setTab] = useState<"plan" | "training">("plan");
+  // A recorded ride shown from the Training panel.
+  const [rideTrack, setRideTrack] = useState<LineString | null>(null);
   const markersRef = useRef<Marker[]>([]);
   const planRequestRef = useRef<AbortController | null>(null);
   const viaRequestRef = useRef<AbortController | null>(null);
@@ -212,6 +221,15 @@ export default function RouteMap() {
         filter: ["==", ["get", "index"], NO_SELECTION],
         layout: { "line-cap": "round", "line-join": "round" },
         paint: { "line-color": BAND_COLOR_EXPRESSION, "line-width": 10 },
+      });
+      // A recorded ride from the Training panel, under the planned routes.
+      map.addSource(RIDE_SOURCE, { type: "geojson", data: EMPTY });
+      map.addLayer({
+        id: "recorded-ride",
+        type: "line",
+        source: RIDE_SOURCE,
+        layout: { "line-cap": "round", "line-join": "round" },
+        paint: { "line-color": RIDE_COLOR, "line-width": 4, "line-opacity": 0.85 },
       });
       // Cafés the rider can switch to.
       map.addSource(CAFE_SOURCE, { type: "geojson", data: EMPTY });
@@ -452,6 +470,37 @@ export default function RouteMap() {
     }
   }
 
+  // Draw the recorded ride picked in the Training panel and bring it into view.
+  useEffect(() => {
+    const map = mapRef.current;
+    const source = map?.getSource<GeoJSONSource>(RIDE_SOURCE);
+    if (!map || !source) return;
+    if (!rideTrack) {
+      source.setData(EMPTY);
+      return;
+    }
+    source.setData({ type: "Feature", geometry: rideTrack, properties: {} });
+    const bounds = new LngLatBounds();
+    for (const [lon, lat] of rideTrack.coordinates) bounds.extend([lon, lat]);
+    map.fitBounds(bounds, { padding: fitPadding(60), maxZoom: 15 });
+  }, [rideTrack]);
+
+  function handleTab(next: "plan" | "training") {
+    setTab(next);
+    if (next === "plan") setRideTrack(null);
+  }
+
+  /** From the Training panel: start a request for the rider to finish with a start. */
+  function handlePlanFromTraining(text: string) {
+    handleTab("plan");
+    setMessage(text);
+    requestAnimationFrame(() => {
+      const input = messageInputRef.current;
+      input?.focus();
+      input?.setSelectionRange(text.length, text.length);
+    });
+  }
+
   function handleClear() {
     planRequestRef.current?.abort();
     viaRequestRef.current?.abort();
@@ -482,6 +531,24 @@ export default function RouteMap() {
       <div ref={containerRef} className="map" />
       <section className="panel" aria-live="polite">
         <h1>Scenic Route Finder</h1>
+        <div className="tabs" role="tablist" aria-label="Mode">
+          <button type="button" role="tab" aria-selected={tab === "plan"} onClick={() => handleTab("plan")}>
+            Plan a ride
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={tab === "training"}
+            onClick={() => handleTab("training")}
+          >
+            Training
+          </button>
+        </div>
+        {tab === "training" && (
+          <TrainingPanel onShowRide={setRideTrack} onPlan={handlePlanFromTraining} />
+        )}
+        {tab === "plan" && (
+        <>
         <form className="plan-form" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -490,6 +557,7 @@ export default function RouteMap() {
             maxLength={1000}
             placeholder="A 30 km loop from the Old Port"
             aria-label="Describe your ride"
+            ref={messageInputRef}
           />
           <button type="submit" disabled={isPlanning || !message.trim()}>
             Plan
@@ -602,6 +670,8 @@ export default function RouteMap() {
           <button type="button" className="panel-button" onClick={handleClear}>
             Clear
           </button>
+        )}
+        </>
         )}
       </section>
     </main>
